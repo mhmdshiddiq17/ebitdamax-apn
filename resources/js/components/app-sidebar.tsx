@@ -1,6 +1,7 @@
 import { Link } from '@inertiajs/react';
 import {
     ChartColumn,
+    ClipboardList,
     FileSpreadsheet,
     LayoutDashboard,
     Network,
@@ -21,6 +22,7 @@ import { dashboard } from '@/routes';
 import { index as ebitdaTreeIndex } from '@/routes/ebitda-tree';
 import { index as importExcelIndex } from '@/routes/import-excel';
 import { index as organizationsIndex } from '@/routes/organizations';
+import { index as valueChainJobdeskIndex } from '@/routes/value-chain-jobdesk';
 import type { NavItem } from '@/types';
 
 const mainNavItems: NavItem[] = [
@@ -38,6 +40,11 @@ const mainNavItems: NavItem[] = [
         title: 'Pohon EBITDA',
         href: ebitdaTreeIndex(),
         icon: ChartColumn,
+    },
+    {
+        title: 'Value Chain & Jobdesc',
+        href: valueChainJobdeskIndex(),
+        icon: ClipboardList,
     },
     {
         title: 'Import Excel',

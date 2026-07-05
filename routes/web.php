@@ -1,10 +1,11 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\OrganizationController;
 use App\Http\Controllers\EbitdaTreeController;
 use App\Http\Controllers\ExcelImportController;
+use App\Http\Controllers\OrganizationController;
+use App\Http\Controllers\ValueChainJobdeskController;
+use Illuminate\Support\Facades\Route;
 
 Route::inertia('/', 'welcome')->name('home');
 
@@ -23,6 +24,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/dashboard/directorates/{organization}', [DashboardController::class, 'showDirectorate'])
         ->name('dashboard.directorates.show');
+    Route::get('/value-chain-jobdesk', [ValueChainJobdeskController::class, 'index'])
+        ->name('value-chain-jobdesk.index');
 });
 
 require __DIR__.'/settings.php';

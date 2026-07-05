@@ -6,6 +6,7 @@ use App\Models\EbitdaValue;
 use App\Models\ExcelImport;
 use App\Models\ImportErrorLog;
 use App\Services\EbitdaExcelParser;
+use App\Services\ValueChainJobdeskExcelParser;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -26,7 +27,10 @@ class ExcelImportController extends Controller
         ]);
     }
 
-    public function store(Request $request, EbitdaExcelParser $parser): RedirectResponse
+    public function store(
+        Request $request,
+        EbitdaExcelParser $parser,
+        ValueChainJobdeskExcelParser $valueChainJobdeskParser): RedirectResponse
     {
         $validated = $request->validate([
             'file' => ['required', 'file', 'mimes:xlsx,xls'],
@@ -46,7 +50,7 @@ class ExcelImportController extends Controller
         ]);
 
         try {
-            $parsed = $parser->parse(storage_path('app/' . $path), $year);
+            $parsed = $parser->parse(storage_path('app/'.$path), $year);
 
             DB::transaction(function () use ($parsed, $excelImport) {
                 foreach ($parsed['records'] as $record) {
@@ -103,7 +107,7 @@ class ExcelImportController extends Controller
             ]);
 
             return back()->withErrors([
-                'file' => 'Import gagal: ' . $exception->getMessage(),
+                'file' => 'Import gagal: '.$exception->getMessage(),
             ]);
         }
     }

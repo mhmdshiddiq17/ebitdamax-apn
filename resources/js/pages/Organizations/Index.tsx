@@ -1,8 +1,21 @@
 import { Head } from '@inertiajs/react';
-import { Building2, CircleDot, Network, ShieldCheck } from 'lucide-react';
+import {
+    Building2,
+    ChevronDown,
+    ChevronRight,
+    CircleDot,
+    Network,
+    ShieldCheck,
+} from 'lucide-react';
+import { useState } from 'react';
 import type { ElementType } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+    Collapsible,
+    CollapsibleContent,
+    CollapsibleTrigger,
+} from '@/components/ui/collapsible';
 import { index as organizationsIndex } from '@/routes/organizations';
 import type {
     OrganizationNode,
@@ -40,69 +53,139 @@ function StatCard({
     );
 }
 
-function OrganizationTreeItem({ node }: { node: OrganizationNode }) {
+function OrganizationTreeList({
+    nodes,
+    depth = 0,
+}: {
+    nodes: OrganizationNode[];
+    depth?: number;
+}) {
+    const [openNodeId, setOpenNodeId] = useState<number | null>(
+        depth === 0 && nodes.length > 0 ? nodes[0].id : null,
+    );
+
+    return (
+        <div className={depth === 0 ? 'space-y-3' : 'space-y-2'}>
+            {nodes.map((node) => (
+                <OrganizationTreeItem
+                    key={node.id}
+                    node={node}
+                    depth={depth}
+                    isOpen={openNodeId === node.id}
+                    onOpenChange={(isOpen) =>
+                        setOpenNodeId(isOpen ? node.id : null)
+                    }
+                />
+            ))}
+        </div>
+    );
+}
+
+function OrganizationTreeItem({
+    node,
+    depth,
+    isOpen,
+    onOpenChange,
+}: {
+    node: OrganizationNode;
+    depth: number;
+    isOpen: boolean;
+    onOpenChange: (isOpen: boolean) => void;
+}) {
     const hasChildren = node.children.length > 0;
 
     return (
-        <div className="relative pl-5">
-            <div className="absolute top-0 left-0 h-full border-l border-border" />
+        <Collapsible open={isOpen} onOpenChange={onOpenChange}>
+            <div
+                className="relative"
+                style={{ paddingLeft: depth > 0 ? `${depth * 18}px` : 0 }}
+            >
+                {depth > 0 && (
+                    <div className="absolute top-0 bottom-0 left-0 border-l border-border" />
+                )}
 
-            <div className="mb-3 rounded-lg border bg-card p-4 shadow-sm transition hover:border-primary/40 hover:shadow-md">
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                    <div className="space-y-1">
-                        <div className="flex flex-wrap items-center gap-2">
-                            <Badge className="bg-primary text-primary-foreground hover:bg-primary/90">
-                                {node.code}
-                            </Badge>
-
-                            {node.level && (
-                                <Badge
-                                    variant="outline"
-                                    className="border-primary/25 bg-primary/5 text-primary"
-                                >
-                                    {node.level}
-                                </Badge>
-                            )}
-
-                            {node.is_revenue_center ? (
-                                <Badge className="bg-emerald-600 text-white hover:bg-emerald-700">
-                                    Revenue Center
-                                </Badge>
+                <CollapsibleTrigger asChild disabled={!hasChildren}>
+                    <button
+                        type="button"
+                        className="group flex w-full items-start gap-3 rounded-lg border bg-card p-4 text-left shadow-sm transition hover:border-primary/40 hover:bg-primary/5 hover:shadow-md disabled:cursor-default disabled:hover:border-border disabled:hover:bg-card disabled:hover:shadow-sm"
+                    >
+                        <div className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
+                            {hasChildren ? (
+                                isOpen ? (
+                                    <ChevronDown className="size-4" />
+                                ) : (
+                                    <ChevronRight className="size-4" />
+                                )
                             ) : (
-                                <Badge
-                                    variant="secondary"
-                                    className="bg-primary/10 text-primary"
-                                >
-                                    Cost Center
-                                </Badge>
+                                <span className="size-1.5 rounded-full bg-primary" />
                             )}
                         </div>
 
-                        <h3 className="text-base font-semibold text-foreground">
-                            {node.name}
-                        </h3>
+                        <div className="min-w-0 flex-1 space-y-2">
+                            <div className="flex flex-wrap items-center gap-2">
+                                <Badge className="bg-primary text-primary-foreground hover:bg-primary/90">
+                                    {node.code}
+                                </Badge>
 
-                        {node.directorate_group && (
-                            <p className="text-sm text-muted-foreground">
-                                Group: {node.directorate_group}
-                            </p>
-                        )}
-                    </div>
+                                {node.level && (
+                                    <Badge
+                                        variant="outline"
+                                        className="border-primary/25 bg-primary/5 text-primary"
+                                    >
+                                        {node.level}
+                                    </Badge>
+                                )}
 
-                    <div className="text-right text-xs text-muted-foreground">
-                        Depth {node.depth}
-                    </div>
-                </div>
+                                <Badge
+                                    variant="secondary"
+                                    className={
+                                        node.is_revenue_center
+                                            ? 'bg-primary text-primary-foreground'
+                                            : 'bg-primary/10 text-primary'
+                                    }
+                                >
+                                    {node.is_revenue_center
+                                        ? 'Revenue Center'
+                                        : 'Cost Center'}
+                                </Badge>
+
+                                {hasChildren && (
+                                    <Badge
+                                        variant="outline"
+                                        className="border-border text-muted-foreground"
+                                    >
+                                        {node.children.length} child
+                                    </Badge>
+                                )}
+                            </div>
+
+                            <h3 className="text-base leading-snug font-semibold text-foreground">
+                                {node.name}
+                            </h3>
+
+                            {node.directorate_group && (
+                                <p className="text-sm text-muted-foreground">
+                                    Group: {node.directorate_group}
+                                </p>
+                            )}
+                        </div>
+
+                        <div className="hidden text-right text-xs text-muted-foreground sm:block">
+                            Depth {node.depth}
+                        </div>
+                    </button>
+                </CollapsibleTrigger>
+
+                {hasChildren && (
+                    <CollapsibleContent className="mt-2 pl-5">
+                        <OrganizationTreeList
+                            nodes={node.children}
+                            depth={depth + 1}
+                        />
+                    </CollapsibleContent>
+                )}
             </div>
-
-            {hasChildren && (
-                <div className="ml-4 space-y-3">
-                    {node.children.map((child) => (
-                        <OrganizationTreeItem key={child.id} node={child} />
-                    ))}
-                </div>
-            )}
-        </div>
+        </Collapsible>
     );
 }
 
@@ -160,14 +243,7 @@ function OrganizationsIndex({ organizations, summary }: Props) {
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="p-6">
-                            <div className="space-y-4">
-                                {organizations.map((node) => (
-                                    <OrganizationTreeItem
-                                        key={node.id}
-                                        node={node}
-                                    />
-                                ))}
-                            </div>
+                            <OrganizationTreeList nodes={organizations} />
                         </CardContent>
                     </Card>
                 </div>

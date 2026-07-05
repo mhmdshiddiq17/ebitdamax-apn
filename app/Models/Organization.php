@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Organization extends Model
 {
@@ -97,8 +98,13 @@ class Organization extends Model
 
         return self::query()
             ->where('id', $this->id)
-            ->orWhere('path', 'like', $this->path . '/%')
+            ->orWhere('path', 'like', $this->path.'/%')
             ->pluck('id')
             ->all();
+    }
+
+    public function profile(): HasOne
+    {
+        return $this->hasOne(OrganizationProfile::class);
     }
 }
