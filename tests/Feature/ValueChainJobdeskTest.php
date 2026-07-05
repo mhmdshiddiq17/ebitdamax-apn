@@ -50,3 +50,59 @@ test('authenticated users can visit the value chain jobdesk table', function () 
             ->where('summary.with_value_chain', 1)
         );
 });
+
+test('authenticated users can crud value chain jobdesk profiles', function () {
+    $user = User::factory()->create();
+    $csrfToken = 'test-token';
+
+    $this->seed(OrganizationSeeder::class);
+
+    $organization = Organization::query()
+        ->where('code', '1.C')
+        ->firstOrFail();
+
+    $this->actingAs($user);
+
+    $payload = [
+        'organization_id' => $organization->id,
+        'source_sheet' => 'Manual CRUD',
+        'job_description' => 'Mengelola tata kelola sekretariat perusahaan.',
+        'qualification' => 'Memahami governance dan komunikasi korporat.',
+        'value_chain' => 'Corporate governance support.',
+        'method_cost' => 1250000,
+    ];
+
+    $this->withSession(['_token' => $csrfToken])
+        ->post(route('value-chain-jobdesk.store'), [
+            ...$payload,
+            '_token' => $csrfToken,
+        ])
+        ->assertRedirect();
+
+    $profile = OrganizationProfile::query()
+        ->where('organization_id', $organization->id)
+        ->firstOrFail();
+
+    expect($profile->job_description)->toBe($payload['job_description']);
+
+    $this->withSession(['_token' => $csrfToken])
+        ->put(route('value-chain-jobdesk.update', $profile), [
+            ...$payload,
+            '_token' => $csrfToken,
+            'method_cost' => 1750000,
+        ])->assertRedirect();
+
+    $profile->refresh();
+
+    expect((float) $profile->method_cost)->toBe(1750000.0);
+
+    $this->withSession(['_token' => $csrfToken])
+        ->delete(route('value-chain-jobdesk.destroy', $profile), [
+            '_token' => $csrfToken,
+        ])
+        ->assertRedirect();
+
+    $this->assertDatabaseMissing('organization_profiles', [
+        'id' => $profile->id,
+    ]);
+});

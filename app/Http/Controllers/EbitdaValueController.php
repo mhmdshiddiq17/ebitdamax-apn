@@ -35,7 +35,9 @@ class EbitdaValueController extends Controller
             ->join('organizations', 'organizations.id', '=', 'ebitda_values.organization_id')
             ->select('ebitda_values.*')
             ->orderBy('organizations.sort_order')
+            ->orderBy('organizations.code')
             ->paginate(25)
+            ->through(fn (EbitdaValue $value): array => $this->transformEbitdaValue($value))
             ->withQueryString();
 
         $organizations = Organization::query()
@@ -90,5 +92,42 @@ class EbitdaValueController extends Controller
         $ebitdaValue->delete();
 
         return back()->with('success', 'Data EBITDA berhasil dihapus.');
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function transformEbitdaValue(EbitdaValue $value): array
+    {
+        $organization = $value->organization;
+
+        return [
+            'id' => $value->id,
+            'organization_id' => $value->organization_id,
+            'period_date' => $value->period_date?->toDateString(),
+            'year' => $value->year,
+            'scenario' => $value->scenario,
+            'source_sheet' => $value->source_sheet,
+            'classification' => $value->classification,
+            'revenue' => (float) $value->revenue,
+            'doc_variable' => (float) $value->doc_variable,
+            'doc_fixed' => (float) $value->doc_fixed,
+            'ioc' => (float) $value->ioc,
+            'toc' => (float) $value->toc,
+            'ebitda' => (float) $value->ebitda,
+            'ebitda_margin' => $value->ebitda_margin !== null ? (float) $value->ebitda_margin : null,
+            'man_cost' => (float) $value->man_cost,
+            'method_cost' => (float) $value->method_cost,
+            'material_cost' => (float) $value->material_cost,
+            'machine_cost' => (float) $value->machine_cost,
+            'organization' => $organization ? [
+                'id' => $organization->id,
+                'code' => $organization->code,
+                'name' => $organization->name,
+                'level' => $organization->level,
+                'is_revenue_center' => $organization->is_revenue_center,
+                'is_cost_center' => $organization->is_cost_center,
+            ] : null,
+        ];
     }
 }

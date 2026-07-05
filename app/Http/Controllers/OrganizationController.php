@@ -6,14 +6,39 @@ use App\Http\Requests\StoreOrganizationRequest;
 use App\Http\Requests\UpdateOrganizationRequest;
 use App\Models\Organization;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class OrganizationController extends Controller
 {
-    public function index(): Response
+    public function index(Request $request): Response
     {
+        $search = trim((string) $request->input('search', ''));
+        $status = (string) $request->input('status', 'active');
+
+        $rowQuery = Organization::query()
+            ->with('parent')
+            ->when($status === 'active', fn ($query) => $query->where('is_active', true))
+            ->when($status === 'inactive', fn ($query) => $query->where('is_active', false))
+            ->when($search !== '', function ($query) use ($search): void {
+                $query->where(function ($subQuery) use ($search): void {
+                    $subQuery
+                        ->where('code', 'ilike', "%{$search}%")
+                        ->orWhere('name', 'ilike', "%{$search}%")
+                        ->orWhere('level', 'ilike', "%{$search}%")
+                        ->orWhere('node_type', 'ilike', "%{$search}%")
+                        ->orWhere('directorate_group', 'ilike', "%{$search}%");
+                });
+            });
+
+        $organizationRows = (clone $rowQuery)
+            ->ordered()
+            ->get()
+            ->map(fn (Organization $organization): array => $this->transformOrganizationRow($organization))
+            ->values();
+
         $organizations = Organization::query()
             ->active()
             ->root()
@@ -38,8 +63,13 @@ class OrganizationController extends Controller
 
         return Inertia::render('Organizations/Index', [
             'organizations' => $organizations,
+            'organizationRows' => $organizationRows,
             'parents' => $parents,
             'summary' => $summary,
+            'filters' => [
+                'search' => $search,
+                'status' => $status,
+            ],
         ]);
     }
 
@@ -56,7 +86,7 @@ class OrganizationController extends Controller
         UpdateOrganizationRequest $request,
         Organization $organization
     ): RedirectResponse {
-        $payload = $this->prepareOrganizationPayload($request->validated(), $organization);
+        $payload = $this->prepareOrganizationPayload($request->validated());
 
         $organization->update($payload);
 
@@ -72,7 +102,7 @@ class OrganizationController extends Controller
         return back()->with('success', 'Organisasi berhasil dinonaktifkan.');
     }
 
-    private function prepareOrganizationPayload(array $payload, ?Organization $organization = null): array
+    private function prepareOrganizationPayload(array $payload): array
     {
         $parent = isset($payload['parent_id']) && $payload['parent_id']
             ? Organization::query()->find($payload['parent_id'])
@@ -87,6 +117,46 @@ class OrganizationController extends Controller
         $payload['sort_order'] = $payload['sort_order'] ?? 0;
 
         return $payload;
+    }
+
+    /**
+     * @return array{
+     *     id: int,
+     *     parent_id: int|null,
+     *     parent_name: string|null,
+     *     code: string,
+     *     name: string,
+     *     slug: string,
+     *     level: string|null,
+     *     node_type: string|null,
+     *     directorate_group: string|null,
+     *     is_revenue_center: bool,
+     *     is_cost_center: bool,
+     *     is_active: bool,
+     *     depth: int,
+     *     path: string|null,
+     *     sort_order: int
+     * }
+     */
+    private function transformOrganizationRow(Organization $organization): array
+    {
+        return [
+            'id' => $organization->id,
+            'parent_id' => $organization->parent_id,
+            'parent_name' => $organization->parent?->name,
+            'code' => $organization->code,
+            'name' => $organization->name,
+            'slug' => $organization->slug,
+            'level' => $organization->level,
+            'node_type' => $organization->node_type,
+            'directorate_group' => $organization->directorate_group,
+            'is_revenue_center' => $organization->is_revenue_center,
+            'is_cost_center' => $organization->is_cost_center,
+            'is_active' => $organization->is_active,
+            'depth' => $organization->depth,
+            'path' => $organization->path,
+            'sort_order' => $organization->sort_order,
+        ];
     }
 
     /**
@@ -110,21 +180,11 @@ class OrganizationController extends Controller
      */
     private function transformOrganizationTree(Organization $organization): array
     {
+        $row = $this->transformOrganizationRow($organization);
+        unset($row['parent_name']);
+
         return [
-            'id' => $organization->id,
-            'parent_id' => $organization->parent_id,
-            'code' => $organization->code,
-            'name' => $organization->name,
-            'slug' => $organization->slug,
-            'level' => $organization->level,
-            'node_type' => $organization->node_type,
-            'directorate_group' => $organization->directorate_group,
-            'is_revenue_center' => $organization->is_revenue_center,
-            'is_cost_center' => $organization->is_cost_center,
-            'is_active' => $organization->is_active,
-            'depth' => $organization->depth,
-            'path' => $organization->path,
-            'sort_order' => $organization->sort_order,
+            ...$row,
             'children' => $organization->childrenRecursive
                 ->filter(fn (Organization $child): bool => $child->is_active)
                 ->map(fn (Organization $child): array => $this->transformOrganizationTree($child))

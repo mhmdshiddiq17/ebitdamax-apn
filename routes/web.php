@@ -27,12 +27,33 @@ Route::post('/import-excel', [ExcelImportController::class, 'store'])
 
 Route::get('/dashboard/directorates/{organization}', [DashboardController::class, 'showDirectorate'])
     ->name('dashboard.directorates.show');
-Route::get('/value-chain-jobdesk', [ValueChainJobdeskController::class, 'index'])
-    ->name('value-chain-jobdesk.index');
-Route::get('/kalkulasi', [OrganizationCalculationController::class, 'index'])
-    ->name('calculations.index');
+
 Route::resource('ebitda-values', EbitdaValueController::class)
     ->except(['create', 'edit', 'show']);
+
+Route::get('/kalkulasi', [OrganizationCalculationController::class, 'index'])
+    ->name('calculations.index');
+
+Route::post('/kalkulasi', [OrganizationCalculationController::class, 'store'])
+    ->name('calculations.store');
+
+Route::put('/kalkulasi/{calculation}', [OrganizationCalculationController::class, 'update'])
+    ->name('calculations.update');
+
+Route::delete('/kalkulasi/{calculation}', [OrganizationCalculationController::class, 'destroy'])
+    ->name('calculations.destroy');
+
+Route::get('/value-chain-jobdesk', [ValueChainJobdeskController::class, 'index'])
+    ->name('value-chain-jobdesk.index');
+
+Route::post('/value-chain-jobdesk', [ValueChainJobdeskController::class, 'store'])
+    ->name('value-chain-jobdesk.store');
+
+Route::put('/value-chain-jobdesk/{profile}', [ValueChainJobdeskController::class, 'update'])
+    ->name('value-chain-jobdesk.update');
+
+Route::delete('/value-chain-jobdesk/{profile}', [ValueChainJobdeskController::class, 'destroy'])
+    ->name('value-chain-jobdesk.destroy');
 // });
 
 require __DIR__.'/settings.php';

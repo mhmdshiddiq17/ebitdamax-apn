@@ -67,3 +67,70 @@ test('authenticated users can visit the calculations page', function () {
             ->where('filters.classification', 'Governance')
         );
 });
+
+test('authenticated users can crud calculations through ebitda values', function () {
+    $user = User::factory()->create();
+    $csrfToken = 'test-token';
+
+    $this->seed(OrganizationSeeder::class);
+
+    $organization = Organization::query()
+        ->where('code', '1.C')
+        ->firstOrFail();
+
+    $this->actingAs($user);
+
+    $payload = [
+        'organization_id' => $organization->id,
+        'year' => 2026,
+        'period_date' => null,
+        'scenario' => EbitdaValue::SCENARIO_TARGET_TAHUNAN,
+        'source_sheet' => 'Manual Calculation CRUD',
+        'classification' => 'Governance',
+        'revenue' => 10000000,
+        'man_cost' => 1000000,
+        'method_cost' => 2000000,
+        'material_cost' => 3000000,
+        'machine_cost' => 4000000,
+        'doc_variable' => 5000000,
+        'doc_fixed' => 3000000,
+        'ioc' => 2000000,
+    ];
+
+    $this->withSession(['_token' => $csrfToken])
+        ->post(route('calculations.store'), [
+            ...$payload,
+            '_token' => $csrfToken,
+        ])
+        ->assertRedirect();
+
+    $calculation = EbitdaValue::query()
+        ->where('organization_id', $organization->id)
+        ->firstOrFail();
+
+    expect((float) $calculation->toc)->toBe(10000000.0)
+        ->and((float) $calculation->ebitda)->toBe(0.0);
+
+    $this->withSession(['_token' => $csrfToken])
+        ->put(route('calculations.update', $calculation), [
+            ...$payload,
+            '_token' => $csrfToken,
+            'revenue' => 15000000,
+            'ioc' => 1000000,
+        ])->assertRedirect();
+
+    $calculation->refresh();
+
+    expect((float) $calculation->toc)->toBe(9000000.0)
+        ->and((float) $calculation->ebitda)->toBe(6000000.0);
+
+    $this->withSession(['_token' => $csrfToken])
+        ->delete(route('calculations.destroy', $calculation), [
+            '_token' => $csrfToken,
+        ])
+        ->assertRedirect();
+
+    $this->assertDatabaseMissing('ebitda_values', [
+        'id' => $calculation->id,
+    ]);
+});

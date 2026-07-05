@@ -1,4 +1,4 @@
-import { Head, router } from '@inertiajs/react';
+import { Head, router, useForm } from '@inertiajs/react';
 import {
     BookOpen,
     ChevronDown,
@@ -7,7 +7,10 @@ import {
     Eye,
     FileText,
     GitBranch,
+    Pencil,
+    Plus,
     Search,
+    Trash2,
 } from 'lucide-react';
 import type { ElementType, FormEvent, ReactNode } from 'react';
 import { Fragment, useMemo, useState } from 'react';
@@ -18,12 +21,20 @@ import {
     Dialog,
     DialogContent,
     DialogDescription,
+    DialogFooter,
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { formatCurrency } from '@/lib/formatters';
-import { index as valueChainJobdeskIndex } from '@/routes/value-chain-jobdesk';
+import {
+    destroy as destroyProfile,
+    index as valueChainJobdeskIndex,
+    store as storeProfile,
+    update as updateProfile,
+} from '@/routes/value-chain-jobdesk';
+import type { OrganizationOption } from '@/types/ebitda';
 import type {
     OrganizationProfileItem,
     OrganizationProfileSummary,
@@ -32,6 +43,7 @@ import type {
 
 type Props = {
     profiles: OrganizationProfileItem[];
+    organizations: OrganizationOption[];
     summary: OrganizationProfileSummary;
     filters: ValueChainJobdeskFilters;
 };
@@ -46,6 +58,15 @@ type StatCardProps = {
     icon: ElementType;
 };
 
+type ProfileFormData = {
+    organization_id: string;
+    job_description: string;
+    qualification: string;
+    value_chain: string;
+    method_cost: string;
+    source_sheet: string;
+};
+
 const modeOptions: Array<{
     value: ValueChainJobdeskFilters['mode'];
     label: string;
@@ -54,6 +75,61 @@ const modeOptions: Array<{
     { value: 'value_chain', label: 'Value Chain' },
     { value: 'jobdesk', label: 'Jobdesk' },
 ];
+
+function createDefaultForm(): ProfileFormData {
+    return {
+        organization_id: '',
+        job_description: '',
+        qualification: '',
+        value_chain: '',
+        method_cost: '',
+        source_sheet: 'Manual CRUD',
+    };
+}
+
+function toFormData(profile: OrganizationProfileItem): ProfileFormData {
+    return {
+        organization_id: String(profile.organization_id),
+        job_description: profile.job_description ?? '',
+        qualification: profile.qualification ?? '',
+        value_chain: profile.value_chain ?? '',
+        method_cost:
+            profile.method_cost === null ? '' : String(profile.method_cost),
+        source_sheet: profile.source_sheet ?? 'Manual CRUD',
+    };
+}
+
+function FieldError({ message }: { message?: string }) {
+    if (!message) {
+        return null;
+    }
+
+    return <p className="text-xs text-destructive">{message}</p>;
+}
+
+function TextAreaField({
+    label,
+    value,
+    onChange,
+    error,
+}: {
+    label: string;
+    value: string;
+    onChange: (value: string) => void;
+    error?: string;
+}) {
+    return (
+        <div className="space-y-2">
+            <Label>{label}</Label>
+            <textarea
+                value={value}
+                onChange={(event) => onChange(event.target.value)}
+                className="min-h-28 w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-ring focus:ring-2 focus:ring-ring/40"
+            />
+            <FieldError message={error} />
+        </div>
+    );
+}
 
 function truncateText(value: string | null, maxLength = 120) {
     if (!value) {
@@ -171,10 +247,14 @@ function ProfileTreeRows({
     nodes,
     depth = 0,
     onSelectProfile,
+    onEditProfile,
+    onDeleteProfile,
 }: {
     nodes: ProfileTreeItem[];
     depth?: number;
     onSelectProfile: (profile: OrganizationProfileItem) => void;
+    onEditProfile: (profile: OrganizationProfileItem) => void;
+    onDeleteProfile: (profile: OrganizationProfileItem) => void;
 }) {
     const [openOrganizationId, setOpenOrganizationId] = useState<number | null>(
         depth === 0 && nodes.length > 0 ? nodes[0].organization_id : null,
@@ -197,6 +277,8 @@ function ProfileTreeRows({
                                 )
                             }
                             onSelectProfile={onSelectProfile}
+                            onEditProfile={onEditProfile}
+                            onDeleteProfile={onDeleteProfile}
                         />
 
                         {isOpen && node.children.length > 0 && (
@@ -204,6 +286,8 @@ function ProfileTreeRows({
                                 nodes={node.children}
                                 depth={depth + 1}
                                 onSelectProfile={onSelectProfile}
+                                onEditProfile={onEditProfile}
+                                onDeleteProfile={onDeleteProfile}
                             />
                         )}
                     </Fragment>
@@ -219,12 +303,16 @@ function ProfileTableRow({
     isOpen,
     onOpenChange,
     onSelectProfile,
+    onEditProfile,
+    onDeleteProfile,
 }: {
     node: ProfileTreeItem;
     depth: number;
     isOpen: boolean;
     onOpenChange: (open: boolean) => void;
     onSelectProfile: (profile: OrganizationProfileItem) => void;
+    onEditProfile: (profile: OrganizationProfileItem) => void;
+    onDeleteProfile: (profile: OrganizationProfileItem) => void;
 }) {
     const hasChildren = node.children.length > 0;
 
@@ -287,15 +375,35 @@ function ProfileTableRow({
                 {formatMethodCost(node.method_cost)}
             </td>
 
-            <td className="p-4 text-right">
-                <Button
-                    type="button"
-                    size="sm"
-                    onClick={() => onSelectProfile(node)}
-                >
-                    <Eye className="size-4" />
-                    Detail
-                </Button>
+            <td className="p-4">
+                <div className="flex justify-end gap-2">
+                    <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => onSelectProfile(node)}
+                    >
+                        <Eye className="size-4" />
+                        Detail
+                    </Button>
+                    <Button
+                        type="button"
+                        size="sm"
+                        onClick={() => onEditProfile(node)}
+                    >
+                        <Pencil className="size-4" />
+                        Edit
+                    </Button>
+                    <Button
+                        type="button"
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => onDeleteProfile(node)}
+                    >
+                        <Trash2 className="size-4" />
+                        Hapus
+                    </Button>
+                </div>
             </td>
         </tr>
     );
@@ -305,10 +413,14 @@ function ProfileTreeMobileList({
     nodes,
     depth = 0,
     onSelectProfile,
+    onEditProfile,
+    onDeleteProfile,
 }: {
     nodes: ProfileTreeItem[];
     depth?: number;
     onSelectProfile: (profile: OrganizationProfileItem) => void;
+    onEditProfile: (profile: OrganizationProfileItem) => void;
+    onDeleteProfile: (profile: OrganizationProfileItem) => void;
 }) {
     const [openOrganizationId, setOpenOrganizationId] = useState<number | null>(
         depth === 0 && nodes.length > 0 ? nodes[0].organization_id : null,
@@ -389,14 +501,34 @@ function ProfileTreeMobileList({
                                     </p>
                                 </div>
 
-                                <Button
-                                    type="button"
-                                    size="sm"
-                                    onClick={() => onSelectProfile(node)}
-                                >
-                                    <Eye className="size-4" />
-                                    Detail
-                                </Button>
+                                <div className="flex flex-wrap gap-2">
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => onSelectProfile(node)}
+                                    >
+                                        <Eye className="size-4" />
+                                        Detail
+                                    </Button>
+                                    <Button
+                                        type="button"
+                                        size="sm"
+                                        onClick={() => onEditProfile(node)}
+                                    >
+                                        <Pencil className="size-4" />
+                                        Edit
+                                    </Button>
+                                    <Button
+                                        type="button"
+                                        variant="destructive"
+                                        size="sm"
+                                        onClick={() => onDeleteProfile(node)}
+                                    >
+                                        <Trash2 className="size-4" />
+                                        Hapus
+                                    </Button>
+                                </div>
                             </div>
                         </div>
 
@@ -406,6 +538,8 @@ function ProfileTreeMobileList({
                                     nodes={node.children}
                                     depth={depth + 1}
                                     onSelectProfile={onSelectProfile}
+                                    onEditProfile={onEditProfile}
+                                    onDeleteProfile={onDeleteProfile}
                                 />
                             </div>
                         )}
@@ -418,16 +552,23 @@ function ProfileTreeMobileList({
 
 export default function ValueChainJobdeskIndex({
     profiles,
+    organizations,
     summary,
     filters,
 }: Props) {
     const [selectedProfile, setSelectedProfile] =
         useState<OrganizationProfileItem | null>(null);
+    const [selectedItem, setSelectedItem] =
+        useState<OrganizationProfileItem | null>(null);
+    const [isFormOpen, setIsFormOpen] = useState(false);
 
     const [form, setForm] = useState({
         search: filters.search ?? '',
         mode: filters.mode ?? 'all',
     });
+
+    const { data, setData, post, put, processing, errors, reset, clearErrors } =
+        useForm<ProfileFormData>(createDefaultForm());
 
     const profileTree = useMemo(() => buildProfileTree(profiles), [profiles]);
 
@@ -447,23 +588,79 @@ export default function ValueChainJobdeskIndex({
         );
     };
 
+    const openCreateForm = () => {
+        setSelectedItem(null);
+        reset();
+        clearErrors();
+        setData(createDefaultForm());
+        setIsFormOpen(true);
+    };
+
+    const openEditForm = (profile: OrganizationProfileItem) => {
+        setSelectedItem(profile);
+        clearErrors();
+        setData(toFormData(profile));
+        setIsFormOpen(true);
+    };
+
+    const closeForm = () => {
+        setIsFormOpen(false);
+        setSelectedItem(null);
+        reset();
+        clearErrors();
+    };
+
+    const submitProfile = (event: FormEvent) => {
+        event.preventDefault();
+
+        const options = {
+            preserveScroll: true,
+            onSuccess: closeForm,
+        };
+
+        if (selectedItem) {
+            put(updateProfile.url(selectedItem.id), options);
+
+            return;
+        }
+
+        post(storeProfile.url(), options);
+    };
+
+    const deleteProfile = (profile: OrganizationProfileItem) => {
+        if (!confirm(`Yakin ingin menghapus profile ${profile.code ?? ''}?`)) {
+            return;
+        }
+
+        router.delete(destroyProfile.url(profile.id), {
+            preserveScroll: true,
+        });
+    };
+
     return (
         <>
             <Head title="Value Chain & Jobdesk" />
 
             <main className="min-h-screen bg-background p-4 sm:p-6 lg:p-8">
                 <div className="mx-auto w-full max-w-7xl space-y-6">
-                    <section className="rounded-lg border bg-card p-6 shadow-sm">
-                        <p className="text-sm font-semibold text-primary uppercase">
-                            Master Data - Value Chain & Jobdesk
-                        </p>
-                        <h1 className="mt-1 text-2xl font-semibold text-foreground">
-                            Value Chain & Jobdesk Organisasi
-                        </h1>
-                        <p className="mt-2 max-w-4xl text-muted-foreground">
-                            Data dari worksheet ValueChain & JobDesc disajikan
-                            dalam tabel hirarki organisasi.
-                        </p>
+                    <section className="flex flex-col gap-4 rounded-lg border bg-card p-6 shadow-sm lg:flex-row lg:items-center lg:justify-between">
+                        <div>
+                            <p className="text-sm font-semibold text-primary uppercase">
+                                Sprint 6D - CRUD Value Chain & Jobdesk
+                            </p>
+                            <h1 className="mt-1 text-2xl font-semibold text-foreground">
+                                Value Chain & Jobdesk Organisasi
+                            </h1>
+                            <p className="mt-2 max-w-4xl text-muted-foreground">
+                                Data dari worksheet ValueChain & JobDesc
+                                disajikan dalam tabel hirarki organisasi.
+                            </p>
+                        </div>
+
+                        <Button type="button" onClick={openCreateForm}>
+                            <Plus className="size-4" />
+                            Tambah Profile
+                        </Button>
                     </section>
 
                     <section className="grid gap-4 md:grid-cols-4">
@@ -593,6 +790,12 @@ export default function ValueChainJobdeskIndex({
                                                             profile,
                                                         )
                                                     }
+                                                    onEditProfile={
+                                                        openEditForm
+                                                    }
+                                                    onDeleteProfile={
+                                                        deleteProfile
+                                                    }
                                                 />
                                             </tbody>
                                         </table>
@@ -605,6 +808,8 @@ export default function ValueChainJobdeskIndex({
                                             onSelectProfile={(profile) =>
                                                 setSelectedProfile(profile)
                                             }
+                                            onEditProfile={openEditForm}
+                                            onDeleteProfile={deleteProfile}
                                         />
                                     </div>
                                 </>
@@ -618,6 +823,125 @@ export default function ValueChainJobdeskIndex({
                     </Card>
                 </div>
             </main>
+
+            <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
+                <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-4xl">
+                    <form onSubmit={submitProfile} className="space-y-5">
+                        <DialogHeader>
+                            <DialogTitle>
+                                {selectedItem
+                                    ? 'Edit Profile Organisasi'
+                                    : 'Tambah Profile Organisasi'}
+                            </DialogTitle>
+                            <DialogDescription>
+                                Kelola value chain, jobdesk, qualification, dan
+                                method cost untuk organisasi.
+                            </DialogDescription>
+                        </DialogHeader>
+
+                        <div className="grid gap-4 md:grid-cols-2">
+                            <div className="space-y-2 md:col-span-2">
+                                <Label>Organisasi</Label>
+                                <select
+                                    value={data.organization_id}
+                                    onChange={(event) =>
+                                        setData(
+                                            'organization_id',
+                                            event.target.value,
+                                        )
+                                    }
+                                    className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground outline-none focus:border-ring focus:ring-2 focus:ring-ring/40"
+                                >
+                                    <option value="">Pilih organisasi</option>
+                                    {organizations.map((organization) => (
+                                        <option
+                                            key={organization.id}
+                                            value={organization.id}
+                                        >
+                                            {organization.code} -{' '}
+                                            {organization.name}
+                                        </option>
+                                    ))}
+                                </select>
+                                <FieldError
+                                    message={errors.organization_id}
+                                />
+                            </div>
+
+                            <TextAreaField
+                                label="Value Chain"
+                                value={data.value_chain}
+                                onChange={(value) =>
+                                    setData('value_chain', value)
+                                }
+                                error={errors.value_chain}
+                            />
+
+                            <TextAreaField
+                                label="Qualification"
+                                value={data.qualification}
+                                onChange={(value) =>
+                                    setData('qualification', value)
+                                }
+                                error={errors.qualification}
+                            />
+
+                            <div className="space-y-2 md:col-span-2">
+                                <TextAreaField
+                                    label="Jobdesk"
+                                    value={data.job_description}
+                                    onChange={(value) =>
+                                        setData('job_description', value)
+                                    }
+                                    error={errors.job_description}
+                                />
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label>Method Cost</Label>
+                                <Input
+                                    type="number"
+                                    value={data.method_cost}
+                                    onChange={(event) =>
+                                        setData(
+                                            'method_cost',
+                                            event.target.value,
+                                        )
+                                    }
+                                />
+                                <FieldError message={errors.method_cost} />
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label>Source Sheet</Label>
+                                <Input
+                                    value={data.source_sheet}
+                                    onChange={(event) =>
+                                        setData(
+                                            'source_sheet',
+                                            event.target.value,
+                                        )
+                                    }
+                                />
+                                <FieldError message={errors.source_sheet} />
+                            </div>
+                        </div>
+
+                        <DialogFooter>
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={closeForm}
+                            >
+                                Batal
+                            </Button>
+                            <Button type="submit" disabled={processing}>
+                                Simpan
+                            </Button>
+                        </DialogFooter>
+                    </form>
+                </DialogContent>
+            </Dialog>
 
             <Dialog
                 open={selectedProfile !== null}

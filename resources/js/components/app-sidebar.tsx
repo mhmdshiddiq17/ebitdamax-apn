@@ -3,6 +3,7 @@ import {
     Calculator,
     ChartColumn,
     ClipboardList,
+    Database,
     FileSpreadsheet,
     LayoutDashboard,
     Network,
@@ -22,6 +23,7 @@ import {
 import { dashboard } from '@/routes';
 import { index as calculationsIndex } from '@/routes/calculations';
 import { index as ebitdaTreeIndex } from '@/routes/ebitda-tree';
+import { index as ebitdaValuesIndex } from '@/routes/ebitda-values';
 import { index as importExcelIndex } from '@/routes/import-excel';
 import { index as organizationsIndex } from '@/routes/organizations';
 import { index as valueChainJobdeskIndex } from '@/routes/value-chain-jobdesk';
@@ -34,24 +36,29 @@ const mainNavItems: NavItem[] = [
         icon: LayoutDashboard,
     },
     {
-        title: 'Organisasi',
-        href: organizationsIndex(),
-        icon: Network,
-    },
-    {
         title: 'Pohon EBITDA',
         href: ebitdaTreeIndex(),
         icon: ChartColumn,
     },
     {
-        title: 'Value Chain & Jobdesc',
-        href: valueChainJobdeskIndex(),
-        icon: ClipboardList,
+        title: 'EBITDA Values',
+        href: ebitdaValuesIndex(),
+        icon: Database,
     },
     {
         title: 'Kalkulasi',
         href: calculationsIndex(),
         icon: Calculator,
+    },
+    {
+        title: 'Organizations',
+        href: organizationsIndex(),
+        icon: Network,
+    },
+    {
+        title: 'Value Chain & Jobdesk',
+        href: valueChainJobdeskIndex(),
+        icon: ClipboardList,
     },
     {
         title: 'Import Excel',

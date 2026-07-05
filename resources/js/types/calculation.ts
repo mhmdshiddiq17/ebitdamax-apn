@@ -2,6 +2,7 @@ export type CalculationItem = {
     id: number;
     organization_id: number;
     year: number;
+    period_date: string | null;
     scenario: string;
 
     code: string | null;
@@ -13,6 +14,7 @@ export type CalculationItem = {
 
     source_sheet: string | null;
     classification: string | null;
+    revenue: number;
 
     man_cost: number;
     method_cost: number;
@@ -23,6 +25,8 @@ export type CalculationItem = {
     doc_variable: number;
     doc_fixed: number;
     ioc: number;
+    ebitda: number;
+    ebitda_margin: number | null;
 
     raw_payload: Record<string, unknown> | null;
 };

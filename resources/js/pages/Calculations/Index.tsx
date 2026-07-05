@@ -1,4 +1,4 @@
-import { Head, router } from '@inertiajs/react';
+import { Head, router, useForm } from '@inertiajs/react';
 import {
     Calculator,
     Database,
@@ -6,7 +6,10 @@ import {
     Factory,
     Filter,
     Layers,
+    Pencil,
+    Plus,
     Search,
+    Trash2,
     WalletCards,
 } from 'lucide-react';
 import type { ElementType, FormEvent } from 'react';
@@ -18,23 +21,49 @@ import {
     Dialog,
     DialogContent,
     DialogDescription,
+    DialogFooter,
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { formatCurrency } from '@/lib/formatters';
-import { index as calculationsIndex } from '@/routes/calculations';
+import {
+    destroy as destroyCalculation,
+    index as calculationsIndex,
+    store as storeCalculation,
+    update as updateCalculation,
+} from '@/routes/calculations';
 import type {
     CalculationFilters,
     CalculationItem,
     CalculationSummary,
 } from '@/types/calculation';
+import type { OrganizationOption } from '@/types/ebitda';
 
 type Props = {
     calculations: CalculationItem[];
+    organizations: OrganizationOption[];
     summary: CalculationSummary;
     classifications: string[];
     filters: CalculationFilters;
+};
+
+type CalculationFormData = {
+    organization_id: string;
+    year: string;
+    period_date: string;
+    scenario: string;
+    revenue: string;
+    classification: string;
+    man_cost: string;
+    method_cost: string;
+    material_cost: string;
+    machine_cost: string;
+    doc_variable: string;
+    doc_fixed: string;
+    ioc: string;
+    source_sheet: string;
 };
 
 type StatCardProps = {
@@ -49,6 +78,82 @@ const scenarioOptions = [
     { value: 'plan_harian', label: 'Plan Harian' },
     { value: 'aktual_harian', label: 'Aktual Harian' },
 ];
+
+function toInputValue(value: number | string | null | undefined) {
+    return value === null || value === undefined ? '' : String(value);
+}
+
+function createDefaultForm(filters: CalculationFilters): CalculationFormData {
+    return {
+        organization_id: '',
+        year: String(filters.year ?? new Date().getFullYear()),
+        period_date: '',
+        scenario: filters.scenario ?? 'target_tahunan',
+        revenue: '0',
+        classification: '',
+        man_cost: '0',
+        method_cost: '0',
+        material_cost: '0',
+        machine_cost: '0',
+        doc_variable: '0',
+        doc_fixed: '0',
+        ioc: '0',
+        source_sheet: 'Manual Calculation CRUD',
+    };
+}
+
+function toFormData(item: CalculationItem): CalculationFormData {
+    return {
+        organization_id: String(item.organization_id),
+        year: String(item.year),
+        period_date: item.period_date ?? '',
+        scenario: item.scenario,
+        revenue: toInputValue(item.revenue),
+        classification: item.classification ?? '',
+        man_cost: toInputValue(item.man_cost),
+        method_cost: toInputValue(item.method_cost),
+        material_cost: toInputValue(item.material_cost),
+        machine_cost: toInputValue(item.machine_cost),
+        doc_variable: toInputValue(item.doc_variable),
+        doc_fixed: toInputValue(item.doc_fixed),
+        ioc: toInputValue(item.ioc),
+        source_sheet: item.source_sheet ?? 'Manual Calculation CRUD',
+    };
+}
+
+function FieldError({ message }: { message?: string }) {
+    if (!message) {
+        return null;
+    }
+
+    return <p className="text-xs text-destructive">{message}</p>;
+}
+
+function TextField({
+    label,
+    value,
+    onChange,
+    type = 'text',
+    error,
+}: {
+    label: string;
+    value: string;
+    onChange: (value: string) => void;
+    type?: string;
+    error?: string;
+}) {
+    return (
+        <div className="space-y-2">
+            <Label>{label}</Label>
+            <Input
+                type={type}
+                value={value}
+                onChange={(event) => onChange(event.target.value)}
+            />
+            <FieldError message={error} />
+        </div>
+    );
+}
 
 function StatCard({ title, value, icon: Icon }: StatCardProps) {
     return (
@@ -193,12 +298,17 @@ function OrganizationBadges({ item }: { item: CalculationItem }) {
 
 export default function CalculationIndex({
     calculations,
+    organizations,
     summary,
     classifications,
     filters,
 }: Props) {
     const [selectedCalculation, setSelectedCalculation] =
         useState<CalculationItem | null>(null);
+    const [selectedItem, setSelectedItem] = useState<CalculationItem | null>(
+        null,
+    );
+    const [isFormOpen, setIsFormOpen] = useState(false);
 
     const [form, setForm] = useState({
         year: String(filters.year ?? new Date().getFullYear()),
@@ -207,7 +317,10 @@ export default function CalculationIndex({
         classification: filters.classification ?? 'all',
     });
 
-    const submit = (event: FormEvent) => {
+    const { data, setData, post, put, processing, errors, reset, clearErrors } =
+        useForm<CalculationFormData>(createDefaultForm(filters));
+
+    const submitFilters = (event: FormEvent) => {
         event.preventDefault();
 
         router.get(
@@ -225,43 +338,109 @@ export default function CalculationIndex({
         );
     };
 
+    const openCreateForm = () => {
+        setSelectedItem(null);
+        reset();
+        clearErrors();
+        setData(createDefaultForm(filters));
+        setIsFormOpen(true);
+    };
+
+    const openEditForm = (item: CalculationItem) => {
+        setSelectedItem(item);
+        clearErrors();
+        setData(toFormData(item));
+        setIsFormOpen(true);
+    };
+
+    const closeForm = () => {
+        setIsFormOpen(false);
+        setSelectedItem(null);
+        reset();
+        clearErrors();
+    };
+
+    const submit = (event: FormEvent) => {
+        event.preventDefault();
+
+        const options = {
+            preserveScroll: true,
+            onSuccess: closeForm,
+        };
+
+        if (selectedItem) {
+            put(updateCalculation.url(selectedItem.id), options);
+
+            return;
+        }
+
+        post(storeCalculation.url(), options);
+    };
+
+    const destroy = (item: CalculationItem) => {
+        if (!confirm(`Yakin ingin menghapus kalkulasi ${item.code ?? ''}?`)) {
+            return;
+        }
+
+        router.delete(destroyCalculation.url(item.id), {
+            preserveScroll: true,
+        });
+    };
+
+    const previewToc =
+        Number(data.doc_variable || 0) +
+        Number(data.doc_fixed || 0) +
+        Number(data.ioc || 0);
+    const previewEbitda = Number(data.revenue || 0) - previewToc;
+    const previewMargin =
+        Number(data.revenue || 0) > 0
+            ? (previewEbitda / Number(data.revenue || 0)) * 100
+            : null;
+
     return (
         <>
             <Head title="Kalkulasi EBITDA" />
 
             <main className="min-h-screen bg-background p-4 sm:p-6 lg:p-8">
                 <div className="mx-auto w-full max-w-7xl space-y-6">
-                    <section className="rounded-lg border bg-card p-6 shadow-sm">
-                        <p className="text-sm font-semibold text-primary uppercase">
-                            Menu Kalkulasi
-                        </p>
+                    <section className="flex flex-col gap-4 rounded-lg border bg-card p-6 shadow-sm lg:flex-row lg:items-center lg:justify-between">
+                        <div>
+                            <p className="text-sm font-semibold text-primary uppercase">
+                                Sprint 6C - CRUD Kalkulasi
+                            </p>
 
-                        <h1 className="mt-1 text-2xl font-semibold text-foreground">
-                            Data Tabel Kalkulasi EBITDA
-                        </h1>
+                            <h1 className="mt-1 text-2xl font-semibold text-foreground">
+                                Data Tabel Kalkulasi EBITDA
+                            </h1>
 
-                        <p className="mt-2 max-w-4xl text-muted-foreground">
-                            Ringkasan dan rincian cost structure dari tabel
-                            EBITDA Values.
-                        </p>
+                            <p className="mt-2 max-w-4xl text-muted-foreground">
+                                Ringkasan dan rincian cost structure dari tabel
+                                EBITDA Values.
+                            </p>
 
-                        <div className="mt-4 flex flex-wrap gap-2">
-                            <Badge className="bg-primary text-primary-foreground">
-                                Tahun {filters.year}
-                            </Badge>
-                            <Badge
-                                variant="outline"
-                                className="border-primary/25 bg-primary/5 text-primary"
-                            >
-                                Scenario: {filters.scenario}
-                            </Badge>
-                            <Badge
-                                variant="outline"
-                                className="border-primary/25 bg-primary/5 text-primary"
-                            >
-                                Source: ebitda_values
-                            </Badge>
+                            <div className="mt-4 flex flex-wrap gap-2">
+                                <Badge className="bg-primary text-primary-foreground">
+                                    Tahun {filters.year}
+                                </Badge>
+                                <Badge
+                                    variant="outline"
+                                    className="border-primary/25 bg-primary/5 text-primary"
+                                >
+                                    Scenario: {filters.scenario}
+                                </Badge>
+                                <Badge
+                                    variant="outline"
+                                    className="border-primary/25 bg-primary/5 text-primary"
+                                >
+                                    Source: ebitda_values
+                                </Badge>
+                            </div>
                         </div>
+
+                        <Button type="button" onClick={openCreateForm}>
+                            <Plus className="size-4" />
+                            Tambah Kalkulasi
+                        </Button>
                     </section>
 
                     <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -321,7 +500,7 @@ export default function CalculationIndex({
                     <Card className="rounded-lg border bg-card shadow-sm">
                         <CardContent className="p-5">
                             <form
-                                onSubmit={submit}
+                                onSubmit={submitFilters}
                                 className="grid gap-4 md:grid-cols-[140px_220px_1fr_240px_auto]"
                             >
                                 <div className="space-y-2">
@@ -471,7 +650,7 @@ export default function CalculationIndex({
                                             <th className="p-4 text-right">
                                                 IOC
                                             </th>
-                                            <th className="w-[120px] p-4 text-right">
+                                            <th className="w-[280px] p-4 text-right">
                                                 Aksi
                                             </th>
                                         </tr>
@@ -565,19 +744,45 @@ export default function CalculationIndex({
                                                     {formatCurrency(item.ioc)}
                                                 </td>
 
-                                                <td className="p-4 text-right">
-                                                    <Button
-                                                        type="button"
-                                                        size="sm"
-                                                        onClick={() =>
-                                                            setSelectedCalculation(
-                                                                item,
-                                                            )
-                                                        }
-                                                    >
-                                                        <Eye className="size-4" />
-                                                        Detail
-                                                    </Button>
+                                                <td className="p-4">
+                                                    <div className="flex justify-end gap-2">
+                                                        <Button
+                                                            type="button"
+                                                            variant="outline"
+                                                            size="sm"
+                                                            onClick={() =>
+                                                                setSelectedCalculation(
+                                                                    item,
+                                                                )
+                                                            }
+                                                        >
+                                                            <Eye className="size-4" />
+                                                            Detail
+                                                        </Button>
+                                                        <Button
+                                                            type="button"
+                                                            size="sm"
+                                                            onClick={() =>
+                                                                openEditForm(
+                                                                    item,
+                                                                )
+                                                            }
+                                                        >
+                                                            <Pencil className="size-4" />
+                                                            Edit
+                                                        </Button>
+                                                        <Button
+                                                            type="button"
+                                                            variant="destructive"
+                                                            size="sm"
+                                                            onClick={() =>
+                                                                destroy(item)
+                                                            }
+                                                        >
+                                                            <Trash2 className="size-4" />
+                                                            Hapus
+                                                        </Button>
+                                                    </div>
                                                 </td>
                                             </tr>
                                         ))}
@@ -600,6 +805,220 @@ export default function CalculationIndex({
                     </Card>
                 </div>
             </main>
+
+            <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
+                <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-5xl">
+                    <form onSubmit={submit} className="space-y-5">
+                        <DialogHeader>
+                            <DialogTitle>
+                                {selectedItem
+                                    ? 'Edit Kalkulasi'
+                                    : 'Tambah Kalkulasi'}
+                            </DialogTitle>
+                            <DialogDescription>
+                                Kelola 4M, DOC-V, DOC-F, dan IOC. Nilai TOC,
+                                EBITDA, dan margin dihitung otomatis.
+                            </DialogDescription>
+                        </DialogHeader>
+
+                        <div className="grid gap-4 md:grid-cols-2">
+                            <div className="space-y-2 md:col-span-2">
+                                <Label>Organisasi</Label>
+                                <select
+                                    value={data.organization_id}
+                                    onChange={(event) =>
+                                        setData(
+                                            'organization_id',
+                                            event.target.value,
+                                        )
+                                    }
+                                    className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground outline-none focus:border-ring focus:ring-2 focus:ring-ring/40"
+                                >
+                                    <option value="">Pilih organisasi</option>
+                                    {organizations.map((organization) => (
+                                        <option
+                                            key={organization.id}
+                                            value={organization.id}
+                                        >
+                                            {organization.code} -{' '}
+                                            {organization.name}
+                                        </option>
+                                    ))}
+                                </select>
+                                <FieldError
+                                    message={errors.organization_id}
+                                />
+                            </div>
+
+                            <TextField
+                                label="Tahun"
+                                type="number"
+                                value={data.year}
+                                onChange={(value) => setData('year', value)}
+                                error={errors.year}
+                            />
+
+                            <div className="space-y-2">
+                                <Label>Scenario</Label>
+                                <select
+                                    value={data.scenario}
+                                    onChange={(event) =>
+                                        setData('scenario', event.target.value)
+                                    }
+                                    className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground outline-none focus:border-ring focus:ring-2 focus:ring-ring/40"
+                                >
+                                    {scenarioOptions.map((option) => (
+                                        <option
+                                            key={option.value}
+                                            value={option.value}
+                                        >
+                                            {option.label}
+                                        </option>
+                                    ))}
+                                </select>
+                                <FieldError message={errors.scenario} />
+                            </div>
+
+                            <TextField
+                                label="Tanggal Periode"
+                                type="date"
+                                value={data.period_date}
+                                onChange={(value) =>
+                                    setData('period_date', value)
+                                }
+                                error={errors.period_date}
+                            />
+
+                            <TextField
+                                label="Klasifikasi"
+                                value={data.classification}
+                                onChange={(value) =>
+                                    setData('classification', value)
+                                }
+                                error={errors.classification}
+                            />
+
+                            <TextField
+                                label="Revenue"
+                                type="number"
+                                value={data.revenue}
+                                onChange={(value) => setData('revenue', value)}
+                                error={errors.revenue}
+                            />
+
+                            <TextField
+                                label="Man Cost"
+                                type="number"
+                                value={data.man_cost}
+                                onChange={(value) =>
+                                    setData('man_cost', value)
+                                }
+                                error={errors.man_cost}
+                            />
+
+                            <TextField
+                                label="Method Cost"
+                                type="number"
+                                value={data.method_cost}
+                                onChange={(value) =>
+                                    setData('method_cost', value)
+                                }
+                                error={errors.method_cost}
+                            />
+
+                            <TextField
+                                label="Material Cost"
+                                type="number"
+                                value={data.material_cost}
+                                onChange={(value) =>
+                                    setData('material_cost', value)
+                                }
+                                error={errors.material_cost}
+                            />
+
+                            <TextField
+                                label="Machine Cost"
+                                type="number"
+                                value={data.machine_cost}
+                                onChange={(value) =>
+                                    setData('machine_cost', value)
+                                }
+                                error={errors.machine_cost}
+                            />
+
+                            <TextField
+                                label="DOC Variable"
+                                type="number"
+                                value={data.doc_variable}
+                                onChange={(value) =>
+                                    setData('doc_variable', value)
+                                }
+                                error={errors.doc_variable}
+                            />
+
+                            <TextField
+                                label="DOC Fixed"
+                                type="number"
+                                value={data.doc_fixed}
+                                onChange={(value) =>
+                                    setData('doc_fixed', value)
+                                }
+                                error={errors.doc_fixed}
+                            />
+
+                            <TextField
+                                label="IOC"
+                                type="number"
+                                value={data.ioc}
+                                onChange={(value) => setData('ioc', value)}
+                                error={errors.ioc}
+                            />
+
+                            <TextField
+                                label="Source Sheet"
+                                value={data.source_sheet}
+                                onChange={(value) =>
+                                    setData('source_sheet', value)
+                                }
+                                error={errors.source_sheet}
+                            />
+                        </div>
+
+                        <div className="grid gap-3 rounded-lg border bg-muted/30 p-4 md:grid-cols-3">
+                            <DetailRow
+                                label="Preview TOC"
+                                value={formatCurrency(previewToc)}
+                            />
+                            <DetailRow
+                                label="Preview EBITDA"
+                                value={formatCurrency(previewEbitda)}
+                                highlight
+                            />
+                            <DetailRow
+                                label="Preview Margin"
+                                value={
+                                    previewMargin === null
+                                        ? 'N/A'
+                                        : `${previewMargin.toFixed(2)}%`
+                                }
+                            />
+                        </div>
+
+                        <DialogFooter>
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={closeForm}
+                            >
+                                Batal
+                            </Button>
+                            <Button type="submit" disabled={processing}>
+                                Simpan
+                            </Button>
+                        </DialogFooter>
+                    </form>
+                </DialogContent>
+            </Dialog>
 
             <Dialog
                 open={selectedCalculation !== null}
