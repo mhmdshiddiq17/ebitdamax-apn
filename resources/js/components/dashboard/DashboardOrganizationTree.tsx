@@ -2,14 +2,12 @@ import { Link } from '@inertiajs/react';
 import {
     Background,
     Controls,
-    Handle,
     MiniMap,
-    Position,
     ReactFlow,
     ReactFlowProvider,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
-import type { Edge, Node, NodeProps, NodeTypes } from '@xyflow/react';
+import type { Node, NodeProps, NodeTypes } from '@xyflow/react';
 import { AlertTriangle, ArrowUpRight, X } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
@@ -61,12 +59,6 @@ function DashboardTreeNode({ data }: NodeProps<DashboardFlowNode>) {
                       : 'border-border',
             )}
         >
-            <Handle
-                type="target"
-                position={Position.Top}
-                className="!h-3 !w-3 !border-2 !border-card !bg-primary"
-            />
-
             <div className="flex flex-wrap items-center gap-2">
                 <Badge className="bg-primary text-primary-foreground">
                     {data.code}
@@ -110,12 +102,6 @@ function DashboardTreeNode({ data }: NodeProps<DashboardFlowNode>) {
                     value={formatPercent(data.value.ebitda_margin)}
                 />
             </div>
-
-            <Handle
-                type="source"
-                position={Position.Bottom}
-                className="!h-3 !w-3 !border-2 !border-card !bg-primary"
-            />
         </div>
     );
 }
@@ -151,8 +137,7 @@ const nodeTypes: NodeTypes = {
 function flattenTree(
     node: EbitdaTreeNode,
     nodes: DashboardFlowNode[] = [],
-    edges: Edge[] = [],
-): { nodes: DashboardFlowNode[]; edges: Edge[] } {
+): { nodes: DashboardFlowNode[] } {
     nodes.push({
         id: String(node.id),
         type: 'dashboardNode',
@@ -161,20 +146,10 @@ function flattenTree(
     });
 
     node.children.forEach((child) => {
-        edges.push({
-            id: `${node.id}-${child.id}`,
-            source: String(node.id),
-            target: String(child.id),
-            type: 'smoothstep',
-            style: {
-                strokeWidth: 2,
-            },
-        });
-
-        flattenTree(child, nodes, edges);
+        flattenTree(child, nodes);
     });
 
-    return { nodes, edges };
+    return { nodes };
 }
 
 function assignTreePositions(
@@ -252,7 +227,7 @@ function getLayoutedElements(tree: EbitdaTreeNode) {
             ...node,
             position: positions.get(node.id) ?? node.position,
         })),
-        edges: flattened.edges,
+        edges: [],
     };
 }
 
