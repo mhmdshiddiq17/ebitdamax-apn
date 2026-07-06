@@ -171,19 +171,20 @@ class EbitdaExcelParser
 
     private function detectOrganizationHeader(mixed $cell): ?array
     {
-        $text = $this->normalizeText($cell);
+        $text = $this->normalizeHeaderText($cell);
 
         if ($text === '') {
             return null;
         }
 
-        $pattern = '/^((?:\d+)(?:\s*\.\s*[A-Z])?(?:\s*\.\s*\d+)*)(?:\s*\.?\s+)(.+)$/u';
+        $pattern = '/^((?:\d+)(?:\s*\.\s*[A-Za-z])?(?:\s*\.\s*\d+)*)(?:\s*\.?\s+)(.+)$/u';
 
         if (! preg_match($pattern, $text, $matches)) {
             return null;
         }
 
-        $code = preg_replace('/\s+/', '', $matches[1]);
+        $code = strtoupper((string) preg_replace('/\s+/', '', $matches[1]));
+        $code = rtrim($code, '.');
         $name = trim($matches[2]);
 
         return [
@@ -260,6 +261,15 @@ class EbitdaExcelParser
         }
 
         return strtolower(trim(preg_replace('/\s+/', ' ', (string) $value)));
+    }
+
+    private function normalizeHeaderText(mixed $value): string
+    {
+        if ($value === null) {
+            return '';
+        }
+
+        return trim((string) preg_replace('/\s+/', ' ', (string) $value));
     }
 
     private function toNumber(mixed $value): ?float

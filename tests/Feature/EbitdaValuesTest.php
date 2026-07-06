@@ -12,7 +12,7 @@ test('authenticated users can visit the ebitda values page', function () {
     $this->seed(OrganizationSeeder::class);
 
     $organization = Organization::query()
-        ->where('code', '1.C')
+        ->where('code', '1.B.1')
         ->firstOrFail();
 
     EbitdaValue::query()->create([
@@ -46,7 +46,7 @@ test('authenticated users can visit the ebitda values page', function () {
         ->assertOk()
         ->assertInertia(fn (Assert $page) => $page
             ->component('EbitdaValues/Index')
-            ->where('values.data.0.organization.code', '1.C')
+            ->where('values.data.0.organization.code', '1.B.1')
             ->where('values.data.0.revenue', 15000000)
             ->where('values.data.0.toc', 10000000)
             ->where('filters.year', 2026)
@@ -60,7 +60,7 @@ test('authenticated users can crud ebitda values', function () {
     $this->seed(OrganizationSeeder::class);
 
     $organization = Organization::query()
-        ->where('code', '1.C')
+        ->where('code', '1.B.1')
         ->firstOrFail();
 
     $this->actingAs($user);

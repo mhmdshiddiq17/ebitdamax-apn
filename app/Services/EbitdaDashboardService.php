@@ -92,18 +92,10 @@ class EbitdaDashboardService
             ->values()
             ->all();
 
-        $exactValue = $this->getExactOrganizationValue($organization, $year, $scenario);
-
-        if ($exactValue) {
-            $value = $exactValue;
-            $valueSource = 'excel';
-        } elseif (count($children) > 0) {
-            $value = $this->sumValues(array_column($children, 'value'));
-            $valueSource = 'calculated_from_children';
-        } else {
-            $value = $this->emptyValue();
-            $valueSource = 'empty';
-        }
+        $resolvedValue = $this->resolveValueFromChildren(
+            exactValue: $this->getExactOrganizationValue($organization, $year, $scenario),
+            childValues: array_column($children, 'value')
+        );
 
         return [
             'id' => $organization->id,
@@ -113,8 +105,8 @@ class EbitdaDashboardService
             'level' => $organization->level,
             'is_revenue_center' => $organization->is_revenue_center,
             'is_cost_center' => $organization->is_cost_center,
-            'value_source' => $valueSource,
-            'value' => $value,
+            'value_source' => $resolvedValue['source'],
+            'value' => $resolvedValue['value'],
             'children' => $children,
         ];
     }
@@ -132,25 +124,19 @@ class EbitdaDashboardService
 
     private function resolveOrganizationValue(Organization $organization, int $year, string $scenario): array
     {
-        $exact = $this->getExactOrganizationValue($organization, $year, $scenario);
+        $organization->load([
+            'children' => fn ($query) => $query->active()->ordered(),
+        ]);
 
-        if ($exact) {
-            return $exact;
-        }
+        $childValues = $organization->children
+            ->map(fn (Organization $child) => $this->resolveOrganizationValue($child, $year, $scenario))
+            ->values()
+            ->all();
 
-        $subtreeIds = $organization->getSubtreeIds();
-
-        $rows = EbitdaValue::query()
-            ->whereIn('organization_id', $subtreeIds)
-            ->where('year', $year)
-            ->where('scenario', $scenario)
-            ->get();
-
-        if ($rows->isEmpty()) {
-            return $this->emptyValue();
-        }
-
-        return $this->sumEbitdaRows($rows);
+        return $this->resolveValueFromChildren(
+            exactValue: $this->getExactOrganizationValue($organization, $year, $scenario),
+            childValues: $childValues
+        )['value'];
     }
 
     private function getExactOrganizationValue(Organization $organization, int $year, string $scenario): ?array
@@ -176,26 +162,6 @@ class EbitdaDashboardService
         ];
     }
 
-    private function sumEbitdaRows(Collection $rows): array
-    {
-        $revenue = (float) $rows->sum('revenue');
-        $docVariable = (float) $rows->sum('doc_variable');
-        $docFixed = (float) $rows->sum('doc_fixed');
-        $ioc = (float) $rows->sum('ioc');
-        $toc = (float) $rows->sum('toc');
-        $ebitda = (float) $rows->sum('ebitda');
-
-        return [
-            'revenue' => $revenue,
-            'doc_variable' => $docVariable,
-            'doc_fixed' => $docFixed,
-            'ioc' => $ioc,
-            'toc' => $toc,
-            'ebitda' => $ebitda,
-            'ebitda_margin' => $revenue > 0 ? round(($ebitda / $revenue) * 100, 4) : null,
-        ];
-    }
-
     private function sumValues(array $values): array
     {
         $revenue = array_sum(array_column($values, 'revenue'));
@@ -214,6 +180,43 @@ class EbitdaDashboardService
             'ebitda' => $ebitda,
             'ebitda_margin' => $revenue > 0 ? round(($ebitda / $revenue) * 100, 4) : null,
         ];
+    }
+
+    private function resolveValueFromChildren(?array $exactValue, array $childValues): array
+    {
+        if (count($childValues) > 0) {
+            $sum = $this->sumValues($childValues);
+
+            if ($this->hasAnyValue($sum)) {
+                return [
+                    'value' => $sum,
+                    'source' => 'calculated_from_children',
+                ];
+            }
+        }
+
+        if ($exactValue !== null) {
+            return [
+                'value' => $exactValue,
+                'source' => 'excel',
+            ];
+        }
+
+        return [
+            'value' => $this->emptyValue(),
+            'source' => 'empty',
+        ];
+    }
+
+    private function hasAnyValue(array $value): bool
+    {
+        foreach (['revenue', 'doc_variable', 'doc_fixed', 'ioc', 'toc', 'ebitda'] as $key) {
+            if (abs((float) ($value[$key] ?? 0)) > 0) {
+                return true;
+            }
+        }
+
+        return $value['ebitda_margin'] !== null;
     }
 
     private function buildRevenueChart(Collection $items): array

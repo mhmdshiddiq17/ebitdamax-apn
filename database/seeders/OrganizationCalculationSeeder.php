@@ -1779,11 +1779,30 @@ class OrganizationCalculationSeeder extends Seeder
         ];
 
         DB::transaction(function () use ($items): void {
+            $inserted = 0;
+            $remapped = 0;
+            $retired = 0;
+            $skipped = 0;
+
             foreach ($items as $item) {
-                $organization = Organization::query()->where('code', $item['organization_code'])->first();
+                $sourceCode = $item['organization_code'];
+                $targetCode = $this->mapLegacyOrganizationCode($sourceCode);
+
+                if ($targetCode === null) {
+                    $retired++;
+
+                    continue;
+                }
+
+                if ($targetCode !== $sourceCode) {
+                    $remapped++;
+                }
+
+                $organization = Organization::query()->where('code', $targetCode)->first();
 
                 if (! $organization) {
-                    $this->command?->warn('Organization code not found: '.$item['organization_code']);
+                    $skipped++;
+                    $this->command?->warn("Organization code not found: {$targetCode} for seed source {$sourceCode}");
 
                     continue;
                 }
@@ -1806,11 +1825,62 @@ class OrganizationCalculationSeeder extends Seeder
                         'raw_payload' => [
                             'source_sheet' => 'Kalkulasi',
                             'source_row' => $item['source_row'],
+                            'excel_code' => $sourceCode,
                             'organization_name_from_excel' => $item['organization_name_from_excel'],
+                            'mapped_organization_code' => $organization->code,
+                            'mapped_organization_name' => $organization->name,
                         ],
                     ]
                 );
+
+                $inserted++;
             }
+
+            $this->command?->info("Organization calculations seeded: {$inserted} inserted/updated, {$remapped} remapped, {$retired} retired skipped, {$skipped} missing skipped.");
         });
+    }
+
+    private function mapLegacyOrganizationCode(string $code): ?string
+    {
+        if (in_array($code, ['1.B', '1.C', '1.D'], true)) {
+            return null;
+        }
+
+        foreach ($this->legacyCodePrefixes() as $oldPrefix => $newPrefix) {
+            if ($code === $oldPrefix) {
+                return $newPrefix;
+            }
+
+            if (str_starts_with($code, $oldPrefix.'.')) {
+                return $newPrefix.substr($code, strlen($oldPrefix));
+            }
+        }
+
+        return $code;
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function legacyCodePrefixes(): array
+    {
+        return [
+            '1.B.1' => '1.A.4',
+            '1.B.2' => '1.A.5',
+            '1.B.3' => '1.A.6',
+            '1.B.4' => '1.A.7',
+            '1.B.5' => '1.A.8',
+            '1.C.1' => '1.B.1',
+            '1.C.2' => '1.B.2',
+            '1.C.3' => '1.B.3',
+            '1.C.4' => '1.B.4',
+            '1.C.5' => '1.B.5',
+            '1.D.1' => '1.C.1',
+            '1.D.2' => '1.C.2',
+            '1.D.3' => '1.C.3',
+            '1.D.4' => '1.C.4',
+            '1.D.5' => '1.C.5',
+            '1.D.6' => '1.C.6',
+        ];
     }
 }

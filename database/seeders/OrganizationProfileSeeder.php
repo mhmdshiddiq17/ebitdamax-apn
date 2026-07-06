@@ -1150,16 +1150,31 @@ class OrganizationProfileSeeder extends Seeder
 JSON, true, 512, JSON_THROW_ON_ERROR);
 
         $inserted = 0;
+        $remapped = 0;
         $skipped = 0;
+        $retired = 0;
 
         foreach ($profiles as $profile) {
+            $sourceCode = $profile['code'];
+            $targetCode = $this->mapLegacyOrganizationCode($sourceCode);
+
+            if ($targetCode === null) {
+                $retired++;
+
+                continue;
+            }
+
+            if ($targetCode !== $sourceCode) {
+                $remapped++;
+            }
+
             $organization = Organization::query()
-                ->where('code', $profile['code'])
+                ->where('code', $targetCode)
                 ->first();
 
             if (! $organization) {
                 $skipped++;
-                $this->command?->warn("Organization code {$profile['code']} not found. Skipped.");
+                $this->command?->warn("Organization code {$targetCode} not found for seed source {$sourceCode}. Skipped.");
 
                 continue;
             }
@@ -1178,8 +1193,10 @@ JSON, true, 512, JSON_THROW_ON_ERROR);
                     'raw_payload' => [
                         'seed_source' => 'WORKSHEE DASHBOARD AGRINAS 260604.xlsx',
                         'sheet' => $profile['source_sheet'] ?? '3. ValueChain & JobDesc',
-                        'excel_code' => $profile['code'],
+                        'excel_code' => $sourceCode,
                         'excel_name' => $profile['name'] ?? null,
+                        'mapped_organization_code' => $organization->code,
+                        'mapped_organization_name' => $organization->name,
                     ],
                 ]
             );
@@ -1187,6 +1204,50 @@ JSON, true, 512, JSON_THROW_ON_ERROR);
             $inserted++;
         }
 
-        $this->command?->info("Organization profiles seeded: {$inserted} inserted/updated, {$skipped} skipped.");
+        $this->command?->info("Organization profiles seeded: {$inserted} inserted/updated, {$remapped} remapped, {$retired} retired skipped, {$skipped} missing skipped.");
+    }
+
+    private function mapLegacyOrganizationCode(string $code): ?string
+    {
+        if (in_array($code, ['1.B', '1.C', '1.D'], true)) {
+            return null;
+        }
+
+        foreach ($this->legacyCodePrefixes() as $oldPrefix => $newPrefix) {
+            if ($code === $oldPrefix) {
+                return $newPrefix;
+            }
+
+            if (str_starts_with($code, $oldPrefix.'.')) {
+                return $newPrefix.substr($code, strlen($oldPrefix));
+            }
+        }
+
+        return $code;
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function legacyCodePrefixes(): array
+    {
+        return [
+            '1.B.1' => '1.A.4',
+            '1.B.2' => '1.A.5',
+            '1.B.3' => '1.A.6',
+            '1.B.4' => '1.A.7',
+            '1.B.5' => '1.A.8',
+            '1.C.1' => '1.B.1',
+            '1.C.2' => '1.B.2',
+            '1.C.3' => '1.B.3',
+            '1.C.4' => '1.B.4',
+            '1.C.5' => '1.B.5',
+            '1.D.1' => '1.C.1',
+            '1.D.2' => '1.C.2',
+            '1.D.3' => '1.C.3',
+            '1.D.4' => '1.C.4',
+            '1.D.5' => '1.C.5',
+            '1.D.6' => '1.C.6',
+        ];
     }
 }

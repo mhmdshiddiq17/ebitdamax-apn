@@ -18,7 +18,7 @@ test('authenticated users can visit the value chain jobdesk table', function () 
     $this->seed(OrganizationSeeder::class);
 
     $organization = Organization::query()
-        ->where('code', '1.C')
+        ->where('code', '1.B.1')
         ->firstOrFail();
 
     OrganizationProfile::query()->create([
@@ -38,8 +38,8 @@ test('authenticated users can visit the value chain jobdesk table', function () 
         ->assertOk()
         ->assertInertia(fn (Assert $page) => $page
             ->component('ValueChainJobdesk/Index')
-            ->where('profiles.0.code', '1.C')
-            ->where('profiles.0.name', 'Corporate Secretary, Legal, Internal Audit, Pengamanan, Information Technology')
+            ->where('profiles.0.code', '1.B.1')
+            ->where('profiles.0.name', 'SVP Corporate Secretary')
             ->where('profiles.0.parent_id', $organization->parent_id)
             ->where('profiles.0.depth', $organization->depth)
             ->where('profiles.0.path', $organization->path)
@@ -58,7 +58,7 @@ test('authenticated users can crud value chain jobdesk profiles', function () {
     $this->seed(OrganizationSeeder::class);
 
     $organization = Organization::query()
-        ->where('code', '1.C')
+        ->where('code', '1.B.1')
         ->firstOrFail();
 
     $this->actingAs($user);
