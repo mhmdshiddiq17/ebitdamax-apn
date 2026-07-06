@@ -15,7 +15,6 @@ import type { DirectorateDashboardProps } from '@/types/dashboard';
 
 export default function DirectorateDashboard({
     year,
-    scenario,
     directorate,
     summary,
     tree,
@@ -56,19 +55,12 @@ export default function DirectorateDashboard({
                                 >
                                     Tahun {year}
                                 </Badge>
-                                <Badge
-                                    variant="outline"
-                                    className="border-primary/25 bg-primary/5 text-primary"
-                                >
-                                    Scenario: {scenario}
-                                </Badge>
                             </div>
                         </div>
                     </div>
 
                     <DashboardFilter
                         year={year}
-                        scenario={scenario}
                         action={showDirectorate.url(directorate.slug)}
                     />
 

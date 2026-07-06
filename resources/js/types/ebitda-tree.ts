@@ -8,6 +8,23 @@ export type EbitdaValue = {
     ebitda_margin: number | null;
 };
 
+export type EbitdaScenarioKey =
+    'target_tahunan' | 'target_harian' | 'plan_harian' | 'aktual_harian';
+
+export type EbitdaValueSource = 'excel' | 'calculated_from_children' | 'empty';
+
+export type EbitdaDirectValueSource = 'excel' | 'empty';
+
+export type EbitdaScenarioValue = {
+    source: EbitdaValueSource;
+    value: EbitdaValue;
+};
+
+export type EbitdaScenarioValues = Record<
+    EbitdaScenarioKey,
+    EbitdaScenarioValue
+>;
+
 export type EbitdaCostAlertComponent = {
     key: 'doc_variable' | 'doc_fixed' | 'ioc';
     label: string;
@@ -42,8 +59,12 @@ export type EbitdaTreeNode = {
     is_revenue_center: boolean;
     is_cost_center: boolean;
     depth: number;
-    value_source: 'excel' | 'calculated_from_children' | 'empty';
+    value_source: EbitdaValueSource;
     value: EbitdaValue;
+    scenario_values: EbitdaScenarioValues;
+    show_direct_value_column: boolean;
+    direct_value_source: EbitdaDirectValueSource;
+    direct_value: EbitdaValue;
     cost_alert: EbitdaCostAlert;
     children: EbitdaTreeNode[];
 };

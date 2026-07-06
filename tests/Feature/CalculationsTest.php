@@ -6,10 +6,10 @@ use App\Models\User;
 use Database\Seeders\OrganizationSeeder;
 use Inertia\Testing\AssertableInertia as Assert;
 
-test('guests are redirected to the login page', function () {
+test('guests can visit calculations while auth middleware is bypassed', function () {
     $response = $this->get(route('calculations.index'));
 
-    $response->assertRedirect(route('login'));
+    $response->assertOk();
 });
 
 test('authenticated users can visit the calculations page', function () {
@@ -18,7 +18,7 @@ test('authenticated users can visit the calculations page', function () {
     $this->seed(OrganizationSeeder::class);
 
     $organization = Organization::query()
-        ->where('code', '1.B.1')
+        ->where('code', '1.B.1.1')
         ->firstOrFail();
 
     EbitdaValue::query()->create([
@@ -53,8 +53,8 @@ test('authenticated users can visit the calculations page', function () {
         ->assertOk()
         ->assertInertia(fn (Assert $page) => $page
             ->component('Calculations/Index')
-            ->where('calculations.0.code', '1.B.1')
-            ->where('calculations.0.name', 'SVP Corporate Secretary')
+            ->where('calculations.0.code', '1.B.1.1')
+            ->where('calculations.0.name', 'Sekretaris Direksi')
             ->where('calculations.0.year', 2026)
             ->where('calculations.0.scenario', EbitdaValue::SCENARIO_TARGET_TAHUNAN)
             ->where('calculations.0.classification', 'Governance')
@@ -63,7 +63,6 @@ test('authenticated users can visit the calculations page', function () {
             ->where('summary.total_cost', 10000000)
             ->where('classifications.0', 'Governance')
             ->where('filters.year', 2026)
-            ->where('filters.scenario', EbitdaValue::SCENARIO_TARGET_TAHUNAN)
             ->where('filters.classification', 'Governance')
         );
 });
@@ -135,6 +134,72 @@ test('authenticated users can crud calculations through ebitda values', function
     ]);
 });
 
+test('calculations page ignores scenario query and lists all scenarios for the year', function () {
+    $user = User::factory()->create();
+
+    $this->seed(OrganizationSeeder::class);
+
+    $organization = Organization::query()
+        ->where('code', '1.B.1.1')
+        ->firstOrFail();
+
+    EbitdaValue::query()->create([
+        'organization_id' => $organization->id,
+        'year' => 2026,
+        'period_date' => null,
+        'scenario' => EbitdaValue::SCENARIO_TARGET_TAHUNAN,
+        'source_sheet' => 'Manual Calculation CRUD',
+        'classification' => 'Governance',
+        'revenue' => 15000000,
+        'man_cost' => 1000000,
+        'method_cost' => 2000000,
+        'material_cost' => 3000000,
+        'machine_cost' => 4000000,
+        'doc_variable' => 5000000,
+        'doc_fixed' => 3000000,
+        'ioc' => 2000000,
+        'toc' => 10000000,
+        'ebitda' => 5000000,
+        'ebitda_margin' => 33.3333,
+    ]);
+    EbitdaValue::query()->create([
+        'organization_id' => $organization->id,
+        'year' => 2026,
+        'period_date' => null,
+        'scenario' => EbitdaValue::SCENARIO_AKTUAL_HARIAN,
+        'source_sheet' => 'Manual Calculation CRUD',
+        'classification' => 'Governance',
+        'revenue' => 3000000,
+        'man_cost' => 100000,
+        'method_cost' => 200000,
+        'material_cost' => 300000,
+        'machine_cost' => 400000,
+        'doc_variable' => 1000000,
+        'doc_fixed' => 500000,
+        'ioc' => 500000,
+        'toc' => 2000000,
+        'ebitda' => 1000000,
+        'ebitda_margin' => 33.3333,
+    ]);
+
+    $this->actingAs($user);
+
+    $response = $this->get(route('calculations.index', [
+        'year' => 2026,
+        'scenario' => EbitdaValue::SCENARIO_TARGET_TAHUNAN,
+    ]));
+
+    $response
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->has('calculations', 2)
+            ->where('calculations.0.scenario', EbitdaValue::SCENARIO_AKTUAL_HARIAN)
+            ->where('calculations.1.scenario', EbitdaValue::SCENARIO_TARGET_TAHUNAN)
+            ->where('summary.total_rows', 2)
+            ->where('summary.total_cost', 12000000)
+        );
+});
+
 test('calculations page displays editable source rows and exposes parent rollup value', function () {
     $user = User::factory()->create();
     $csrfToken = 'test-token';
@@ -142,13 +207,13 @@ test('calculations page displays editable source rows and exposes parent rollup 
     $this->seed(OrganizationSeeder::class);
 
     $parent = Organization::query()
-        ->where('code', '1.A')
+        ->where('code', '1.B.1')
         ->firstOrFail();
     $firstChild = Organization::query()
-        ->where('code', '1.A.1')
+        ->where('code', '1.B.1.1')
         ->firstOrFail();
     $secondChild = Organization::query()
-        ->where('code', '1.A.2')
+        ->where('code', '1.B.1.2')
         ->firstOrFail();
 
     $parentValue = EbitdaValue::query()->create([
@@ -219,8 +284,8 @@ test('calculations page displays editable source rows and exposes parent rollup 
     $response
         ->assertOk()
         ->assertInertia(fn (Assert $page) => $page
-            ->where('calculations.0.code', '1.A')
-            ->where('calculations.0.value_source', 'calculated_from_children')
+            ->where('calculations.0.code', '1.B.1')
+            ->where('calculations.0.value_source', 'excel')
             ->where('calculations.0.revenue', 999000000)
             ->where('calculations.0.total_cost', 999000000)
             ->where('calculations.0.doc_variable', 0)
@@ -228,10 +293,10 @@ test('calculations page displays editable source rows and exposes parent rollup 
             ->where('calculations.0.ioc', 0)
             ->where('calculations.0.ebitda', 0)
             ->where('calculations.0.ebitda_margin', null)
-            ->where('calculations.0.resolved_value.revenue', 150000000)
-            ->where('calculations.0.resolved_value.toc', 30000000)
-            ->where('calculations.0.resolved_value.ebitda', 120000000)
-            ->where('calculations.0.resolved_value.ebitda_margin', 80)
+            ->where('calculations.0.resolved_value.revenue', 999000000)
+            ->where('calculations.0.resolved_value.toc', 999000000)
+            ->where('calculations.0.resolved_value.ebitda', 0)
+            ->where('calculations.0.resolved_value.ebitda_margin', null)
         );
 
     $this->withSession(['_token' => $csrfToken])
@@ -263,7 +328,7 @@ test('calculations page displays editable source rows and exposes parent rollup 
     $response
         ->assertOk()
         ->assertInertia(fn (Assert $page) => $page
-            ->where('calculations.0.code', '1.A')
+            ->where('calculations.0.code', '1.B.1')
             ->where('calculations.0.revenue', 123000000)
             ->where('calculations.0.total_cost', 20000000)
             ->where('calculations.0.doc_variable', 10000000)
@@ -271,7 +336,7 @@ test('calculations page displays editable source rows and exposes parent rollup 
             ->where('calculations.0.ioc', 5000000)
             ->where('calculations.0.ebitda', 103000000)
             ->where('calculations.0.ebitda_margin', 83.7398)
-            ->where('calculations.0.resolved_value.revenue', 150000000)
-            ->where('calculations.0.resolved_value.toc', 30000000)
+            ->where('calculations.0.resolved_value.revenue', 123000000)
+            ->where('calculations.0.resolved_value.toc', 20000000)
         );
 });

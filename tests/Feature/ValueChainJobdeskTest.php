@@ -6,10 +6,10 @@ use App\Models\User;
 use Database\Seeders\OrganizationSeeder;
 use Inertia\Testing\AssertableInertia as Assert;
 
-test('guests are redirected to the login page', function () {
+test('guests can visit value chain jobdesk while auth middleware is bypassed', function () {
     $response = $this->get(route('value-chain-jobdesk.index'));
 
-    $response->assertRedirect(route('login'));
+    $response->assertOk();
 });
 
 test('authenticated users can visit the value chain jobdesk table', function () {

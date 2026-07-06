@@ -123,6 +123,60 @@ test('authenticated users can crud ebitda values', function () {
     ]);
 });
 
+test('ebitda values page ignores scenario query and lists all scenarios for the year', function () {
+    $user = User::factory()->create();
+
+    $this->seed(OrganizationSeeder::class);
+
+    $organization = Organization::query()
+        ->where('code', '1.B.1')
+        ->firstOrFail();
+
+    EbitdaValue::query()->create([
+        'organization_id' => $organization->id,
+        'year' => 2026,
+        'period_date' => null,
+        'scenario' => EbitdaValue::SCENARIO_TARGET_TAHUNAN,
+        'source_sheet' => 'Manual CRUD',
+        'revenue' => 15000000,
+        'doc_variable' => 5000000,
+        'doc_fixed' => 3000000,
+        'ioc' => 2000000,
+        'toc' => 10000000,
+        'ebitda' => 5000000,
+        'ebitda_margin' => 33.3333,
+    ]);
+    EbitdaValue::query()->create([
+        'organization_id' => $organization->id,
+        'year' => 2026,
+        'period_date' => null,
+        'scenario' => EbitdaValue::SCENARIO_AKTUAL_HARIAN,
+        'source_sheet' => 'Manual CRUD',
+        'revenue' => 3000000,
+        'doc_variable' => 1000000,
+        'doc_fixed' => 500000,
+        'ioc' => 500000,
+        'toc' => 2000000,
+        'ebitda' => 1000000,
+        'ebitda_margin' => 33.3333,
+    ]);
+
+    $this->actingAs($user);
+
+    $response = $this->get(route('ebitda-values.index', [
+        'year' => 2026,
+        'scenario' => EbitdaValue::SCENARIO_TARGET_TAHUNAN,
+    ]));
+
+    $response
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->has('values.data', 2)
+            ->where('values.data.0.scenario', EbitdaValue::SCENARIO_AKTUAL_HARIAN)
+            ->where('values.data.1.scenario', EbitdaValue::SCENARIO_TARGET_TAHUNAN)
+        );
+});
+
 test('ebitda values page displays editable source rows and exposes parent rollup value', function () {
     $user = User::factory()->create();
     $csrfToken = 'test-token';
@@ -130,13 +184,13 @@ test('ebitda values page displays editable source rows and exposes parent rollup
     $this->seed(OrganizationSeeder::class);
 
     $parent = Organization::query()
-        ->where('code', '1.A')
+        ->where('code', '1.B.1')
         ->firstOrFail();
     $firstChild = Organization::query()
-        ->where('code', '1.A.1')
+        ->where('code', '1.B.1.1')
         ->firstOrFail();
     $secondChild = Organization::query()
-        ->where('code', '1.A.2')
+        ->where('code', '1.B.1.2')
         ->firstOrFail();
 
     $parentValue = EbitdaValue::query()->create([
@@ -195,16 +249,16 @@ test('ebitda values page displays editable source rows and exposes parent rollup
     $response
         ->assertOk()
         ->assertInertia(fn (Assert $page) => $page
-            ->where('values.data.0.organization.code', '1.A')
-            ->where('values.data.0.value_source', 'calculated_from_children')
+            ->where('values.data.0.organization.code', '1.B.1')
+            ->where('values.data.0.value_source', 'excel')
             ->where('values.data.0.revenue', 999000000)
             ->where('values.data.0.toc', 999000000)
             ->where('values.data.0.ebitda', 0)
             ->where('values.data.0.ebitda_margin', null)
-            ->where('values.data.0.resolved_value.revenue', 150000000)
-            ->where('values.data.0.resolved_value.toc', 30000000)
-            ->where('values.data.0.resolved_value.ebitda', 120000000)
-            ->where('values.data.0.resolved_value.ebitda_margin', 80)
+            ->where('values.data.0.resolved_value.revenue', 999000000)
+            ->where('values.data.0.resolved_value.toc', 999000000)
+            ->where('values.data.0.resolved_value.ebitda', 0)
+            ->where('values.data.0.resolved_value.ebitda_margin', null)
         );
 
     $this->withSession(['_token' => $csrfToken])
@@ -232,12 +286,12 @@ test('ebitda values page displays editable source rows and exposes parent rollup
     $response
         ->assertOk()
         ->assertInertia(fn (Assert $page) => $page
-            ->where('values.data.0.organization.code', '1.A')
+            ->where('values.data.0.organization.code', '1.B.1')
             ->where('values.data.0.revenue', 123000000)
             ->where('values.data.0.toc', 20000000)
             ->where('values.data.0.ebitda', 103000000)
             ->where('values.data.0.ebitda_margin', 83.7398)
-            ->where('values.data.0.resolved_value.revenue', 150000000)
-            ->where('values.data.0.resolved_value.toc', 30000000)
+            ->where('values.data.0.resolved_value.revenue', 123000000)
+            ->where('values.data.0.resolved_value.toc', 20000000)
         );
 });

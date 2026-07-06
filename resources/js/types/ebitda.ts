@@ -35,7 +35,6 @@ export type EbitdaValueItem = EbitdaValue & {
 export type EbitdaValueFilters = {
     search: string;
     year: number;
-    scenario: string;
 };
 
 export type OrganizationOption = {

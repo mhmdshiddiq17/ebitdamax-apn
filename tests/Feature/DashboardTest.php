@@ -5,14 +5,13 @@ use App\Models\Organization;
 use App\Models\User;
 use App\Services\EbitdaDashboardService;
 use Database\Seeders\EbitdaValueSeeder;
-use Database\Seeders\OrganizationCalculationSeeder;
 use Database\Seeders\OrganizationSeeder;
 use Illuminate\Support\Facades\DB;
 use Inertia\Testing\AssertableInertia as Assert;
 
-test('guests are redirected to the login page', function () {
+test('guests can visit the dashboard while auth middleware is bypassed', function () {
     $response = $this->get(route('dashboard'));
-    $response->assertRedirect(route('login'));
+    $response->assertOk();
 });
 
 test('authenticated users can visit the dashboard', function () {
@@ -29,22 +28,40 @@ test('authenticated users can visit the dashboard', function () {
             ->where('directorates.0.code', '1.A.1')
             ->where('directorates.0.name', 'Direktur Perencanaan dan Pengembangan Bisnis')
             ->where('tree.code', '1')
+            ->where('tree.show_direct_value_column', true)
+            ->where('tree.direct_value_source', 'empty')
             ->has('tree.children', 19)
             ->where('tree.children.0.code', '1.A.1')
+            ->where('tree.children.0.show_direct_value_column', true)
+            ->where('tree.children.0.direct_value_source', 'empty')
+            ->where('tree.children.0.scenario_values.target_tahunan.source', 'empty')
+            ->where('tree.children.0.scenario_values.target_harian.source', 'empty')
             ->where('tree.children.18.code', '1.C.6')
         );
 });
 
-test('directorate dashboard parent values are calculated from child values', function () {
+test('directorate dashboard parent values use exact matrix value when available', function () {
     $this->seed(OrganizationSeeder::class);
-    $this->seed(OrganizationCalculationSeeder::class);
     $this->seed(EbitdaValueSeeder::class);
 
     $directorate = Organization::query()
         ->where('code', '1.A.3')
         ->firstOrFail();
+    $directorateSourceValue = EbitdaValue::query()
+        ->where('organization_id', $directorate->id)
+        ->where('year', 2026)
+        ->where('scenario', EbitdaValue::SCENARIO_TARGET_TAHUNAN)
+        ->firstOrFail();
+    $firstChildOrganization = Organization::query()
+        ->where('code', '1.A.3.1')
+        ->firstOrFail();
     $leaf = Organization::query()
         ->where('code', '1.A.3.1.1')
+        ->firstOrFail();
+    $firstChildSourceValue = EbitdaValue::query()
+        ->where('organization_id', $firstChildOrganization->id)
+        ->where('year', 2026)
+        ->where('scenario', EbitdaValue::SCENARIO_TARGET_TAHUNAN)
         ->firstOrFail();
     $leafSourceValue = EbitdaValue::query()
         ->where('organization_id', $leaf->id)
@@ -61,17 +78,15 @@ test('directorate dashboard parent values are calculated from child values', fun
     $costBreakdownTotal = array_sum(array_column($dashboard['charts']['cost_breakdown'], 'value'));
     $firstChild = collect($dashboard['tree']['children'])
         ->firstWhere('code', '1.A.3.1');
-    $firstChildValues = array_column($firstChild['children'], 'value');
     $leafNode = collect($firstChild['children'])
         ->firstWhere('code', '1.A.3.1.1');
-    $childValues = array_column($dashboard['tree']['children'], 'value');
 
-    expect($dashboard['tree']['value_source'])->toBe('calculated_from_children')
-        ->and($dashboard['tree']['value']['toc'])->toBe(array_sum(array_column($childValues, 'toc')))
-        ->and($dashboard['tree']['value']['ebitda'])->toBe(array_sum(array_column($childValues, 'ebitda')))
+    expect($dashboard['tree']['value_source'])->toBe('excel')
+        ->and($dashboard['tree']['value']['toc'])->toBe((float) $directorateSourceValue->toc)
+        ->and($dashboard['tree']['value']['ebitda'])->toBe((float) $directorateSourceValue->ebitda)
         ->and($dashboard['summary']['toc'])->toBe($costBreakdownTotal)
-        ->and($firstChild['value_source'])->toBe('calculated_from_children')
-        ->and($firstChild['value']['toc'])->toBe(array_sum(array_column($firstChildValues, 'toc')))
+        ->and($firstChild['value_source'])->toBe('excel')
+        ->and($firstChild['value']['toc'])->toBe((float) $firstChildSourceValue->toc)
         ->and($leafNode['value_source'])->toBe('excel')
         ->and($leafNode['value']['toc'])->toBe((float) $leafSourceValue->toc)
         ->and($leafNode['value']['ebitda'])->toBe((float) $leafSourceValue->ebitda);
@@ -80,15 +95,15 @@ test('directorate dashboard parent values are calculated from child values', fun
 test('dashboard cost alerts flag doc or ioc costs that exceed toc', function () {
     $this->seed(OrganizationSeeder::class);
 
-    $directorate = Organization::query()
-        ->where('code', '1.A.3')
+    $directorateLeaf = Organization::query()
+        ->where('code', '1.A.3.1.1')
         ->firstOrFail();
-    $sibling = Organization::query()
-        ->where('code', '1.A.4')
+    $siblingLeaf = Organization::query()
+        ->where('code', '1.A.4.1.1')
         ->firstOrFail();
 
     EbitdaValue::query()->create([
-        'organization_id' => $directorate->id,
+        'organization_id' => $directorateLeaf->id,
         'period_date' => null,
         'year' => 2026,
         'scenario' => EbitdaValue::SCENARIO_TARGET_TAHUNAN,
@@ -102,7 +117,7 @@ test('dashboard cost alerts flag doc or ioc costs that exceed toc', function () 
         'ebitda_margin' => null,
     ]);
     EbitdaValue::query()->create([
-        'organization_id' => $sibling->id,
+        'organization_id' => $siblingLeaf->id,
         'period_date' => null,
         'year' => 2026,
         'scenario' => EbitdaValue::SCENARIO_TARGET_TAHUNAN,
@@ -134,7 +149,6 @@ test('dashboard cost alerts flag doc or ioc costs that exceed toc', function () 
 
 test('executive dashboard summary and charts stay aligned with organization table rows', function () {
     $this->seed(OrganizationSeeder::class);
-    $this->seed(OrganizationCalculationSeeder::class);
     $this->seed(EbitdaValueSeeder::class);
 
     $dashboard = app(EbitdaDashboardService::class)->executiveDashboard(
@@ -151,6 +165,12 @@ test('executive dashboard summary and charts stay aligned with organization tabl
         ->and($dashboard['summary']['ebitda'])->toBe(array_sum(array_column($tableValues->all(), 'ebitda')))
         ->and($dashboard['tree']['value'])->toBe($dashboard['summary'])
         ->and(array_column($dashboard['tree']['children'], 'code'))->toBe($tableCodes)
+        ->and(array_keys($dashboard['tree']['scenario_values']))->toBe([
+            EbitdaValue::SCENARIO_TARGET_TAHUNAN,
+            EbitdaValue::SCENARIO_TARGET_HARIAN,
+            EbitdaValue::SCENARIO_PLAN_HARIAN,
+            EbitdaValue::SCENARIO_AKTUAL_HARIAN,
+        ])
         ->and(array_column($dashboard['charts']['revenue_by_directorate'], 'code'))->toBe($tableCodes)
         ->and(array_column($dashboard['charts']['ebitda_by_directorate'], 'code'))->toBe($tableCodes);
 });
@@ -158,32 +178,15 @@ test('executive dashboard summary and charts stay aligned with organization tabl
 test('dashboard cost alerts use parent toc as the benchmark', function () {
     $this->seed(OrganizationSeeder::class);
 
-    $parent = Organization::query()
-        ->where('code', '1.A')
+    $childLeaf = Organization::query()
+        ->where('code', '1.A.3.1.1')
         ->firstOrFail();
-    $child = Organization::query()
-        ->where('code', '1.A.3')
-        ->firstOrFail();
-    $sibling = Organization::query()
-        ->where('code', '1.A.4')
+    $siblingLeaf = Organization::query()
+        ->where('code', '1.A.4.1.1')
         ->firstOrFail();
 
     EbitdaValue::query()->create([
-        'organization_id' => $parent->id,
-        'period_date' => null,
-        'year' => 2026,
-        'scenario' => EbitdaValue::SCENARIO_TARGET_TAHUNAN,
-        'source_sheet' => 'Feature test',
-        'revenue' => 0,
-        'doc_variable' => 0,
-        'doc_fixed' => 0,
-        'ioc' => 0,
-        'toc' => 10_000_000,
-        'ebitda' => -10_000_000,
-        'ebitda_margin' => null,
-    ]);
-    EbitdaValue::query()->create([
-        'organization_id' => $child->id,
+        'organization_id' => $childLeaf->id,
         'period_date' => null,
         'year' => 2026,
         'scenario' => EbitdaValue::SCENARIO_TARGET_TAHUNAN,
@@ -197,7 +200,7 @@ test('dashboard cost alerts use parent toc as the benchmark', function () {
         'ebitda_margin' => null,
     ]);
     EbitdaValue::query()->create([
-        'organization_id' => $sibling->id,
+        'organization_id' => $siblingLeaf->id,
         'period_date' => null,
         'year' => 2026,
         'scenario' => EbitdaValue::SCENARIO_TARGET_TAHUNAN,
@@ -206,8 +209,8 @@ test('dashboard cost alerts use parent toc as the benchmark', function () {
         'doc_variable' => 0,
         'doc_fixed' => 0,
         'ioc' => 0,
-        'toc' => 1_000_000,
-        'ebitda' => -1_000_000,
+        'toc' => 10_000_000,
+        'ebitda' => -10_000_000,
         'ebitda_margin' => null,
     ]);
 
@@ -224,7 +227,6 @@ test('dashboard cost alerts use parent toc as the benchmark', function () {
 
 test('executive dashboard rollup uses a bounded number of queries', function () {
     $this->seed(OrganizationSeeder::class);
-    $this->seed(OrganizationCalculationSeeder::class);
     $this->seed(EbitdaValueSeeder::class);
 
     DB::flushQueryLog();

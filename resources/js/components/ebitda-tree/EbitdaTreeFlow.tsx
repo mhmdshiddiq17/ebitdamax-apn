@@ -23,10 +23,10 @@ type Props = {
     tree: EbitdaTreeNode;
 };
 
-const nodeWidth = 360;
-const nodeHeight = 300;
-const horizontalGap = 96;
-const verticalGap = 160;
+const nodeWidth = 560;
+const nodeHeight = 390;
+const horizontalGap = 120;
+const verticalGap = 180;
 const canvasMargin = 40;
 
 const nodeTypes: NodeTypes = {

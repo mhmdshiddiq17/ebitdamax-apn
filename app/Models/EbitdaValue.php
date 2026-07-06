@@ -15,6 +15,8 @@ class EbitdaValue extends Model
 
     public const SCENARIO_AKTUAL_HARIAN = 'aktual_harian';
 
+    public const SCENARIO_DIRECT_INPUT = 'direct_input';
+
     protected $fillable = [
         'excel_import_id',
         'organization_id',

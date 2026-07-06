@@ -49,7 +49,6 @@ export type CalculationSummary = {
 
 export type CalculationFilters = {
     year: number;
-    scenario: string;
     search: string;
     classification: string;
 };

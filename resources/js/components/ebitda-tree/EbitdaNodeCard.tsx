@@ -1,9 +1,10 @@
 import { Handle, Position } from '@xyflow/react';
 import type { Node, NodeProps } from '@xyflow/react';
 import { AlertTriangle } from 'lucide-react';
+import ScenarioValueMatrix from '@/components/ebitda-tree/ScenarioValueMatrix';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { formatCompactCurrency, formatPercent } from '@/lib/formatters';
+import { formatCompactCurrency } from '@/lib/formatters';
 import { cn } from '@/lib/utils';
 import type { EbitdaTreeNode } from '@/types/ebitda-tree';
 
@@ -13,14 +14,11 @@ export default function EbitdaNodeCard({ data }: NodeProps<EbitdaFlowNode>) {
     const isNegative = data.value.ebitda < 0;
     const isRevenueCenter = data.is_revenue_center;
     const hasCostOverrun = data.cost_alert.has_overrun;
-    const overrunKeys = new Set(
-        data.cost_alert.components.map((component) => component.key),
-    );
 
     return (
         <Card
             className={cn(
-                'w-[360px] border-2 bg-card shadow-md transition hover:shadow-lg',
+                'w-[560px] border-2 bg-card shadow-md transition hover:shadow-lg',
                 hasCostOverrun
                     ? data.cost_alert.severity === 'danger'
                         ? 'border-black shadow-black/10'
@@ -91,84 +89,13 @@ export default function EbitdaNodeCard({ data }: NodeProps<EbitdaFlowNode>) {
                     </p>
                 </div>
 
-                <div className="grid grid-cols-2 gap-2 text-xs">
-                    <div className="rounded-lg bg-muted p-2">
-                        <p className="text-muted-foreground">Revenue</p>
-                        <p className="font-semibold text-foreground">
-                            {formatCompactCurrency(data.value.revenue)}
-                        </p>
-                    </div>
-
-                    <div className="rounded-lg bg-muted p-2">
-                        <p className="text-muted-foreground">TOC</p>
-                        <p className="font-semibold text-foreground">
-                            {formatCompactCurrency(data.value.toc)}
-                        </p>
-                    </div>
-
-                    <div
-                        className={cn(
-                            'rounded-lg bg-background p-2 ring-1 ring-border',
-                            overrunKeys.has('doc_variable') &&
-                                'bg-destructive/10 ring-destructive/40',
-                        )}
-                    >
-                        <p className="text-muted-foreground">DOC-V</p>
-                        <p
-                            className={cn(
-                                'font-semibold text-foreground',
-                                overrunKeys.has('doc_variable') &&
-                                    'text-destructive',
-                            )}
-                        >
-                            {formatCompactCurrency(data.value.doc_variable)}
-                        </p>
-                    </div>
-
-                    <div
-                        className={cn(
-                            'rounded-lg bg-background p-2 ring-1 ring-border',
-                            overrunKeys.has('doc_fixed') &&
-                                'bg-destructive/10 ring-destructive/40',
-                        )}
-                    >
-                        <p className="text-muted-foreground">DOC-F</p>
-                        <p
-                            className={cn(
-                                'font-semibold text-foreground',
-                                overrunKeys.has('doc_fixed') &&
-                                    'text-destructive',
-                            )}
-                        >
-                            {formatCompactCurrency(data.value.doc_fixed)}
-                        </p>
-                    </div>
-
-                    <div
-                        className={cn(
-                            'rounded-lg bg-background p-2 ring-1 ring-border',
-                            overrunKeys.has('ioc') &&
-                                'bg-destructive/10 ring-destructive/40',
-                        )}
-                    >
-                        <p className="text-muted-foreground">IOC</p>
-                        <p
-                            className={cn(
-                                'font-semibold text-foreground',
-                                overrunKeys.has('ioc') && 'text-destructive',
-                            )}
-                        >
-                            {formatCompactCurrency(data.value.ioc)}
-                        </p>
-                    </div>
-
-                    <div className="rounded-lg bg-background p-2 ring-1 ring-border">
-                        <p className="text-muted-foreground">Margin</p>
-                        <p className="font-semibold text-foreground">
-                            {formatPercent(data.value.ebitda_margin)}
-                        </p>
-                    </div>
-                </div>
+                <ScenarioValueMatrix
+                    scenarioValues={data.scenario_values}
+                    fallbackValue={data.value}
+                    showDirectValueColumn={data.show_direct_value_column}
+                    directValueSource={data.direct_value_source}
+                    directValue={data.direct_value}
+                />
 
                 {hasCostOverrun && (
                     <div
@@ -191,17 +118,6 @@ export default function EbitdaNodeCard({ data }: NodeProps<EbitdaFlowNode>) {
                         </p>
                     </div>
                 )}
-
-                <div className="rounded-xl border bg-background p-3">
-                    <p className="text-xs text-muted-foreground">EBITDA</p>
-                    <p
-                        className={`text-lg font-bold ${
-                            isNegative ? 'text-destructive' : 'text-primary'
-                        }`}
-                    >
-                        {formatCompactCurrency(data.value.ebitda)}
-                    </p>
-                </div>
             </CardContent>
 
             <Handle

@@ -9,10 +9,10 @@ use Database\Seeders\OrganizationProfileSeeder;
 use Database\Seeders\OrganizationSeeder;
 use Inertia\Testing\AssertableInertia as Assert;
 
-test('guests are redirected to the login page', function () {
+test('guests can visit organizations while auth middleware is bypassed', function () {
     $response = $this->get(route('organizations.index'));
 
-    $response->assertRedirect(route('login'));
+    $response->assertOk();
 });
 
 test('authenticated users can visit the organizations tree', function () {

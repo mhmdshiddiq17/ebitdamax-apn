@@ -15,12 +15,10 @@ class EbitdaTreeController extends Controller
 
     public function index(Request $request): Response
     {
-        $year = (int) $request->input('year', now()->year);
+        $this->organizationValueService->flushCache();
 
-        $scenario = $request->input(
-            'scenario',
-            EbitdaValue::SCENARIO_TARGET_TAHUNAN
-        );
+        $year = (int) $request->input('year', now()->year);
+        $scenario = EbitdaValue::SCENARIO_TARGET_TAHUNAN;
 
         $rootSlug = $request->input('root');
 
@@ -53,7 +51,6 @@ class EbitdaTreeController extends Controller
 
         return Inertia::render('EbitdaTree/Index', [
             'year' => $year,
-            'scenario' => $scenario,
             'selectedRoot' => $rootOrganization->slug,
             'treeOptions' => $treeOptions,
             'tree' => $tree,

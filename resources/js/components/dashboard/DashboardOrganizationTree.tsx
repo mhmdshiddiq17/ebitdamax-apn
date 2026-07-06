@@ -10,14 +10,11 @@ import '@xyflow/react/dist/style.css';
 import type { Node, NodeProps, NodeTypes } from '@xyflow/react';
 import { AlertTriangle, ArrowUpRight, X } from 'lucide-react';
 import { useMemo, useState } from 'react';
+import ScenarioValueMatrix from '@/components/ebitda-tree/ScenarioValueMatrix';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import {
-    formatCompactCurrency,
-    formatCurrency,
-    formatPercent,
-} from '@/lib/formatters';
+import { formatCurrency, formatPercent } from '@/lib/formatters';
 import { cn } from '@/lib/utils';
 import { show as showDirectorate } from '@/routes/dashboard/directorates';
 import type { EbitdaTreeNode } from '@/types/ebitda-tree';
@@ -33,9 +30,9 @@ type TreePosition = {
     y: number;
 };
 
-const nodeWidth = 280;
-const nodeHeight = 164;
-const horizontalGap = 64;
+const nodeWidth = 560;
+const nodeHeight = 318;
+const horizontalGap = 72;
 const verticalGap = 116;
 const overviewColumns = 5;
 const overviewHorizontalGap = 44;
@@ -49,7 +46,7 @@ function DashboardTreeNode({ data }: NodeProps<DashboardFlowNode>) {
     return (
         <div
             className={cn(
-                'w-[280px] rounded-lg border-2 bg-card p-3 shadow-sm transition hover:shadow-md',
+                'w-[560px] rounded-lg border-2 bg-card p-3 shadow-sm transition hover:shadow-md',
                 hasOverrun
                     ? data.cost_alert.severity === 'danger'
                         ? 'border-black'
@@ -83,49 +80,14 @@ function DashboardTreeNode({ data }: NodeProps<DashboardFlowNode>) {
                 {data.name}
             </h3>
 
-            <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
-                <MetricPill
-                    label="Revenue"
-                    value={formatCompactCurrency(data.value.revenue)}
-                />
-                <MetricPill
-                    label="TOC"
-                    value={formatCompactCurrency(data.value.toc)}
-                />
-                <MetricPill
-                    label="EBITDA"
-                    value={formatCompactCurrency(data.value.ebitda)}
-                    danger={isNegative}
-                />
-                <MetricPill
-                    label="Margin"
-                    value={formatPercent(data.value.ebitda_margin)}
-                />
-            </div>
-        </div>
-    );
-}
-
-function MetricPill({
-    label,
-    value,
-    danger = false,
-}: {
-    label: string;
-    value: string;
-    danger?: boolean;
-}) {
-    return (
-        <div className="rounded-md bg-muted p-2">
-            <p className="text-muted-foreground">{label}</p>
-            <p
-                className={cn(
-                    'font-semibold text-foreground',
-                    danger && 'text-destructive',
-                )}
-            >
-                {value}
-            </p>
+            <ScenarioValueMatrix
+                className="mt-3"
+                scenarioValues={data.scenario_values}
+                fallbackValue={data.value}
+                showDirectValueColumn={data.show_direct_value_column}
+                directValueSource={data.direct_value_source}
+                directValue={data.direct_value}
+            />
         </div>
     );
 }

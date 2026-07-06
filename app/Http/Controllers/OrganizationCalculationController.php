@@ -19,8 +19,9 @@ class OrganizationCalculationController extends Controller
 
     public function index(Request $request): Response
     {
+        $this->organizationValueService->flushCache();
+
         $year = (int) $request->input('year', now()->year);
-        $scenario = (string) $request->input('scenario', EbitdaValue::SCENARIO_TARGET_TAHUNAN);
         $search = trim((string) $request->input('search', ''));
         $classification = trim((string) $request->input('classification', 'all'));
 
@@ -29,7 +30,7 @@ class OrganizationCalculationController extends Controller
             ->join('organizations', 'organizations.id', '=', 'ebitda_values.organization_id')
             ->with('organization')
             ->where('ebitda_values.year', $year)
-            ->where('ebitda_values.scenario', $scenario)
+            ->whereIn('ebitda_values.scenario', $this->organizationValueService->scenarioKeys())
             ->when($search !== '', function ($query) use ($search): void {
                 $query->where(function ($subQuery) use ($search): void {
                     $subQuery
@@ -45,6 +46,7 @@ class OrganizationCalculationController extends Controller
 
         $calculations = (clone $query)
             ->orderBy('organizations.sort_order')
+            ->orderBy('ebitda_values.scenario')
             ->limit(500)
             ->get()
             ->map(fn (EbitdaValue $calculation): array => $this->transformCalculation($calculation));
@@ -63,7 +65,7 @@ class OrganizationCalculationController extends Controller
 
         $classifications = EbitdaValue::query()
             ->where('year', $year)
-            ->where('scenario', $scenario)
+            ->whereIn('scenario', $this->organizationValueService->scenarioKeys())
             ->whereNotNull('classification')
             ->where('classification', '!=', '')
             ->select('classification')
@@ -84,7 +86,6 @@ class OrganizationCalculationController extends Controller
             'classifications' => $classifications,
             'filters' => [
                 'year' => $year,
-                'scenario' => $scenario,
                 'search' => $search,
                 'classification' => $classification,
             ],
@@ -108,6 +109,8 @@ class OrganizationCalculationController extends Controller
             $payload
         );
 
+        $this->organizationValueService->flushCache();
+
         return back()->with('success', 'Data kalkulasi berhasil disimpan.');
     }
 
@@ -121,12 +124,16 @@ class OrganizationCalculationController extends Controller
 
         $calculation->update($payload);
 
+        $this->organizationValueService->flushCache();
+
         return back()->with('success', 'Data kalkulasi berhasil diperbarui.');
     }
 
     public function destroy(EbitdaValue $calculation): RedirectResponse
     {
         $calculation->delete();
+
+        $this->organizationValueService->flushCache();
 
         return back()->with('success', 'Data kalkulasi berhasil dihapus.');
     }

@@ -18,11 +18,7 @@ class DashboardController extends Controller
     public function index(Request $request): Response
     {
         $year = (int) $request->input('year', now()->year);
-
-        $scenario = $request->input(
-            'scenario',
-            EbitdaValue::SCENARIO_TARGET_TAHUNAN
-        );
+        $scenario = EbitdaValue::SCENARIO_TARGET_TAHUNAN;
 
         return Inertia::render(
             'Dashboard/Index',
@@ -33,11 +29,7 @@ class DashboardController extends Controller
     public function showDirectorate(Request $request, Organization $organization): Response
     {
         $year = (int) $request->input('year', now()->year);
-
-        $scenario = $request->input(
-            'scenario',
-            EbitdaValue::SCENARIO_TARGET_TAHUNAN
-        );
+        $scenario = EbitdaValue::SCENARIO_TARGET_TAHUNAN;
 
         return Inertia::render(
             'Dashboard/Directorate',

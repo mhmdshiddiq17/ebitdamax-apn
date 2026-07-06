@@ -9,29 +9,19 @@ import type { EbitdaTreeNode, EbitdaTreeOption } from '@/types/ebitda-tree';
 
 type Props = {
     year: number;
-    scenario: string;
     selectedRoot: string;
     treeOptions: EbitdaTreeOption[];
     tree: EbitdaTreeNode;
 };
 
-const scenarios = [
-    { value: 'target_tahunan', label: 'Target Tahunan' },
-    { value: 'target_harian', label: 'Target Harian' },
-    { value: 'plan_harian', label: 'Plan Harian' },
-    { value: 'aktual_harian', label: 'Aktual Harian' },
-];
-
 export default function EbitdaTreeIndex({
     year,
-    scenario,
     selectedRoot,
     treeOptions,
     tree,
 }: Props) {
     const [form, setForm] = useState({
         year,
-        scenario,
         root: selectedRoot,
     });
 
@@ -42,7 +32,6 @@ export default function EbitdaTreeIndex({
             ebitdaTreeIndex.url(),
             {
                 year: form.year,
-                scenario: form.scenario,
                 root: form.root,
             },
             {
@@ -71,7 +60,7 @@ export default function EbitdaTreeIndex({
                             Visualisasi struktur organisasi dan nilai EBITDA
                             dari hasil import Excel. Setiap node menampilkan
                             Revenue, DOC-V, DOC-F, IOC, TOC, EBITDA, dan EBITDA
-                            Margin sesuai scenario yang dipilih.
+                            Margin untuk semua scenario utama.
                         </p>
                     </div>
 
@@ -79,7 +68,7 @@ export default function EbitdaTreeIndex({
                         <CardContent className="p-5">
                             <form
                                 onSubmit={submit}
-                                className="grid gap-4 md:grid-cols-4"
+                                className="grid gap-4 md:grid-cols-[1fr_2fr_auto]"
                             >
                                 <div className="space-y-2">
                                     <label className="text-sm font-medium text-foreground">
@@ -98,31 +87,6 @@ export default function EbitdaTreeIndex({
                                         }
                                         className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground transition-colors outline-none focus:border-ring focus:ring-2 focus:ring-ring/40"
                                     />
-                                </div>
-
-                                <div className="space-y-2">
-                                    <label className="text-sm font-medium text-foreground">
-                                        Scenario
-                                    </label>
-                                    <select
-                                        value={form.scenario}
-                                        onChange={(event) =>
-                                            setForm((current) => ({
-                                                ...current,
-                                                scenario: event.target.value,
-                                            }))
-                                        }
-                                        className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground transition-colors outline-none focus:border-ring focus:ring-2 focus:ring-ring/40"
-                                    >
-                                        {scenarios.map((item) => (
-                                            <option
-                                                key={item.value}
-                                                value={item.value}
-                                            >
-                                                {item.label}
-                                            </option>
-                                        ))}
-                                    </select>
                                 </div>
 
                                 <div className="space-y-2">

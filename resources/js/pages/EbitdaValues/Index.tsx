@@ -84,7 +84,7 @@ function createDefaultForm(filters: EbitdaValueFilters): EbitdaFormData {
         organization_id: '',
         year: String(filters.year ?? new Date().getFullYear()),
         period_date: '',
-        scenario: filters.scenario ?? 'target_tahunan',
+        scenario: 'target_tahunan',
         revenue: '0',
         doc_variable: '0',
         doc_fixed: '0',
@@ -213,7 +213,6 @@ export default function EbitdaValuesIndex({
     const [filterForm, setFilterForm] = useState({
         search: filters.search ?? '',
         year: String(filters.year ?? new Date().getFullYear()),
-        scenario: filters.scenario ?? 'target_tahunan',
     });
 
     const { data, setData, post, put, processing, errors, reset, clearErrors } =
@@ -239,7 +238,6 @@ export default function EbitdaValuesIndex({
             {
                 search: filterForm.search,
                 year: filterForm.year,
-                scenario: filterForm.scenario,
             },
             {
                 preserveState: true,
@@ -328,7 +326,7 @@ export default function EbitdaValuesIndex({
                         </Button>
                     </section>
 
-                    <section className="grid gap-4 md:grid-cols-3">
+                    <section className="grid gap-4 md:grid-cols-2">
                         <Card className="rounded-lg border bg-card shadow-sm">
                             <CardContent className="flex items-center justify-between gap-4 p-5">
                                 <div>
@@ -356,29 +354,13 @@ export default function EbitdaValuesIndex({
                                 <Calculator className="size-5 text-primary" />
                             </CardContent>
                         </Card>
-
-                        <Card className="rounded-lg border bg-card shadow-sm">
-                            <CardContent className="flex items-center justify-between gap-4 p-5">
-                                <div>
-                                    <p className="text-sm text-muted-foreground">
-                                        Scenario
-                                    </p>
-                                    <p className="mt-1 text-lg font-semibold text-primary">
-                                        {filters.scenario}
-                                    </p>
-                                </div>
-                                <Badge className="bg-primary text-primary-foreground">
-                                    Active
-                                </Badge>
-                            </CardContent>
-                        </Card>
                     </section>
 
                     <Card className="rounded-lg border bg-card shadow-sm">
                         <CardContent className="p-5">
                             <form
                                 onSubmit={submitFilters}
-                                className="grid gap-4 md:grid-cols-[1fr_140px_220px_auto]"
+                                className="grid gap-4 md:grid-cols-[1fr_140px_auto]"
                             >
                                 <div className="space-y-2">
                                     <Label>Search organisasi</Label>
@@ -409,29 +391,6 @@ export default function EbitdaValuesIndex({
                                         }))
                                     }
                                 />
-
-                                <div className="space-y-2">
-                                    <Label>Scenario</Label>
-                                    <select
-                                        value={filterForm.scenario}
-                                        onChange={(event) =>
-                                            setFilterForm((current) => ({
-                                                ...current,
-                                                scenario: event.target.value,
-                                            }))
-                                        }
-                                        className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground outline-none focus:border-ring focus:ring-2 focus:ring-ring/40"
-                                    >
-                                        {scenarioOptions.map((option) => (
-                                            <option
-                                                key={option.value}
-                                                value={option.value}
-                                            >
-                                                {option.label}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div>
 
                                 <div className="flex items-end">
                                     <Button type="submit" className="w-full">

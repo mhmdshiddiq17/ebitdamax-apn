@@ -88,7 +88,7 @@ function createDefaultForm(filters: CalculationFilters): CalculationFormData {
         organization_id: '',
         year: String(filters.year ?? new Date().getFullYear()),
         period_date: '',
-        scenario: filters.scenario ?? 'target_tahunan',
+        scenario: 'target_tahunan',
         revenue: '0',
         classification: '',
         man_cost: '0',
@@ -345,7 +345,6 @@ export default function CalculationIndex({
 
     const [form, setForm] = useState({
         year: String(filters.year ?? new Date().getFullYear()),
-        scenario: filters.scenario ?? 'target_tahunan',
         search: filters.search ?? '',
         classification: filters.classification ?? 'all',
     });
@@ -360,7 +359,6 @@ export default function CalculationIndex({
             calculationsIndex.url(),
             {
                 year: form.year,
-                scenario: form.scenario,
                 search: form.search,
                 classification: form.classification,
             },
@@ -459,12 +457,6 @@ export default function CalculationIndex({
                                     variant="outline"
                                     className="border-primary/25 bg-primary/5 text-primary"
                                 >
-                                    Scenario: {filters.scenario}
-                                </Badge>
-                                <Badge
-                                    variant="outline"
-                                    className="border-primary/25 bg-primary/5 text-primary"
-                                >
                                     Source: ebitda_values
                                 </Badge>
                             </div>
@@ -534,7 +526,7 @@ export default function CalculationIndex({
                         <CardContent className="p-5">
                             <form
                                 onSubmit={submitFilters}
-                                className="grid gap-4 md:grid-cols-[140px_220px_1fr_240px_auto]"
+                                className="grid gap-4 md:grid-cols-[140px_1fr_240px_auto]"
                             >
                                 <div className="space-y-2">
                                     <label className="text-sm font-medium text-foreground">
@@ -552,32 +544,6 @@ export default function CalculationIndex({
                                         }
                                         className="h-10"
                                     />
-                                </div>
-
-                                <div className="space-y-2">
-                                    <label className="text-sm font-medium text-foreground">
-                                        Scenario
-                                    </label>
-
-                                    <select
-                                        value={form.scenario}
-                                        onChange={(event) =>
-                                            setForm((current) => ({
-                                                ...current,
-                                                scenario: event.target.value,
-                                            }))
-                                        }
-                                        className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground transition-colors outline-none focus:border-ring focus:ring-2 focus:ring-ring/40"
-                                    >
-                                        {scenarioOptions.map((option) => (
-                                            <option
-                                                key={option.value}
-                                                value={option.value}
-                                            >
-                                                {option.label}
-                                            </option>
-                                        ))}
-                                    </select>
                                 </div>
 
                                 <div className="space-y-2">

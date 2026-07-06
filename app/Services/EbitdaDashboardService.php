@@ -13,6 +13,8 @@ class EbitdaDashboardService
 
     public function executiveDashboard(int $year, string $scenario): array
     {
+        $this->organizationValueService->flushCache();
+
         $fullTree = $this->rootDashboardTree($year, $scenario);
 
         $directorates = Organization::query()
@@ -62,6 +64,8 @@ class EbitdaDashboardService
 
     public function directorateDashboard(Organization $organization, int $year, string $scenario): array
     {
+        $this->organizationValueService->flushCache();
+
         $tree = $this->organizationValueService->buildTree($organization, $year, $scenario);
         $flatNodes = collect($this->flattenTree($tree));
         $children = collect($tree['children']);
@@ -202,6 +206,13 @@ class EbitdaDashboardService
                     'depth' => 1,
                     'value_source' => $directorate['value_source'],
                     'value' => $directorate['value'],
+                    'scenario_values' => $this->fallbackScenarioValues(
+                        $directorate['value_source'],
+                        $directorate['value']
+                    ),
+                    'show_direct_value_column' => true,
+                    'direct_value_source' => 'empty',
+                    'direct_value' => $this->organizationValueService->emptyValue(),
                     'cost_alert' => $rootTree['cost_alert'],
                 ]);
 
@@ -214,9 +225,46 @@ class EbitdaDashboardService
 
         $rootTree['value_source'] = 'calculated_from_children';
         $rootTree['value'] = $summary;
+        $rootTree['scenario_values'] = $this->sumScenarioValues($children);
         $rootTree['children'] = $children;
 
         return $rootTree;
+    }
+
+    private function fallbackScenarioValues(string $source, array $value): array
+    {
+        $values = [];
+
+        foreach ($this->organizationValueService->scenarioKeys() as $scenario) {
+            $values[$scenario] = [
+                'source' => $source,
+                'value' => $value,
+            ];
+        }
+
+        return $values;
+    }
+
+    private function sumScenarioValues(array $nodes): array
+    {
+        $scenarioValues = [];
+
+        foreach ($this->organizationValueService->scenarioKeys() as $scenario) {
+            $values = array_map(
+                fn (array $node): array => $node['scenario_values'][$scenario]['value'] ?? $this->organizationValueService->emptyValue(),
+                $nodes
+            );
+            $sum = $this->organizationValueService->sumValues($values);
+
+            $scenarioValues[$scenario] = [
+                'source' => $this->organizationValueService->hasAnyValue($sum)
+                    ? 'calculated_from_children'
+                    : 'empty',
+                'value' => $sum,
+            ];
+        }
+
+        return $scenarioValues;
     }
 
     private function costOverrunAlertsFromNodes(Collection $nodes): array

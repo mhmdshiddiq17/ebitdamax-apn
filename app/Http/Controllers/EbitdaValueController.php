@@ -19,12 +19,14 @@ class EbitdaValueController extends Controller
 
     public function index(Request $request): Response
     {
+        $this->organizationValueService->flushCache();
+
         $search = trim((string) $request->input('search', ''));
         $year = $request->input('year', now()->year);
-        $scenario = $request->input('scenario', 'target_tahunan');
 
         $values = EbitdaValue::query()
             ->with('organization')
+            ->whereIn('scenario', $this->organizationValueService->scenarioKeys())
             ->when($search !== '', function ($query) use ($search) {
                 $query->whereHas('organization', function ($subQuery) use ($search) {
                     $subQuery
@@ -34,14 +36,14 @@ class EbitdaValueController extends Controller
                 });
             })
             ->when($year, fn ($query) => $query->where('year', $year))
-            ->when($scenario, fn ($query) => $query->where('scenario', $scenario))
             ->join('organizations', 'organizations.id', '=', 'ebitda_values.organization_id')
             ->select('ebitda_values.*')
             ->orderBy('organizations.sort_order')
             ->orderBy('organizations.code')
+            ->orderBy('ebitda_values.scenario')
             ->paginate(25)
             ->through(fn (EbitdaValue $value): array => $this->transformEbitdaValue($value))
-            ->withQueryString();
+            ->appends($request->only(['search', 'year']));
 
         $organizations = Organization::query()
             ->active()
@@ -54,7 +56,6 @@ class EbitdaValueController extends Controller
             'filters' => [
                 'search' => $search,
                 'year' => (int) $year,
-                'scenario' => $scenario,
             ],
         ]);
     }
@@ -75,6 +76,8 @@ class EbitdaValueController extends Controller
             $payload
         );
 
+        $this->organizationValueService->flushCache();
+
         return back()->with('success', 'Data EBITDA berhasil disimpan.');
     }
 
@@ -87,12 +90,16 @@ class EbitdaValueController extends Controller
 
         $ebitdaValue->update($payload);
 
+        $this->organizationValueService->flushCache();
+
         return back()->with('success', 'Data EBITDA berhasil diperbarui.');
     }
 
     public function destroy(EbitdaValue $ebitdaValue): RedirectResponse
     {
         $ebitdaValue->delete();
+
+        $this->organizationValueService->flushCache();
 
         return back()->with('success', 'Data EBITDA berhasil dihapus.');
     }

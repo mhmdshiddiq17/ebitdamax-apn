@@ -35,6 +35,26 @@ class EbitdaOrganizationValueService
     }
 
     /**
+     * @return array<string, array{source: 'excel'|'calculated_from_children'|'empty', value: array<string, float|null>}>
+     */
+    public function scenarioValues(Organization $organization, int $year): array
+    {
+        $values = [];
+
+        foreach ($this->scenarioKeys() as $scenario) {
+            $values[$scenario] = $this->resolve($organization, $year, $scenario);
+        }
+
+        return $values;
+    }
+
+    public function flushCache(): void
+    {
+        $this->exactValuesByPeriod = [];
+        $this->resolvedValuesByPeriod = [];
+    }
+
+    /**
      * @param  array<int, true>  $visited
      * @return array{source: 'excel'|'calculated_from_children'|'empty', value: array<string, float|null>}
      */
@@ -62,30 +82,13 @@ class EbitdaOrganizationValueService
             $childValues[] = $this->resolveOrganization($child, $year, $scenario, $visited)['value'];
         }
 
-        if (count($childValues) > 0) {
-            $sum = $this->sumValues($childValues);
-
-            if ($this->hasAnyValue($sum)) {
-                return $this->resolvedValuesByPeriod[$periodKey][$organizationId] = [
-                    'source' => 'calculated_from_children',
-                    'value' => $sum,
-                ];
-            }
-        }
-
         $exactValue = $this->getExactValue($organization, $year, $scenario);
 
-        if ($exactValue !== null) {
-            return $this->resolvedValuesByPeriod[$periodKey][$organizationId] = [
-                'source' => 'excel',
-                'value' => $exactValue,
-            ];
-        }
-
-        return $this->resolvedValuesByPeriod[$periodKey][$organizationId] = [
-            'source' => 'empty',
-            'value' => $this->emptyValue(),
-        ];
+        return $this->resolvedValuesByPeriod[$periodKey][$organizationId] = $this->resolveValueWithPolicy(
+            organization: $organization,
+            exactValue: $exactValue,
+            childValues: $childValues
+        );
     }
 
     /**
@@ -103,6 +106,7 @@ class EbitdaOrganizationValueService
 
             return $this->treeNode(
                 organization: $organization,
+                year: $year,
                 resolvedValue: $resolvedValue,
                 children: [],
                 parentValue: $parentValue,
@@ -132,6 +136,7 @@ class EbitdaOrganizationValueService
 
         return $this->treeNode(
             organization: $organization,
+            year: $year,
             resolvedValue: $resolvedValue,
             children: $children,
             parentValue: $parentValue,
@@ -227,12 +232,48 @@ class EbitdaOrganizationValueService
     }
 
     /**
+     * @return array<int, string>
+     */
+    public function scenarioKeys(): array
+    {
+        return [
+            EbitdaValue::SCENARIO_TARGET_TAHUNAN,
+            EbitdaValue::SCENARIO_TARGET_HARIAN,
+            EbitdaValue::SCENARIO_PLAN_HARIAN,
+            EbitdaValue::SCENARIO_AKTUAL_HARIAN,
+        ];
+    }
+
+    /**
      * @param  array<int, array<string, mixed>>  $childValues
      * @return array{source: 'excel'|'calculated_from_children'|'empty', value: array<string, float|null>}
      */
     private function resolveFromPreparedChildren(Organization $organization, int $year, string $scenario, array $childValues): array
     {
-        if (count($childValues) > 0) {
+        return $this->resolveValueWithPolicy(
+            organization: $organization,
+            exactValue: $this->getExactValue($organization, $year, $scenario),
+            childValues: $childValues
+        );
+    }
+
+    /**
+     * @param  array<string, float|null>|null  $exactValue
+     * @param  array<int, array<string, mixed>>  $childValues
+     * @return array{source: 'excel'|'calculated_from_children'|'empty', value: array<string, float|null>}
+     */
+    private function resolveValueWithPolicy(Organization $organization, ?array $exactValue, array $childValues): array
+    {
+        $hasActiveChildren = count($childValues) > 0;
+
+        if ($exactValue !== null) {
+            return [
+                'source' => 'excel',
+                'value' => $exactValue,
+            ];
+        }
+
+        if ($hasActiveChildren) {
             $sum = $this->sumValues($childValues);
 
             if ($this->hasAnyValue($sum)) {
@@ -243,19 +284,47 @@ class EbitdaOrganizationValueService
             }
         }
 
-        $exactValue = $this->getExactValue($organization, $year, $scenario);
-
-        if ($exactValue !== null) {
-            return [
-                'source' => 'excel',
-                'value' => $exactValue,
-            ];
-        }
-
         return [
             'source' => 'empty',
             'value' => $this->emptyValue(),
         ];
+    }
+
+    public function shouldShowDirectValueColumn(Organization $organization): bool
+    {
+        return $this->isLeadershipRollupNode($organization);
+    }
+
+    private function isLeadershipRollupNode(Organization $organization): bool
+    {
+        $name = (string) $organization->name;
+        $level = (string) $organization->level;
+
+        if (in_array($organization->node_type, [
+            'root',
+            'deputy_director',
+            'directorate',
+            'support_center',
+            'regional_center',
+        ], true)) {
+            return true;
+        }
+
+        if (in_array($level, [
+            'Direktur Utama',
+            'Wakil Direktur Utama',
+            'Direktorat',
+            'SVP',
+            'VP',
+        ], true)) {
+            return true;
+        }
+
+        return str_starts_with($level, 'Wakil Direktur Utama')
+            || str_starts_with($name, 'Wakil Direktur Utama')
+            || str_starts_with($name, 'SVP ')
+            || str_starts_with($name, 'VP ')
+            || str_starts_with($name, 'Direktur Wilayah ');
     }
 
     /**
@@ -313,8 +382,10 @@ class EbitdaOrganizationValueService
      * @param  array<string, mixed>|null  $parentValue
      * @return array<string, mixed>
      */
-    private function treeNode(Organization $organization, array $resolvedValue, array $children, ?array $parentValue, ?string $parentCode): array
+    private function treeNode(Organization $organization, int $year, array $resolvedValue, array $children, ?array $parentValue, ?string $parentCode): array
     {
+        $directValue = $this->getExactValue($organization, $year, EbitdaValue::SCENARIO_DIRECT_INPUT);
+
         return [
             'id' => $organization->id,
             'slug' => $organization->slug,
@@ -328,6 +399,10 @@ class EbitdaOrganizationValueService
             'depth' => $organization->depth,
             'value_source' => $resolvedValue['source'],
             'value' => $resolvedValue['value'],
+            'scenario_values' => $this->scenarioValues($organization, $year),
+            'show_direct_value_column' => $this->shouldShowDirectValueColumn($organization),
+            'direct_value_source' => $directValue !== null ? 'excel' : 'empty',
+            'direct_value' => $directValue ?? $this->emptyValue(),
             'cost_alert' => $this->costAlertService->analyze(
                 value: $resolvedValue['value'],
                 benchmarkToc: $parentValue['toc'] ?? $resolvedValue['value']['toc'],

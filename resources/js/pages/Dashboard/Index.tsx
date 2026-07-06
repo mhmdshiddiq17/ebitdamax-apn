@@ -13,7 +13,6 @@ import type { ExecutiveDashboardProps } from '@/types/dashboard';
 
 export default function DashboardIndex({
     year,
-    scenario,
     summary,
     tree,
     charts,
@@ -45,18 +44,11 @@ export default function DashboardIndex({
                             <Badge className="bg-primary text-primary-foreground">
                                 Tahun {year}
                             </Badge>
-                            <Badge
-                                variant="outline"
-                                className="border-primary/25 bg-primary/5 text-primary"
-                            >
-                                Scenario: {scenario}
-                            </Badge>
                         </div>
                     </div>
 
                     <DashboardFilter
                         year={year}
-                        scenario={scenario}
                         action={dashboard.url()}
                     />
 

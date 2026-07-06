@@ -12,10 +12,10 @@ use Inertia\Testing\AssertableInertia as Assert;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
-test('guests are redirected to the login page', function () {
+test('guests can visit import excel while auth middleware is bypassed', function () {
     $response = $this->get(route('import-excel.index'));
 
-    $response->assertRedirect(route('login'));
+    $response->assertOk();
 });
 
 test('authenticated users can visit the import excel page', function () {
