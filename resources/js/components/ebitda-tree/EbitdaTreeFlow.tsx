@@ -8,7 +8,7 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import type { Edge, NodeTypes } from '@xyflow/react';
-import { Maximize2, Minimize2 } from 'lucide-react';
+import { AlertTriangle, Maximize2, Minimize2 } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import EbitdaNodeCard from '@/components/ebitda-tree/EbitdaNodeCard';
 import type { EbitdaFlowNode } from '@/components/ebitda-tree/EbitdaNodeCard';
@@ -16,6 +16,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { formatCurrency, formatPercent } from '@/lib/formatters';
+import { cn } from '@/lib/utils';
 import type { EbitdaTreeNode } from '@/types/ebitda-tree';
 
 type Props = {
@@ -146,6 +147,15 @@ function TreeCanvas({ tree }: Props) {
         () => findTreeNode(tree, selectedNodeId) ?? tree,
         [selectedNodeId, tree],
     );
+    const selectedOverrunKeys = useMemo(
+        () =>
+            new Set(
+                selectedNode.cost_alert.components.map(
+                    (component) => component.key,
+                ),
+            ),
+        [selectedNode],
+    );
 
     const refitTree = useCallback(() => {
         window.setTimeout(() => {
@@ -266,7 +276,17 @@ function TreeCanvas({ tree }: Props) {
                     >
                         <Background className="text-border" />
                         <Controls />
-                        <MiniMap pannable zoomable nodeStrokeWidth={3} />
+                        <MiniMap
+                            pannable
+                            zoomable
+                            nodeStrokeWidth={3}
+                            nodeColor={(node) =>
+                                (node.data as EbitdaTreeNode).cost_alert
+                                    ?.has_overrun
+                                    ? '#dc2626'
+                                    : '#94a3b8'
+                            }
+                        />
                     </ReactFlow>
                 </CardContent>
             </Card>
@@ -287,6 +307,21 @@ function TreeCanvas({ tree }: Props) {
                                             className="border-primary/25 bg-primary/5 text-primary"
                                         >
                                             {selectedNode.level}
+                                        </Badge>
+                                    )}
+
+                                    {selectedNode.cost_alert.has_overrun && (
+                                        <Badge
+                                            className={cn(
+                                                'gap-1 text-white',
+                                                selectedNode.cost_alert
+                                                    .severity === 'danger'
+                                                    ? 'bg-black hover:bg-black/90'
+                                                    : 'bg-destructive hover:bg-destructive/90',
+                                            )}
+                                        >
+                                            <AlertTriangle className="size-3" />
+                                            Area pemborosan
                                         </Badge>
                                     )}
                                 </div>
@@ -314,11 +349,17 @@ function TreeCanvas({ tree }: Props) {
                                     value={formatCurrency(
                                         selectedNode.value.doc_variable,
                                     )}
+                                    danger={selectedOverrunKeys.has(
+                                        'doc_variable',
+                                    )}
                                 />
                                 <DetailRow
                                     label="DOC Fixed"
                                     value={formatCurrency(
                                         selectedNode.value.doc_fixed,
+                                    )}
+                                    danger={selectedOverrunKeys.has(
+                                        'doc_fixed',
                                     )}
                                 />
                                 <DetailRow
@@ -326,6 +367,7 @@ function TreeCanvas({ tree }: Props) {
                                     value={formatCurrency(
                                         selectedNode.value.ioc,
                                     )}
+                                    danger={selectedOverrunKeys.has('ioc')}
                                 />
                                 <DetailRow
                                     label="TOC"
@@ -348,6 +390,45 @@ function TreeCanvas({ tree }: Props) {
                                     )}
                                 />
                             </div>
+
+                            {selectedNode.cost_alert.has_overrun && (
+                                <div
+                                    className={cn(
+                                        'rounded-xl border p-4 text-sm',
+                                        selectedNode.cost_alert.severity ===
+                                            'danger'
+                                            ? 'border-black bg-black text-white'
+                                            : 'border-destructive/30 bg-destructive/10 text-destructive',
+                                    )}
+                                >
+                                    <div className="flex items-center gap-2 font-semibold">
+                                        <AlertTriangle className="size-4" />
+                                        Indikasi area pemborosan
+                                    </div>
+                                    <p className="mt-2">
+                                        {selectedNode.cost_alert.message}
+                                    </p>
+                                    <div className="mt-3 space-y-2">
+                                        {selectedNode.cost_alert.components.map(
+                                            (component) => (
+                                                <div
+                                                    key={component.key}
+                                                    className="flex items-center justify-between gap-3 rounded-lg bg-white/10 px-3 py-2"
+                                                >
+                                                    <span>
+                                                        {component.label}
+                                                    </span>
+                                                    <span className="text-right font-bold">
+                                                        {formatCurrency(
+                                                            component.overrun_amount,
+                                                        )}
+                                                    </span>
+                                                </div>
+                                            ),
+                                        )}
+                                    </div>
+                                </div>
+                            )}
 
                             <div className="rounded-xl border border-primary/20 bg-primary/10 p-4 text-sm text-foreground">
                                 <p className="font-semibold">Sumber nilai</p>

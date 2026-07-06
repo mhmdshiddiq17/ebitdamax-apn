@@ -4,12 +4,15 @@ namespace App\Http\Controllers;
 
 use App\Models\EbitdaValue;
 use App\Models\Organization;
+use App\Services\EbitdaCostAlertService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class EbitdaTreeController extends Controller
 {
+    public function __construct(private EbitdaCostAlertService $costAlertService) {}
+
     public function index(Request $request): Response
     {
         $year = (int) $request->input('year', now()->year);
@@ -99,6 +102,7 @@ class EbitdaTreeController extends Controller
             'depth' => $organization->depth,
             'value_source' => $valueSource,
             'value' => $value,
+            'cost_alert' => $this->costAlertService->analyze($value),
             'children' => $children,
         ];
     }

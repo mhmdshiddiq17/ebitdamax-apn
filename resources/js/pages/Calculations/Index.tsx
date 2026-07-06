@@ -406,7 +406,7 @@ export default function CalculationIndex({
                     <section className="flex flex-col gap-4 rounded-lg border bg-card p-6 shadow-sm lg:flex-row lg:items-center lg:justify-between">
                         <div>
                             <p className="text-sm font-semibold text-primary uppercase">
-                                Sprint 6C - CRUD Kalkulasi
+                                CRUD Kalkulasi
                             </p>
 
                             <h1 className="mt-1 text-2xl font-semibold text-foreground">

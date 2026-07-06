@@ -135,7 +135,7 @@ export default function ImportIndex({ imports }: Props) {
                 <div className="space-y-6 p-6">
                     <div className="rounded-2xl border border-red-100 bg-white p-6 shadow-sm">
                         <p className="text-sm font-medium tracking-wide text-red-600 uppercase">
-                            Sprint 3 — Excel Import Engine
+                            Excel Import Engine
                         </p>
                         <h1 className="mt-1 text-2xl font-bold text-slate-950">
                             Import Excel Dashboard Pohon EBITDA

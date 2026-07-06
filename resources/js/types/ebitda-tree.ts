@@ -8,6 +8,27 @@ export type EbitdaValue = {
   ebitda_margin: number | null;
 };
 
+export type EbitdaCostAlertComponent = {
+  key: 'doc_variable' | 'doc_fixed' | 'ioc';
+  label: string;
+  value: number;
+  toc: number;
+  overrun_amount: number;
+  overrun_ratio: number | null;
+};
+
+export type EbitdaCostAlert = {
+  has_overrun: boolean;
+  severity: 'none' | 'warning' | 'danger';
+  components: EbitdaCostAlertComponent[];
+  largest_component: 'doc_variable' | 'doc_fixed' | 'ioc' | null;
+  largest_component_label: string | null;
+  largest_cost_value: number;
+  overrun_amount: number;
+  overrun_ratio: number | null;
+  message: string;
+};
+
 export type EbitdaTreeNode = {
   id: number;
   slug: string;
@@ -21,6 +42,7 @@ export type EbitdaTreeNode = {
   depth: number;
   value_source: 'excel' | 'calculated_from_children' | 'empty';
   value: EbitdaValue;
+  cost_alert: EbitdaCostAlert;
   children: EbitdaTreeNode[];
 };
 

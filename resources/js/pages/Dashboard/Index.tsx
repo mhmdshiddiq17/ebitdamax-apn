@@ -31,7 +31,7 @@ export default function DashboardIndex({
                 <div className="space-y-6 p-6">
                     <div className="rounded-lg border bg-card p-6 shadow-sm">
                         <p className="text-sm font-medium tracking-wide text-primary uppercase">
-                            Sprint 5 — Executive Dashboard
+                            Executive Dashboard
                         </p>
 
                         <h1 className="mt-1 text-2xl font-bold text-foreground">
@@ -41,7 +41,8 @@ export default function DashboardIndex({
                         <p className="mt-2 max-w-4xl text-muted-foreground">
                             Dashboard ini menampilkan Revenue, Cost Breakdown,
                             EBITDA by Directorate, Ranking EBITDA Margin, dan
-                            Alert EBITDA Negatif berdasarkan hasil import Excel.
+                            Alert Area Pemborosan Cost berdasarkan hasil import
+                            Excel.
                         </p>
 
                         <div className="mt-4 flex flex-wrap gap-2">

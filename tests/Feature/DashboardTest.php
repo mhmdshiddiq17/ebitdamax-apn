@@ -30,13 +30,27 @@ test('authenticated users can visit the dashboard', function () {
         );
 });
 
-test('directorate dashboard charts use the same rollup values as the tree breakdown', function () {
+test('directorate dashboard tree breakdown uses exact ebitda values from source tables', function () {
     $this->seed(OrganizationSeeder::class);
     $this->seed(OrganizationCalculationSeeder::class);
     $this->seed(EbitdaValueSeeder::class);
 
     $directorate = Organization::query()
         ->where('code', '1.A.3')
+        ->firstOrFail();
+    $child = Organization::query()
+        ->where('code', '1.A.3.1')
+        ->firstOrFail();
+
+    $directorateSourceValue = EbitdaValue::query()
+        ->where('organization_id', $directorate->id)
+        ->where('year', 2026)
+        ->where('scenario', EbitdaValue::SCENARIO_TARGET_TAHUNAN)
+        ->firstOrFail();
+    $childSourceValue = EbitdaValue::query()
+        ->where('organization_id', $child->id)
+        ->where('year', 2026)
+        ->where('scenario', EbitdaValue::SCENARIO_TARGET_TAHUNAN)
         ->firstOrFail();
 
     $dashboard = app(EbitdaDashboardService::class)->directorateDashboard(
@@ -45,11 +59,52 @@ test('directorate dashboard charts use the same rollup values as the tree breakd
         EbitdaValue::SCENARIO_TARGET_TAHUNAN
     );
 
-    $childValues = array_column($dashboard['tree']['children'], 'value');
     $costBreakdownTotal = array_sum(array_column($dashboard['charts']['cost_breakdown'], 'value'));
+    $firstChild = collect($dashboard['tree']['children'])
+        ->firstWhere('code', '1.A.3.1');
 
-    expect($dashboard['tree']['value_source'])->toBe('calculated_from_children')
+    expect($dashboard['tree']['value_source'])->toBe('excel')
+        ->and($dashboard['tree']['value']['toc'])->toBe((float) $directorateSourceValue->toc)
+        ->and($dashboard['tree']['value']['ebitda'])->toBe((float) $directorateSourceValue->ebitda)
         ->and($dashboard['summary']['toc'])->toBe($costBreakdownTotal)
-        ->and($dashboard['summary']['ebitda'])->toBe(array_sum(array_column($childValues, 'ebitda')))
-        ->and(array_sum(array_column($dashboard['charts']['ebitda_by_directorate'], 'value')))->toBe(array_sum(array_column($childValues, 'ebitda')));
+        ->and($firstChild['value_source'])->toBe('excel')
+        ->and($firstChild['value']['toc'])->toBe((float) $childSourceValue->toc)
+        ->and($firstChild['value']['ebitda'])->toBe((float) $childSourceValue->ebitda);
+});
+
+test('dashboard cost alerts flag doc or ioc costs that exceed toc', function () {
+    $this->seed(OrganizationSeeder::class);
+
+    $directorate = Organization::query()
+        ->where('code', '1.A.3')
+        ->firstOrFail();
+
+    EbitdaValue::query()->create([
+        'organization_id' => $directorate->id,
+        'period_date' => null,
+        'year' => 2026,
+        'scenario' => EbitdaValue::SCENARIO_TARGET_TAHUNAN,
+        'source_sheet' => 'Feature test',
+        'revenue' => 0,
+        'doc_variable' => 1_500_000,
+        'doc_fixed' => 500_000,
+        'ioc' => 250_000,
+        'toc' => 1_000_000,
+        'ebitda' => -1_000_000,
+        'ebitda_margin' => null,
+    ]);
+
+    $dashboard = app(EbitdaDashboardService::class)->executiveDashboard(
+        2026,
+        EbitdaValue::SCENARIO_TARGET_TAHUNAN
+    );
+
+    $alert = collect($dashboard['alerts']['negative_ebitda'])
+        ->firstWhere('code', '1.A.3');
+
+    expect($alert)->not->toBeNull()
+        ->and($alert['largest_component'])->toBe('doc_variable')
+        ->and($alert['largest_component_label'])->toBe('DOC-V')
+        ->and($alert['overrun_amount'])->toBe(500_000.0)
+        ->and(collect($alert['overrun_components'])->pluck('key')->all())->toContain('doc_variable');
 });

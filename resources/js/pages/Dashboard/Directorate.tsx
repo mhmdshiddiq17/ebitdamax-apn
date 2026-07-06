@@ -1,5 +1,5 @@
 import { Head, Link } from '@inertiajs/react';
-import { ArrowLeft } from 'lucide-react';
+import { AlertTriangle, ArrowLeft } from 'lucide-react';
 import CostBreakdownChart from '@/components/dashboard/CostBreakdownChart';
 import DashboardFilter from '@/components/dashboard/DashboardFilter';
 import DashboardKpiCards from '@/components/dashboard/DashboardKpiCards';
@@ -10,10 +10,34 @@ import RevenueByDirectorateChart from '@/components/dashboard/RevenueByDirectora
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { formatCurrency, formatPercent } from '@/lib/formatters';
+import { cn } from '@/lib/utils';
 import { dashboard } from '@/routes';
 import { show as showDirectorate } from '@/routes/dashboard/directorates';
 import type { DirectorateDashboardProps } from '@/types/dashboard';
 import type { EbitdaTreeNode } from '@/types/ebitda-tree';
+
+function CostValueCell({
+    node,
+    field,
+}: {
+    node: EbitdaTreeNode;
+    field: 'doc_variable' | 'doc_fixed' | 'ioc';
+}) {
+    const isOverrun = node.cost_alert.components.some(
+        (component) => component.key === field,
+    );
+
+    return (
+        <td
+            className={cn(
+                'p-3 text-right',
+                isOverrun && 'bg-destructive/5 font-bold text-destructive',
+            )}
+        >
+            {formatCurrency(node.value[field])}
+        </td>
+    );
+}
 
 function TreeRow({
     node,
@@ -24,7 +48,13 @@ function TreeRow({
 }) {
     return (
         <>
-            <tr className="border-b transition-colors hover:bg-muted/40">
+            <tr
+                className={cn(
+                    'border-b transition-colors hover:bg-muted/40',
+                    node.cost_alert.has_overrun &&
+                        'bg-destructive/5 hover:bg-destructive/10',
+                )}
+            >
                 <td
                     className="p-3"
                     style={{ paddingLeft: `${12 + depth * 24}px` }}
@@ -33,6 +63,19 @@ function TreeRow({
                         <Badge className="bg-primary text-primary-foreground">
                             {node.code}
                         </Badge>
+                        {node.cost_alert.has_overrun && (
+                            <Badge
+                                className={cn(
+                                    'gap-1 text-white',
+                                    node.cost_alert.severity === 'danger'
+                                        ? 'bg-black hover:bg-black/90'
+                                        : 'bg-destructive hover:bg-destructive/90',
+                                )}
+                            >
+                                <AlertTriangle className="size-3" />
+                                Area pemborosan
+                            </Badge>
+                        )}
                         <span className="font-medium text-foreground">
                             {node.name}
                         </span>
@@ -48,15 +91,9 @@ function TreeRow({
                 <td className="p-3 text-right">
                     {formatCurrency(node.value.revenue)}
                 </td>
-                <td className="p-3 text-right">
-                    {formatCurrency(node.value.doc_variable)}
-                </td>
-                <td className="p-3 text-right">
-                    {formatCurrency(node.value.doc_fixed)}
-                </td>
-                <td className="p-3 text-right">
-                    {formatCurrency(node.value.ioc)}
-                </td>
+                <CostValueCell node={node} field="doc_variable" />
+                <CostValueCell node={node} field="doc_fixed" />
+                <CostValueCell node={node} field="ioc" />
                 <td className="p-3 text-right">
                     {formatCurrency(node.value.toc)}
                 </td>

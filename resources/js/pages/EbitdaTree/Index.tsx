@@ -60,7 +60,7 @@ export default function EbitdaTreeIndex({
                 <div className="space-y-6 p-6">
                     <div className="rounded-lg border bg-card p-6 shadow-sm">
                         <p className="text-sm font-medium tracking-wide text-primary uppercase">
-                            Sprint 4 — EBITDA Tree Visualization
+                            EBITDA Tree Visualization
                         </p>
 
                         <h1 className="mt-1 text-2xl font-bold text-foreground">

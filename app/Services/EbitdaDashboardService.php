@@ -8,6 +8,8 @@ use Illuminate\Support\Collection;
 
 class EbitdaDashboardService
 {
+    public function __construct(private EbitdaCostAlertService $costAlertService) {}
+
     public function executiveDashboard(int $year, string $scenario): array
     {
         $directorates = Organization::query()
@@ -45,7 +47,7 @@ class EbitdaDashboardService
                 'margin_ranking' => $this->buildMarginRanking($directorates),
             ],
             'alerts' => [
-                'negative_ebitda' => $this->negativeEbitdaAlerts($year, $scenario),
+                'negative_ebitda' => $this->costOverrunAlerts($year, $scenario),
             ],
         ];
     }
@@ -76,7 +78,7 @@ class EbitdaDashboardService
                 'margin_ranking' => $this->buildMarginRanking($flatNodes),
             ],
             'alerts' => [
-                'negative_ebitda' => $this->negativeEbitdaAlertsFromNodes($flatNodes),
+                'negative_ebitda' => $this->costOverrunAlertsFromNodes($flatNodes),
             ],
         ];
     }
@@ -92,7 +94,7 @@ class EbitdaDashboardService
             ->values()
             ->all();
 
-        $resolvedValue = $this->resolveValueFromChildren(
+        $resolvedValue = $this->resolveValueFromSource(
             exactValue: $this->getExactOrganizationValue($organization, $year, $scenario),
             childValues: array_column($children, 'value')
         );
@@ -107,6 +109,7 @@ class EbitdaDashboardService
             'is_cost_center' => $organization->is_cost_center,
             'value_source' => $resolvedValue['source'],
             'value' => $resolvedValue['value'],
+            'cost_alert' => $this->costAlertService->analyze($resolvedValue['value']),
             'children' => $children,
         ];
     }
@@ -124,6 +127,12 @@ class EbitdaDashboardService
 
     private function resolveOrganizationValue(Organization $organization, int $year, string $scenario): array
     {
+        $exactValue = $this->getExactOrganizationValue($organization, $year, $scenario);
+
+        if ($exactValue !== null) {
+            return $exactValue;
+        }
+
         $organization->load([
             'children' => fn ($query) => $query->active()->ordered(),
         ]);
@@ -133,8 +142,8 @@ class EbitdaDashboardService
             ->values()
             ->all();
 
-        return $this->resolveValueFromChildren(
-            exactValue: $this->getExactOrganizationValue($organization, $year, $scenario),
+        return $this->resolveValueFromSource(
+            exactValue: null,
             childValues: $childValues
         )['value'];
     }
@@ -182,8 +191,15 @@ class EbitdaDashboardService
         ];
     }
 
-    private function resolveValueFromChildren(?array $exactValue, array $childValues): array
+    private function resolveValueFromSource(?array $exactValue, array $childValues): array
     {
+        if ($exactValue !== null) {
+            return [
+                'value' => $exactValue,
+                'source' => 'excel',
+            ];
+        }
+
         if (count($childValues) > 0) {
             $sum = $this->sumValues($childValues);
 
@@ -193,13 +209,6 @@ class EbitdaDashboardService
                     'source' => 'calculated_from_children',
                 ];
             }
-        }
-
-        if ($exactValue !== null) {
-            return [
-                'value' => $exactValue,
-                'source' => 'excel',
-            ];
         }
 
         return [
@@ -283,48 +292,95 @@ class EbitdaDashboardService
             ->all();
     }
 
-    private function negativeEbitdaAlerts(int $year, string $scenario): array
+    private function costOverrunAlerts(int $year, string $scenario): array
     {
         return EbitdaValue::query()
             ->with('organization')
             ->where('year', $year)
             ->where('scenario', $scenario)
-            ->where('ebitda', '<', 0)
-            ->orderBy('ebitda')
-            ->limit(15)
             ->get()
-            ->map(fn (EbitdaValue $row) => [
-                'organization_id' => $row->organization_id,
-                'code' => $row->organization?->code,
-                'name' => $row->organization?->name,
-                'level' => $row->organization?->level,
-                'revenue' => (float) $row->revenue,
-                'toc' => (float) $row->toc,
-                'ebitda' => (float) $row->ebitda,
-                'ebitda_margin' => $row->ebitda_margin !== null ? (float) $row->ebitda_margin : null,
-            ])
+            ->map(function (EbitdaValue $row): ?array {
+                $value = $this->valueFromEbitdaRow($row);
+                $alert = $this->costAlertService->analyze($value);
+
+                if (! $alert['has_overrun']) {
+                    return null;
+                }
+
+                return $this->formatCostOverrunAlert([
+                    'organization_id' => $row->organization_id,
+                    'code' => $row->organization?->code,
+                    'name' => $row->organization?->name,
+                    'level' => $row->organization?->level,
+                ], $value, $alert);
+            })
+            ->filter()
+            ->sortByDesc('overrun_amount')
+            ->take(15)
             ->values()
             ->all();
     }
 
-    private function negativeEbitdaAlertsFromNodes(Collection $nodes): array
+    private function costOverrunAlertsFromNodes(Collection $nodes): array
     {
         return $nodes
-            ->filter(fn ($node) => (float) $node['value']['ebitda'] < 0)
-            ->sortBy(fn ($node) => (float) $node['value']['ebitda'])
+            ->map(function ($node): ?array {
+                $alert = $this->costAlertService->analyze($node['value']);
+
+                if (! $alert['has_overrun']) {
+                    return null;
+                }
+
+                return $this->formatCostOverrunAlert([
+                    'organization_id' => $node['id'],
+                    'code' => $node['code'],
+                    'name' => $node['name'],
+                    'level' => $node['level'],
+                ], $node['value'], $alert);
+            })
+            ->filter()
+            ->sortByDesc('overrun_amount')
             ->take(15)
-            ->map(fn ($node) => [
-                'organization_id' => $node['id'],
-                'code' => $node['code'],
-                'name' => $node['name'],
-                'level' => $node['level'],
-                'revenue' => (float) $node['value']['revenue'],
-                'toc' => (float) $node['value']['toc'],
-                'ebitda' => (float) $node['value']['ebitda'],
-                'ebitda_margin' => $node['value']['ebitda_margin'],
-            ])
             ->values()
             ->all();
+    }
+
+    private function valueFromEbitdaRow(EbitdaValue $row): array
+    {
+        return [
+            'revenue' => (float) $row->revenue,
+            'doc_variable' => (float) $row->doc_variable,
+            'doc_fixed' => (float) $row->doc_fixed,
+            'ioc' => (float) $row->ioc,
+            'toc' => (float) $row->toc,
+            'ebitda' => (float) $row->ebitda,
+            'ebitda_margin' => $row->ebitda_margin !== null ? (float) $row->ebitda_margin : null,
+        ];
+    }
+
+    private function formatCostOverrunAlert(array $node, array $value, array $alert): array
+    {
+        return [
+            'organization_id' => $node['organization_id'],
+            'code' => $node['code'],
+            'name' => $node['name'],
+            'level' => $node['level'],
+            'revenue' => (float) $value['revenue'],
+            'doc_variable' => (float) $value['doc_variable'],
+            'doc_fixed' => (float) $value['doc_fixed'],
+            'ioc' => (float) $value['ioc'],
+            'toc' => (float) $value['toc'],
+            'ebitda' => (float) $value['ebitda'],
+            'ebitda_margin' => $value['ebitda_margin'],
+            'overrun_components' => $alert['components'],
+            'largest_component' => $alert['largest_component'],
+            'largest_component_label' => $alert['largest_component_label'],
+            'largest_cost_value' => $alert['largest_cost_value'],
+            'overrun_amount' => $alert['overrun_amount'],
+            'overrun_ratio' => $alert['overrun_ratio'],
+            'severity' => $alert['severity'],
+            'analysis' => $alert['message'],
+        ];
     }
 
     private function emptyValue(): array

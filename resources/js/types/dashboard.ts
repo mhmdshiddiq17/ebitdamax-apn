@@ -1,4 +1,8 @@
-import type { EbitdaTreeNode, EbitdaValue } from './ebitda-tree';
+import type {
+  EbitdaCostAlertComponent,
+  EbitdaTreeNode,
+  EbitdaValue,
+} from './ebitda-tree';
 
 export type DirectorateDashboardItem = {
   id: number;
@@ -18,15 +22,26 @@ export type ChartItem = {
   value: number;
 };
 
-export type NegativeEbitdaAlert = {
+export type CostOverrunAlert = {
   organization_id: number;
   code: string | null;
   name: string | null;
   level: string | null;
   revenue: number;
+  doc_variable: number;
+  doc_fixed: number;
+  ioc: number;
   toc: number;
   ebitda: number;
   ebitda_margin: number | null;
+  overrun_components: EbitdaCostAlertComponent[];
+  largest_component: 'doc_variable' | 'doc_fixed' | 'ioc' | null;
+  largest_component_label: string | null;
+  largest_cost_value: number;
+  overrun_amount: number;
+  overrun_ratio: number | null;
+  severity: 'none' | 'warning' | 'danger';
+  analysis: string;
 };
 
 export type DashboardCharts = {
@@ -37,7 +52,7 @@ export type DashboardCharts = {
 };
 
 export type DashboardAlerts = {
-  negative_ebitda: NegativeEbitdaAlert[];
+  negative_ebitda: CostOverrunAlert[];
 };
 
 export type ExecutiveDashboardProps = {
