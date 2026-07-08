@@ -17,7 +17,7 @@ class UpdateEbitdaValueRequest extends FormRequest
             'organization_id' => ['required', 'exists:organizations,id'],
             'year' => ['required', 'integer', 'min:2020', 'max:2100'],
             'period_date' => ['nullable', 'date'],
-            'scenario' => ['required', 'in:target_tahunan,target_harian,plan_harian,aktual_harian'],
+            'scenario' => ['required', 'in:direct_input,target_tahunan,target_harian,plan_harian,aktual_harian'],
 
             'revenue' => ['required', 'numeric', 'min:0'],
             'doc_variable' => ['required', 'numeric', 'min:0'],

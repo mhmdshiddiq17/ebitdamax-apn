@@ -69,6 +69,7 @@ type EbitdaFormData = {
 };
 
 const scenarioOptions = [
+    { value: 'direct_input', label: 'Nilai Input' },
     { value: 'target_tahunan', label: 'Target Tahunan' },
     { value: 'target_harian', label: 'Target Harian' },
     { value: 'plan_harian', label: 'Plan Harian' },
@@ -141,6 +142,13 @@ function sourceLabel(valueSource: EbitdaValueItem['value_source']) {
     }
 
     return 'Nilai dashboard: kosong';
+}
+
+function scenarioLabel(scenario: string) {
+    return (
+        scenarioOptions.find((option) => option.value === scenario)?.label ??
+        scenario
+    );
 }
 
 function SourceValueHint({ value }: { value: string }) {
@@ -475,7 +483,8 @@ export default function EbitdaValuesIndex({
                                                 </p>
                                             </TableCell>
                                             <TableCell className="p-4 text-muted-foreground">
-                                                {item.year} / {item.scenario}
+                                                {item.year} /{' '}
+                                                {scenarioLabel(item.scenario)}
                                             </TableCell>
                                             <TableCell className="p-4 text-right">
                                                 {formatCurrency(

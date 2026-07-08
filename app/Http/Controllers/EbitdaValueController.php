@@ -26,7 +26,7 @@ class EbitdaValueController extends Controller
 
         $values = EbitdaValue::query()
             ->with('organization')
-            ->whereIn('scenario', $this->organizationValueService->scenarioKeys())
+            ->whereIn('scenario', $this->visibleScenarioKeys())
             ->when($search !== '', function ($query) use ($search) {
                 $query->whereHas('organization', function ($subQuery) use ($search) {
                     $subQuery
@@ -58,6 +58,17 @@ class EbitdaValueController extends Controller
                 'year' => (int) $year,
             ],
         ]);
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function visibleScenarioKeys(): array
+    {
+        return [
+            EbitdaValue::SCENARIO_DIRECT_INPUT,
+            ...$this->organizationValueService->scenarioKeys(),
+        ];
     }
 
     public function store(
