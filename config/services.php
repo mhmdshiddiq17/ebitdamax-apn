@@ -35,4 +35,12 @@ return [
         ],
     ],
 
+    'portal_pembangunan' => [
+        'base_url' => env('PORTAL_PEMBANGUNAN_BASE_URL', 'https://portalkdkmp.id'),
+    ],
+
+    'portal_pemetaan' => [
+        'base_url' => env('PORTAL_PEMETAAN_BASE_URL', 'https://pemetaan-lahan.portalkdkmp.id'),
+    ],
+
 ];

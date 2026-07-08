@@ -4,8 +4,10 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EbitdaTreeController;
 use App\Http\Controllers\EbitdaValueController;
 use App\Http\Controllers\ExcelImportController;
+use App\Http\Controllers\MonitoringDashboardController;
 use App\Http\Controllers\OrganizationCalculationController;
 use App\Http\Controllers\OrganizationController;
+use App\Http\Controllers\SdmKdkmpEntryController;
 use App\Http\Controllers\ValueChainJobdeskController;
 use Illuminate\Support\Facades\Route;
 
@@ -54,6 +56,12 @@ Route::put('/value-chain-jobdesk/{profile}', [ValueChainJobdeskController::class
 
 Route::delete('/value-chain-jobdesk/{profile}', [ValueChainJobdeskController::class, 'destroy'])
     ->name('value-chain-jobdesk.destroy');
+
+Route::get('/monitoring', [MonitoringDashboardController::class, 'index'])
+    ->name('monitoring.index');
+
+Route::resource('sdm-data', SdmKdkmpEntryController::class, ['parameters' => ['sdm-data' => 'sdm_data']])
+    ->only(['index', 'store', 'update', 'destroy']);
 // });
 
 require __DIR__.'/settings.php';

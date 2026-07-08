@@ -7,6 +7,8 @@ import {
     FileSpreadsheet,
     LayoutDashboard,
     Network,
+    Radar,
+    Users,
 } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavMain } from '@/components/nav-main';
@@ -25,7 +27,9 @@ import { index as calculationsIndex } from '@/routes/calculations';
 import { index as ebitdaTreeIndex } from '@/routes/ebitda-tree';
 import { index as ebitdaValuesIndex } from '@/routes/ebitda-values';
 import { index as importExcelIndex } from '@/routes/import-excel';
+import { index as monitoringIndex } from '@/routes/monitoring';
 import { index as organizationsIndex } from '@/routes/organizations';
+import { index as sdmDataIndex } from '@/routes/sdm-data';
 import { index as valueChainJobdeskIndex } from '@/routes/value-chain-jobdesk';
 import type { NavItem } from '@/types';
 
@@ -34,6 +38,16 @@ const mainNavItems: NavItem[] = [
         title: 'Dashboard',
         href: dashboard(),
         icon: LayoutDashboard,
+    },
+    {
+        title: 'Dashboard Monitoring',
+        href: monitoringIndex(),
+        icon: Radar,
+    },
+    {
+        title: 'Data SDM',
+        href: sdmDataIndex(),
+        icon: Users,
     },
     {
         title: 'Pohon EBITDA',
