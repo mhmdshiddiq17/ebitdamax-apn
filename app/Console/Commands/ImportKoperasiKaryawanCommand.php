@@ -12,6 +12,9 @@ use PhpOffice\PhpSpreadsheet\IOFactory;
 #[Description('Import/refresh koperasi reference data (NIK, nama, wilayah) used by the SDM data table. Does not touch jumlah_karyawan.')]
 class ImportKoperasiKaryawanCommand extends Command
 {
+    /** @var array<string, string> normalized kabupaten/kota name => provinsi name */
+    private array $provinsiByKabupaten = [];
+
     public function handle(): int
     {
         $path = $this->argument('path');
@@ -21,6 +24,8 @@ class ImportKoperasiKaryawanCommand extends Command
 
             return self::FAILURE;
         }
+
+        $this->loadWilayahLookup();
 
         $sheet = IOFactory::load($path)->getActiveSheet();
         $rows = $sheet->toArray(null, true, true, true);
@@ -36,6 +41,8 @@ class ImportKoperasiKaryawanCommand extends Command
                 continue;
             }
 
+            $kotaKabupaten = $row['H'] ?? null;
+
             $entry = SdmKdkmpEntry::query()->updateOrCreate(
                 ['nik' => $nik],
                 [
@@ -43,9 +50,10 @@ class ImportKoperasiKaryawanCommand extends Command
                     'nama_korem' => $row['C'] ?? null,
                     'nama_kodim' => $row['D'] ?? null,
                     'nama_koperasi' => $row['E'] ?? $nik,
+                    'provinsi' => $this->resolveProvinsi($kotaKabupaten),
                     'desa' => $row['F'] ?? null,
                     'kecamatan' => $row['G'] ?? null,
-                    'kota_kabupaten' => $row['H'] ?? null,
+                    'kota_kabupaten' => $kotaKabupaten,
                     'batch' => $row['N'] ?? null,
                 ],
             );
@@ -56,5 +64,47 @@ class ImportKoperasiKaryawanCommand extends Command
         $this->info("Imported {$created} new koperasi, refreshed {$updated} existing koperasi.");
 
         return self::SUCCESS;
+    }
+
+    private function loadWilayahLookup(): void
+    {
+        $kabupatenPath = database_path('data/wilayah-kabupaten-kota.json');
+        $provinsiPath = database_path('data/wilayah-provinsi.json');
+
+        $provinsiById = [];
+        foreach ($this->readJsonLines($provinsiPath) as $provinsi) {
+            $provinsiById[$provinsi['id']] = $provinsi['nama'];
+        }
+
+        foreach ($this->readJsonLines($kabupatenPath) as $kabupaten) {
+            $key = $this->normalizeKabupatenName($kabupaten['nama']);
+            $this->provinsiByKabupaten[$key] = $provinsiById[$kabupaten['provinsi_id']] ?? null;
+        }
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    private function readJsonLines(string $path): array
+    {
+        $lines = file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+
+        return array_map(fn (string $line): array => json_decode($line, true), $lines);
+    }
+
+    private function resolveProvinsi(?string $kotaKabupaten): ?string
+    {
+        if (! $kotaKabupaten) {
+            return null;
+        }
+
+        return $this->provinsiByKabupaten[$this->normalizeKabupatenName($kotaKabupaten)] ?? null;
+    }
+
+    private function normalizeKabupatenName(string $name): string
+    {
+        $name = preg_replace('/^(kota|kabupaten)\s+/i', '', trim($name));
+
+        return mb_strtolower($name ?? '');
     }
 }

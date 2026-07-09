@@ -30,6 +30,7 @@ function SdmRow({ entry }: { entry: SdmEntry }) {
             { jumlah_karyawan: jumlahKaryawan },
             {
                 preserveScroll: true,
+                preserveState: true,
                 onSuccess: () => setIsEditing(false),
                 onFinish: () => setSaving(false),
             },
@@ -40,11 +41,16 @@ function SdmRow({ entry }: { entry: SdmEntry }) {
         <TableRow>
             <TableCell>
                 <p className="font-medium">{entry.nama_koperasi}</p>
-                <p className="text-xs text-muted-foreground">
-                    {[entry.nama_kodim, entry.kota_kabupaten]
-                        .filter(Boolean)
-                        .join(' · ')}
-                </p>
+                <p className="text-xs text-muted-foreground">{entry.nik}</p>
+            </TableCell>
+            <TableCell className="text-muted-foreground">
+                {entry.provinsi ?? '-'}
+            </TableCell>
+            <TableCell className="text-muted-foreground">
+                {entry.kota_kabupaten ?? '-'}
+            </TableCell>
+            <TableCell className="text-muted-foreground">
+                {entry.kecamatan ?? '-'}
             </TableCell>
             <TableCell className="w-40">
                 {isEditing ? (
@@ -164,7 +170,7 @@ export default function SdmDataIndex({
                                         onChange={(e) =>
                                             setSearch(e.target.value)
                                         }
-                                        placeholder="Cari nama koperasi, NIK, atau kodim..."
+                                        placeholder="Cari nama koperasi, NIK, wilayah..."
                                         className="pl-8"
                                     />
                                 </div>
@@ -173,32 +179,82 @@ export default function SdmDataIndex({
                                 </Button>
                             </form>
 
-                            <Table>
-                                <TableHeader>
-                                    <TableRow>
-                                        <TableHead>KDKMP</TableHead>
-                                        <TableHead>Jumlah Karyawan</TableHead>
-                                        <TableHead className="text-right">
-                                            Aksi
-                                        </TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {entries.length === 0 && (
+                            <div className="overflow-x-auto">
+                                <Table>
+                                    <TableHeader>
                                         <TableRow>
-                                            <TableCell
-                                                colSpan={3}
-                                                className="text-center text-muted-foreground"
-                                            >
-                                                Tidak ada data yang cocok.
-                                            </TableCell>
+                                            <TableHead>KDKMP</TableHead>
+                                            <TableHead>Provinsi</TableHead>
+                                            <TableHead>Kab/Kota</TableHead>
+                                            <TableHead>Kecamatan</TableHead>
+                                            <TableHead>
+                                                Jumlah Karyawan
+                                            </TableHead>
+                                            <TableHead className="text-right">
+                                                Aksi
+                                            </TableHead>
                                         </TableRow>
-                                    )}
-                                    {entries.map((entry) => (
-                                        <SdmRow key={entry.id} entry={entry} />
+                                    </TableHeader>
+                                    <TableBody>
+                                        {entries.data.length === 0 && (
+                                            <TableRow>
+                                                <TableCell
+                                                    colSpan={6}
+                                                    className="text-center text-muted-foreground"
+                                                >
+                                                    Tidak ada data yang cocok.
+                                                </TableCell>
+                                            </TableRow>
+                                        )}
+                                        {entries.data.map((entry) => (
+                                            <SdmRow
+                                                key={entry.id}
+                                                entry={entry}
+                                            />
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            </div>
+
+                            <div className="flex flex-col gap-3 border-t pt-4 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+                                <p>
+                                    Menampilkan {entries.from ?? 0}-
+                                    {entries.to ?? 0} dari {entries.total} KDKMP
+                                </p>
+                                <div className="flex flex-wrap gap-2">
+                                    {entries.links.map((link) => (
+                                        <Button
+                                            key={`${link.label}-${link.url}`}
+                                            type="button"
+                                            variant={
+                                                link.active
+                                                    ? 'default'
+                                                    : 'outline'
+                                            }
+                                            size="sm"
+                                            disabled={!link.url}
+                                            onClick={() => {
+                                                if (link.url) {
+                                                    router.get(
+                                                        link.url,
+                                                        {},
+                                                        {
+                                                            preserveScroll: true,
+                                                            preserveState: true,
+                                                        },
+                                                    );
+                                                }
+                                            }}
+                                        >
+                                            <span
+                                                dangerouslySetInnerHTML={{
+                                                    __html: link.label,
+                                                }}
+                                            />
+                                        </Button>
                                     ))}
-                                </TableBody>
-                            </Table>
+                                </div>
+                            </div>
                         </CardContent>
                     </Card>
                 </div>

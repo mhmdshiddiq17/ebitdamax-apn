@@ -1,0 +1,515 @@
+{"id":0,"kode_kabupaten_kota":"00","provinsi_id":0,"nama":"UNDEFINED","created_at":"2025-10-31 04:45:57","updated_at":"2025-10-31 04:45:57"}
+{"id":1,"kode_kabupaten_kota":"01","provinsi_id":1,"nama":"Aceh Selatan","created_at":"2025-10-31 04:46:47","updated_at":"2025-10-31 04:46:47"}
+{"id":2,"kode_kabupaten_kota":"02","provinsi_id":1,"nama":"Aceh Tenggara","created_at":"2025-10-31 04:46:47","updated_at":"2025-10-31 04:46:47"}
+{"id":3,"kode_kabupaten_kota":"03","provinsi_id":1,"nama":"Aceh Timur","created_at":"2025-10-31 04:46:47","updated_at":"2025-10-31 04:46:47"}
+{"id":4,"kode_kabupaten_kota":"04","provinsi_id":1,"nama":"Aceh Tengah","created_at":"2025-10-31 04:46:47","updated_at":"2025-10-31 04:46:47"}
+{"id":5,"kode_kabupaten_kota":"05","provinsi_id":1,"nama":"Aceh Barat","created_at":"2025-10-31 04:46:47","updated_at":"2025-10-31 04:46:47"}
+{"id":6,"kode_kabupaten_kota":"06","provinsi_id":1,"nama":"Aceh Besar","created_at":"2025-10-31 04:46:47","updated_at":"2025-10-31 04:46:47"}
+{"id":7,"kode_kabupaten_kota":"07","provinsi_id":1,"nama":"Pidie","created_at":"2025-10-31 04:46:47","updated_at":"2025-10-31 04:46:47"}
+{"id":8,"kode_kabupaten_kota":"08","provinsi_id":1,"nama":"Aceh Utara","created_at":"2025-10-31 04:46:47","updated_at":"2025-10-31 04:46:47"}
+{"id":9,"kode_kabupaten_kota":"09","provinsi_id":1,"nama":"Simeulue","created_at":"2025-10-31 04:46:47","updated_at":"2025-10-31 04:46:47"}
+{"id":10,"kode_kabupaten_kota":"10","provinsi_id":1,"nama":"Aceh Singkil","created_at":"2025-10-31 04:46:47","updated_at":"2025-10-31 04:46:47"}
+{"id":11,"kode_kabupaten_kota":"11","provinsi_id":1,"nama":"Bireuen","created_at":"2025-10-31 04:46:47","updated_at":"2025-10-31 04:46:47"}
+{"id":12,"kode_kabupaten_kota":"12","provinsi_id":1,"nama":"Aceh Barat Daya","created_at":"2025-10-31 04:46:47","updated_at":"2025-10-31 04:46:47"}
+{"id":13,"kode_kabupaten_kota":"13","provinsi_id":1,"nama":"Gayo Lues","created_at":"2025-10-31 04:46:47","updated_at":"2025-10-31 04:46:47"}
+{"id":14,"kode_kabupaten_kota":"14","provinsi_id":1,"nama":"Aceh Jaya","created_at":"2025-10-31 04:46:47","updated_at":"2025-10-31 04:46:47"}
+{"id":15,"kode_kabupaten_kota":"15","provinsi_id":1,"nama":"Nagan Raya","created_at":"2025-10-31 04:46:47","updated_at":"2025-10-31 04:46:47"}
+{"id":16,"kode_kabupaten_kota":"16","provinsi_id":1,"nama":"Aceh Tamiang","created_at":"2025-10-31 04:46:47","updated_at":"2025-10-31 04:46:47"}
+{"id":17,"kode_kabupaten_kota":"17","provinsi_id":1,"nama":"Bener Meriah","created_at":"2025-10-31 04:46:47","updated_at":"2025-10-31 04:46:47"}
+{"id":18,"kode_kabupaten_kota":"18","provinsi_id":1,"nama":"Pidie Jaya","created_at":"2025-10-31 04:46:47","updated_at":"2025-10-31 04:46:47"}
+{"id":19,"kode_kabupaten_kota":"71","provinsi_id":1,"nama":"Kota Banda Aceh","created_at":"2025-10-31 04:46:47","updated_at":"2025-10-31 04:46:47"}
+{"id":20,"kode_kabupaten_kota":"72","provinsi_id":1,"nama":"Kota Sabang","created_at":"2025-10-31 04:46:47","updated_at":"2025-10-31 04:46:47"}
+{"id":21,"kode_kabupaten_kota":"73","provinsi_id":1,"nama":"Kota Lhokseumawe","created_at":"2025-10-31 04:46:47","updated_at":"2025-10-31 04:46:47"}
+{"id":22,"kode_kabupaten_kota":"74","provinsi_id":1,"nama":"Kota Langsa","created_at":"2025-10-31 04:46:47","updated_at":"2025-10-31 04:46:47"}
+{"id":23,"kode_kabupaten_kota":"75","provinsi_id":1,"nama":"Kota Subulussalam","created_at":"2025-10-31 04:46:47","updated_at":"2025-10-31 04:46:47"}
+{"id":24,"kode_kabupaten_kota":"01","provinsi_id":2,"nama":"Tapanuli Tengah","created_at":"2025-10-31 04:46:47","updated_at":"2025-10-31 04:46:47"}
+{"id":25,"kode_kabupaten_kota":"02","provinsi_id":2,"nama":"Tapanuli Utara","created_at":"2025-10-31 04:46:47","updated_at":"2025-10-31 04:46:47"}
+{"id":26,"kode_kabupaten_kota":"03","provinsi_id":2,"nama":"Tapanuli Selatan","created_at":"2025-10-31 04:46:47","updated_at":"2025-10-31 04:46:47"}
+{"id":27,"kode_kabupaten_kota":"04","provinsi_id":2,"nama":"Nias","created_at":"2025-10-31 04:46:47","updated_at":"2025-10-31 04:46:47"}
+{"id":28,"kode_kabupaten_kota":"05","provinsi_id":2,"nama":"Langkat","created_at":"2025-10-31 04:46:47","updated_at":"2025-10-31 04:46:47"}
+{"id":29,"kode_kabupaten_kota":"06","provinsi_id":2,"nama":"Karo","created_at":"2025-10-31 04:46:47","updated_at":"2025-10-31 04:46:47"}
+{"id":30,"kode_kabupaten_kota":"07","provinsi_id":2,"nama":"Deli Serdang","created_at":"2025-10-31 04:46:47","updated_at":"2025-10-31 04:46:47"}
+{"id":31,"kode_kabupaten_kota":"08","provinsi_id":2,"nama":"Simalungun","created_at":"2025-10-31 04:46:47","updated_at":"2025-10-31 04:46:47"}
+{"id":32,"kode_kabupaten_kota":"09","provinsi_id":2,"nama":"Asahan","created_at":"2025-10-31 04:46:47","updated_at":"2025-10-31 04:46:47"}
+{"id":33,"kode_kabupaten_kota":"10","provinsi_id":2,"nama":"Labuhanbatu","created_at":"2025-10-31 04:46:47","updated_at":"2025-10-31 04:46:47"}
+{"id":34,"kode_kabupaten_kota":"11","provinsi_id":2,"nama":"Dairi","created_at":"2025-10-31 04:46:47","updated_at":"2025-10-31 04:46:47"}
+{"id":35,"kode_kabupaten_kota":"12","provinsi_id":2,"nama":"Toba","created_at":"2025-10-31 04:46:47","updated_at":"2025-10-31 04:46:47"}
+{"id":36,"kode_kabupaten_kota":"13","provinsi_id":2,"nama":"Mandailing Natal","created_at":"2025-10-31 04:46:47","updated_at":"2025-10-31 04:46:47"}
+{"id":37,"kode_kabupaten_kota":"14","provinsi_id":2,"nama":"Nias Selatan","created_at":"2025-10-31 04:46:47","updated_at":"2025-10-31 04:46:47"}
+{"id":38,"kode_kabupaten_kota":"15","provinsi_id":2,"nama":"Pakpak Bharat","created_at":"2025-10-31 04:46:47","updated_at":"2025-10-31 04:46:47"}
+{"id":39,"kode_kabupaten_kota":"16","provinsi_id":2,"nama":"Humbang Hasundutan","created_at":"2025-10-31 04:46:47","updated_at":"2025-10-31 04:46:47"}
+{"id":40,"kode_kabupaten_kota":"17","provinsi_id":2,"nama":"Samosir","created_at":"2025-10-31 04:46:47","updated_at":"2025-10-31 04:46:47"}
+{"id":41,"kode_kabupaten_kota":"18","provinsi_id":2,"nama":"Serdang Bedagai","created_at":"2025-10-31 04:46:47","updated_at":"2025-10-31 04:46:47"}
+{"id":42,"kode_kabupaten_kota":"19","provinsi_id":2,"nama":"Batu Bara","created_at":"2025-10-31 04:46:47","updated_at":"2025-10-31 04:46:47"}
+{"id":43,"kode_kabupaten_kota":"20","provinsi_id":2,"nama":"Padang Lawas Utara","created_at":"2025-10-31 04:46:47","updated_at":"2025-10-31 04:46:47"}
+{"id":44,"kode_kabupaten_kota":"21","provinsi_id":2,"nama":"Padang Lawas","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":45,"kode_kabupaten_kota":"22","provinsi_id":2,"nama":"Labuhanbatu Selatan","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":46,"kode_kabupaten_kota":"23","provinsi_id":2,"nama":"Labuhanbatu Utara","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":47,"kode_kabupaten_kota":"24","provinsi_id":2,"nama":"Nias Utara","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":48,"kode_kabupaten_kota":"25","provinsi_id":2,"nama":"Nias Barat","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":49,"kode_kabupaten_kota":"71","provinsi_id":2,"nama":"Kota Medan","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":50,"kode_kabupaten_kota":"72","provinsi_id":2,"nama":"Kota Pematangsiantar","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":51,"kode_kabupaten_kota":"73","provinsi_id":2,"nama":"Kota Sibolga","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":52,"kode_kabupaten_kota":"74","provinsi_id":2,"nama":"Kota Tanjung Balai","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":53,"kode_kabupaten_kota":"75","provinsi_id":2,"nama":"Kota Binjai","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":54,"kode_kabupaten_kota":"76","provinsi_id":2,"nama":"Kota Tebing Tinggi","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":55,"kode_kabupaten_kota":"77","provinsi_id":2,"nama":"Kota Padangsidimpuan","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":56,"kode_kabupaten_kota":"78","provinsi_id":2,"nama":"Kota Gunungsitoli","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":57,"kode_kabupaten_kota":"01","provinsi_id":3,"nama":"Pesisir Selatan","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":58,"kode_kabupaten_kota":"02","provinsi_id":3,"nama":"Solok","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":59,"kode_kabupaten_kota":"03","provinsi_id":3,"nama":"Sijunjung","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":60,"kode_kabupaten_kota":"04","provinsi_id":3,"nama":"Tanah Datar","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":61,"kode_kabupaten_kota":"05","provinsi_id":3,"nama":"Padang Pariaman","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":62,"kode_kabupaten_kota":"06","provinsi_id":3,"nama":"Agam","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":63,"kode_kabupaten_kota":"07","provinsi_id":3,"nama":"Lima Puluh Kota","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":64,"kode_kabupaten_kota":"08","provinsi_id":3,"nama":"Pasaman","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":65,"kode_kabupaten_kota":"09","provinsi_id":3,"nama":"Kepulauan Mentawai","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":66,"kode_kabupaten_kota":"10","provinsi_id":3,"nama":"Dharmasraya","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":67,"kode_kabupaten_kota":"11","provinsi_id":3,"nama":"Solok Selatan","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":68,"kode_kabupaten_kota":"12","provinsi_id":3,"nama":"Pasaman Barat","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":69,"kode_kabupaten_kota":"71","provinsi_id":3,"nama":"Kota Padang","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":70,"kode_kabupaten_kota":"72","provinsi_id":3,"nama":"Kota Solok","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":71,"kode_kabupaten_kota":"73","provinsi_id":3,"nama":"Kota Sawahlunto","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":72,"kode_kabupaten_kota":"74","provinsi_id":3,"nama":"Kota Padang Panjang","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":73,"kode_kabupaten_kota":"75","provinsi_id":3,"nama":"Kota Bukittinggi","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":74,"kode_kabupaten_kota":"76","provinsi_id":3,"nama":"Kota Payakumbuh","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":75,"kode_kabupaten_kota":"77","provinsi_id":3,"nama":"Kota Pariaman","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":76,"kode_kabupaten_kota":"01","provinsi_id":4,"nama":"Kampar","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":77,"kode_kabupaten_kota":"02","provinsi_id":4,"nama":"Indragiri Hulu","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":78,"kode_kabupaten_kota":"03","provinsi_id":4,"nama":"Bengkalis","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":79,"kode_kabupaten_kota":"04","provinsi_id":4,"nama":"Indragiri Hilir","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":80,"kode_kabupaten_kota":"05","provinsi_id":4,"nama":"Pelalawan","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":81,"kode_kabupaten_kota":"06","provinsi_id":4,"nama":"Rokan Hulu","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":82,"kode_kabupaten_kota":"07","provinsi_id":4,"nama":"Rokan Hilir","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":83,"kode_kabupaten_kota":"08","provinsi_id":4,"nama":"Siak","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":84,"kode_kabupaten_kota":"09","provinsi_id":4,"nama":"Kuantan Singingi","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":85,"kode_kabupaten_kota":"10","provinsi_id":4,"nama":"Kepulauan Meranti","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":86,"kode_kabupaten_kota":"71","provinsi_id":4,"nama":"Kota Pekanbaru","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":87,"kode_kabupaten_kota":"72","provinsi_id":4,"nama":"Kota Dumai","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":88,"kode_kabupaten_kota":"01","provinsi_id":5,"nama":"Kerinci","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":89,"kode_kabupaten_kota":"02","provinsi_id":5,"nama":"Merangin","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":90,"kode_kabupaten_kota":"03","provinsi_id":5,"nama":"Sarolangun","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":91,"kode_kabupaten_kota":"04","provinsi_id":5,"nama":"Batanghari","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":92,"kode_kabupaten_kota":"05","provinsi_id":5,"nama":"Muaro Jambi","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":93,"kode_kabupaten_kota":"06","provinsi_id":5,"nama":"Tanjung Jabung Barat","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":94,"kode_kabupaten_kota":"07","provinsi_id":5,"nama":"Tanjung Jabung Timur","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":95,"kode_kabupaten_kota":"08","provinsi_id":5,"nama":"Bungo","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":96,"kode_kabupaten_kota":"09","provinsi_id":5,"nama":"Tebo","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":97,"kode_kabupaten_kota":"71","provinsi_id":5,"nama":"Kota Jambi","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":98,"kode_kabupaten_kota":"72","provinsi_id":5,"nama":"Kota Sungai Penuh","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":99,"kode_kabupaten_kota":"01","provinsi_id":6,"nama":"Ogan Komering Ulu","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":100,"kode_kabupaten_kota":"02","provinsi_id":6,"nama":"Ogan Komering Ilir","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":101,"kode_kabupaten_kota":"03","provinsi_id":6,"nama":"Muara Enim","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":102,"kode_kabupaten_kota":"04","provinsi_id":6,"nama":"Lahat","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":103,"kode_kabupaten_kota":"05","provinsi_id":6,"nama":"Musi Rawas","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":104,"kode_kabupaten_kota":"06","provinsi_id":6,"nama":"Musi Banyuasin","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":105,"kode_kabupaten_kota":"07","provinsi_id":6,"nama":"Banyuasin","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":106,"kode_kabupaten_kota":"08","provinsi_id":6,"nama":"Ogan Komering Ulu Timur","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":107,"kode_kabupaten_kota":"09","provinsi_id":6,"nama":"Ogan Komering Ulu Selatan","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":108,"kode_kabupaten_kota":"10","provinsi_id":6,"nama":"Ogan Ilir","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":109,"kode_kabupaten_kota":"11","provinsi_id":6,"nama":"Empat Lawang","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":110,"kode_kabupaten_kota":"12","provinsi_id":6,"nama":"Penukal Abab Lematang Ilir","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":111,"kode_kabupaten_kota":"13","provinsi_id":6,"nama":"Musi Rawas Utara","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":112,"kode_kabupaten_kota":"71","provinsi_id":6,"nama":"Kota Palembang","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":113,"kode_kabupaten_kota":"72","provinsi_id":6,"nama":"Kota Pagar Alam","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":114,"kode_kabupaten_kota":"73","provinsi_id":6,"nama":"Kota Lubuk Linggau","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":115,"kode_kabupaten_kota":"74","provinsi_id":6,"nama":"Kota Prabumulih","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":116,"kode_kabupaten_kota":"01","provinsi_id":7,"nama":"Bengkulu Selatan","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":117,"kode_kabupaten_kota":"02","provinsi_id":7,"nama":"Rejang Lebong","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":118,"kode_kabupaten_kota":"03","provinsi_id":7,"nama":"Bengkulu Utara","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":119,"kode_kabupaten_kota":"04","provinsi_id":7,"nama":"Kaur","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":120,"kode_kabupaten_kota":"05","provinsi_id":7,"nama":"Seluma","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":121,"kode_kabupaten_kota":"06","provinsi_id":7,"nama":"Muko Muko","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":122,"kode_kabupaten_kota":"07","provinsi_id":7,"nama":"Lebong","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":123,"kode_kabupaten_kota":"08","provinsi_id":7,"nama":"Kepahiang","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":124,"kode_kabupaten_kota":"09","provinsi_id":7,"nama":"Bengkulu Tengah","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":125,"kode_kabupaten_kota":"71","provinsi_id":7,"nama":"Kota Bengkulu","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":126,"kode_kabupaten_kota":"01","provinsi_id":8,"nama":"Lampung Selatan","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":127,"kode_kabupaten_kota":"02","provinsi_id":8,"nama":"Lampung Tengah","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":128,"kode_kabupaten_kota":"03","provinsi_id":8,"nama":"Lampung Utara","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":129,"kode_kabupaten_kota":"04","provinsi_id":8,"nama":"Lampung Barat","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":130,"kode_kabupaten_kota":"05","provinsi_id":8,"nama":"Tulang Bawang","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":131,"kode_kabupaten_kota":"06","provinsi_id":8,"nama":"Tanggamus","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":132,"kode_kabupaten_kota":"07","provinsi_id":8,"nama":"Lampung Timur","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":133,"kode_kabupaten_kota":"08","provinsi_id":8,"nama":"Way Kanan","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":134,"kode_kabupaten_kota":"09","provinsi_id":8,"nama":"Pesawaran","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":135,"kode_kabupaten_kota":"10","provinsi_id":8,"nama":"Pringsewu","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":136,"kode_kabupaten_kota":"11","provinsi_id":8,"nama":"Mesuji","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":137,"kode_kabupaten_kota":"12","provinsi_id":8,"nama":"Tulang Bawang Barat","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":138,"kode_kabupaten_kota":"13","provinsi_id":8,"nama":"Pesisir Barat","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":139,"kode_kabupaten_kota":"71","provinsi_id":8,"nama":"Kota Bandar Lampung","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":140,"kode_kabupaten_kota":"72","provinsi_id":8,"nama":"Kota Metro","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":141,"kode_kabupaten_kota":"01","provinsi_id":9,"nama":"Bangka","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":142,"kode_kabupaten_kota":"02","provinsi_id":9,"nama":"Belitung","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":143,"kode_kabupaten_kota":"03","provinsi_id":9,"nama":"Bangka Selatan","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":144,"kode_kabupaten_kota":"04","provinsi_id":9,"nama":"Bangka Tengah","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":145,"kode_kabupaten_kota":"05","provinsi_id":9,"nama":"Bangka Barat","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":146,"kode_kabupaten_kota":"06","provinsi_id":9,"nama":"Belitung Timur","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":147,"kode_kabupaten_kota":"71","provinsi_id":9,"nama":"Kota Pangkal Pinang","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":148,"kode_kabupaten_kota":"01","provinsi_id":10,"nama":"Bintan","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":149,"kode_kabupaten_kota":"02","provinsi_id":10,"nama":"Karimun","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":150,"kode_kabupaten_kota":"03","provinsi_id":10,"nama":"Natuna","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":151,"kode_kabupaten_kota":"04","provinsi_id":10,"nama":"Lingga","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":152,"kode_kabupaten_kota":"05","provinsi_id":10,"nama":"Kepulauan Anambas","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":153,"kode_kabupaten_kota":"71","provinsi_id":10,"nama":"Kota Batam","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":154,"kode_kabupaten_kota":"72","provinsi_id":10,"nama":"Kota Tanjung Pinang","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":155,"kode_kabupaten_kota":"01","provinsi_id":11,"nama":"Kepulauan Seribu","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":156,"kode_kabupaten_kota":"71","provinsi_id":11,"nama":"Kota Jakarta Pusat","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":157,"kode_kabupaten_kota":"72","provinsi_id":11,"nama":"Kota Jakarta Utara","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":158,"kode_kabupaten_kota":"73","provinsi_id":11,"nama":"Kota Jakarta Barat","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":159,"kode_kabupaten_kota":"74","provinsi_id":11,"nama":"Kota Jakarta Selatan","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":160,"kode_kabupaten_kota":"75","provinsi_id":11,"nama":"Kota Jakarta Timur","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":161,"kode_kabupaten_kota":"01","provinsi_id":12,"nama":"Bogor","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":162,"kode_kabupaten_kota":"02","provinsi_id":12,"nama":"Sukabumi","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":163,"kode_kabupaten_kota":"03","provinsi_id":12,"nama":"Cianjur","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":164,"kode_kabupaten_kota":"04","provinsi_id":12,"nama":"Bandung","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":165,"kode_kabupaten_kota":"05","provinsi_id":12,"nama":"Garut","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":166,"kode_kabupaten_kota":"06","provinsi_id":12,"nama":"Tasikmalaya","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":167,"kode_kabupaten_kota":"07","provinsi_id":12,"nama":"Ciamis","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":168,"kode_kabupaten_kota":"08","provinsi_id":12,"nama":"Kuningan","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":169,"kode_kabupaten_kota":"09","provinsi_id":12,"nama":"Cirebon","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":170,"kode_kabupaten_kota":"10","provinsi_id":12,"nama":"Majalengka","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":171,"kode_kabupaten_kota":"11","provinsi_id":12,"nama":"Sumedang","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":172,"kode_kabupaten_kota":"12","provinsi_id":12,"nama":"Indramayu","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":173,"kode_kabupaten_kota":"13","provinsi_id":12,"nama":"Subang","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":174,"kode_kabupaten_kota":"14","provinsi_id":12,"nama":"Purwakarta","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":175,"kode_kabupaten_kota":"15","provinsi_id":12,"nama":"Karawang","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":176,"kode_kabupaten_kota":"16","provinsi_id":12,"nama":"Bekasi","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":177,"kode_kabupaten_kota":"17","provinsi_id":12,"nama":"Bandung Barat","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":178,"kode_kabupaten_kota":"18","provinsi_id":12,"nama":"Pangandaran","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":179,"kode_kabupaten_kota":"71","provinsi_id":12,"nama":"Kota Bogor","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":180,"kode_kabupaten_kota":"72","provinsi_id":12,"nama":"Kota Sukabumi","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":181,"kode_kabupaten_kota":"73","provinsi_id":12,"nama":"Kota Bandung","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":182,"kode_kabupaten_kota":"74","provinsi_id":12,"nama":"Kota Cirebon","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":183,"kode_kabupaten_kota":"75","provinsi_id":12,"nama":"Kota Bekasi","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":184,"kode_kabupaten_kota":"76","provinsi_id":12,"nama":"Kota Depok","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":185,"kode_kabupaten_kota":"77","provinsi_id":12,"nama":"Kota Cimahi","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":186,"kode_kabupaten_kota":"78","provinsi_id":12,"nama":"Kota Tasikmalaya","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":187,"kode_kabupaten_kota":"79","provinsi_id":12,"nama":"Kota Banjar","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":188,"kode_kabupaten_kota":"01","provinsi_id":13,"nama":"Cilacap","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":189,"kode_kabupaten_kota":"02","provinsi_id":13,"nama":"Banyumas","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":190,"kode_kabupaten_kota":"03","provinsi_id":13,"nama":"Purbalingga","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":191,"kode_kabupaten_kota":"04","provinsi_id":13,"nama":"Banjarnegara","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":192,"kode_kabupaten_kota":"05","provinsi_id":13,"nama":"Kebumen","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":193,"kode_kabupaten_kota":"06","provinsi_id":13,"nama":"Purworejo","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":194,"kode_kabupaten_kota":"07","provinsi_id":13,"nama":"Wonosobo","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":195,"kode_kabupaten_kota":"08","provinsi_id":13,"nama":"Magelang","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":196,"kode_kabupaten_kota":"09","provinsi_id":13,"nama":"Boyolali","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":197,"kode_kabupaten_kota":"10","provinsi_id":13,"nama":"Klaten","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":198,"kode_kabupaten_kota":"11","provinsi_id":13,"nama":"Sukoharjo","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":199,"kode_kabupaten_kota":"12","provinsi_id":13,"nama":"Wonogiri","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":200,"kode_kabupaten_kota":"13","provinsi_id":13,"nama":"Karanganyar","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":201,"kode_kabupaten_kota":"14","provinsi_id":13,"nama":"Sragen","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":202,"kode_kabupaten_kota":"15","provinsi_id":13,"nama":"Grobogan","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":203,"kode_kabupaten_kota":"16","provinsi_id":13,"nama":"Blora","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":204,"kode_kabupaten_kota":"17","provinsi_id":13,"nama":"Rembang","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":205,"kode_kabupaten_kota":"18","provinsi_id":13,"nama":"Pati","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":206,"kode_kabupaten_kota":"19","provinsi_id":13,"nama":"Kudus","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":207,"kode_kabupaten_kota":"20","provinsi_id":13,"nama":"Jepara","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":208,"kode_kabupaten_kota":"21","provinsi_id":13,"nama":"Demak","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":209,"kode_kabupaten_kota":"22","provinsi_id":13,"nama":"Semarang","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":210,"kode_kabupaten_kota":"23","provinsi_id":13,"nama":"Temanggung","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":211,"kode_kabupaten_kota":"24","provinsi_id":13,"nama":"Kendal","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":212,"kode_kabupaten_kota":"25","provinsi_id":13,"nama":"Batang","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":213,"kode_kabupaten_kota":"26","provinsi_id":13,"nama":"Pekalongan","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":214,"kode_kabupaten_kota":"27","provinsi_id":13,"nama":"Pemalang","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":215,"kode_kabupaten_kota":"28","provinsi_id":13,"nama":"Tegal","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":216,"kode_kabupaten_kota":"29","provinsi_id":13,"nama":"Brebes","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":217,"kode_kabupaten_kota":"71","provinsi_id":13,"nama":"Kota Magelang","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":218,"kode_kabupaten_kota":"72","provinsi_id":13,"nama":"Kota Surakarta","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":219,"kode_kabupaten_kota":"73","provinsi_id":13,"nama":"Kota Salatiga","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":220,"kode_kabupaten_kota":"74","provinsi_id":13,"nama":"Kota Semarang","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":221,"kode_kabupaten_kota":"75","provinsi_id":13,"nama":"Kota Pekalongan","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":222,"kode_kabupaten_kota":"76","provinsi_id":13,"nama":"Kota Tegal","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":223,"kode_kabupaten_kota":"01","provinsi_id":14,"nama":"Kulon Progo","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":224,"kode_kabupaten_kota":"02","provinsi_id":14,"nama":"Bantul","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":225,"kode_kabupaten_kota":"03","provinsi_id":14,"nama":"Gunungkidul","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":226,"kode_kabupaten_kota":"04","provinsi_id":14,"nama":"Sleman","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":227,"kode_kabupaten_kota":"71","provinsi_id":14,"nama":"Kota Yogyakarta","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":228,"kode_kabupaten_kota":"01","provinsi_id":15,"nama":"Pacitan","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":229,"kode_kabupaten_kota":"02","provinsi_id":15,"nama":"Ponorogo","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":230,"kode_kabupaten_kota":"03","provinsi_id":15,"nama":"Trenggalek","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":231,"kode_kabupaten_kota":"04","provinsi_id":15,"nama":"Tulungagung","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":232,"kode_kabupaten_kota":"05","provinsi_id":15,"nama":"Blitar","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":233,"kode_kabupaten_kota":"06","provinsi_id":15,"nama":"Kediri","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":234,"kode_kabupaten_kota":"07","provinsi_id":15,"nama":"Malang","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":235,"kode_kabupaten_kota":"08","provinsi_id":15,"nama":"Lumajang","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":236,"kode_kabupaten_kota":"09","provinsi_id":15,"nama":"Jember","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":237,"kode_kabupaten_kota":"10","provinsi_id":15,"nama":"Banyuwangi","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":238,"kode_kabupaten_kota":"11","provinsi_id":15,"nama":"Bondowoso","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":239,"kode_kabupaten_kota":"12","provinsi_id":15,"nama":"Situbondo","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":240,"kode_kabupaten_kota":"13","provinsi_id":15,"nama":"Probolinggo","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":241,"kode_kabupaten_kota":"14","provinsi_id":15,"nama":"Pasuruan","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":242,"kode_kabupaten_kota":"15","provinsi_id":15,"nama":"Sidoarjo","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":243,"kode_kabupaten_kota":"16","provinsi_id":15,"nama":"Mojokerto","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":244,"kode_kabupaten_kota":"17","provinsi_id":15,"nama":"Jombang","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":245,"kode_kabupaten_kota":"18","provinsi_id":15,"nama":"Nganjuk","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":246,"kode_kabupaten_kota":"19","provinsi_id":15,"nama":"Madiun","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":247,"kode_kabupaten_kota":"20","provinsi_id":15,"nama":"Magetan","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":248,"kode_kabupaten_kota":"21","provinsi_id":15,"nama":"Ngawi","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":249,"kode_kabupaten_kota":"22","provinsi_id":15,"nama":"Bojonegoro","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":250,"kode_kabupaten_kota":"23","provinsi_id":15,"nama":"Tuban","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":251,"kode_kabupaten_kota":"24","provinsi_id":15,"nama":"Lamongan","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":252,"kode_kabupaten_kota":"25","provinsi_id":15,"nama":"Gresik","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":253,"kode_kabupaten_kota":"26","provinsi_id":15,"nama":"Bangkalan","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":254,"kode_kabupaten_kota":"27","provinsi_id":15,"nama":"Sampang","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":255,"kode_kabupaten_kota":"28","provinsi_id":15,"nama":"Pamekasan","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":256,"kode_kabupaten_kota":"29","provinsi_id":15,"nama":"Sumenep","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":257,"kode_kabupaten_kota":"71","provinsi_id":15,"nama":"Kota Kediri","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":258,"kode_kabupaten_kota":"72","provinsi_id":15,"nama":"Kota Blitar","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":259,"kode_kabupaten_kota":"73","provinsi_id":15,"nama":"Kota Malang","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":260,"kode_kabupaten_kota":"74","provinsi_id":15,"nama":"Kota Probolinggo","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":261,"kode_kabupaten_kota":"75","provinsi_id":15,"nama":"Kota Pasuruan","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":262,"kode_kabupaten_kota":"76","provinsi_id":15,"nama":"Kota Mojokerto","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":263,"kode_kabupaten_kota":"77","provinsi_id":15,"nama":"Kota Madiun","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":264,"kode_kabupaten_kota":"78","provinsi_id":15,"nama":"Kota Surabaya","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":265,"kode_kabupaten_kota":"79","provinsi_id":15,"nama":"Kota Batu","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":266,"kode_kabupaten_kota":"01","provinsi_id":16,"nama":"Pandeglang","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":267,"kode_kabupaten_kota":"02","provinsi_id":16,"nama":"Lebak","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":268,"kode_kabupaten_kota":"03","provinsi_id":16,"nama":"Tangerang","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":269,"kode_kabupaten_kota":"04","provinsi_id":16,"nama":"Serang","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":270,"kode_kabupaten_kota":"71","provinsi_id":16,"nama":"Kota Tangerang","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":271,"kode_kabupaten_kota":"72","provinsi_id":16,"nama":"Kota Cilegon","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":272,"kode_kabupaten_kota":"73","provinsi_id":16,"nama":"Kota Serang","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":273,"kode_kabupaten_kota":"74","provinsi_id":16,"nama":"Kota Tangerang Selatan","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":274,"kode_kabupaten_kota":"01","provinsi_id":17,"nama":"Jembrana","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":275,"kode_kabupaten_kota":"02","provinsi_id":17,"nama":"Tabanan","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":276,"kode_kabupaten_kota":"03","provinsi_id":17,"nama":"Badung","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":277,"kode_kabupaten_kota":"04","provinsi_id":17,"nama":"Gianyar","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":278,"kode_kabupaten_kota":"05","provinsi_id":17,"nama":"Klungkung","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":279,"kode_kabupaten_kota":"06","provinsi_id":17,"nama":"Bangli","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":280,"kode_kabupaten_kota":"07","provinsi_id":17,"nama":"Karangasem","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":281,"kode_kabupaten_kota":"08","provinsi_id":17,"nama":"Buleleng","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":282,"kode_kabupaten_kota":"71","provinsi_id":17,"nama":"Kota Denpasar","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":283,"kode_kabupaten_kota":"01","provinsi_id":18,"nama":"Lombok Barat","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":284,"kode_kabupaten_kota":"02","provinsi_id":18,"nama":"Lombok Tengah","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":285,"kode_kabupaten_kota":"03","provinsi_id":18,"nama":"Lombok Timur","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":286,"kode_kabupaten_kota":"04","provinsi_id":18,"nama":"Sumbawa","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":287,"kode_kabupaten_kota":"05","provinsi_id":18,"nama":"Dompu","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":288,"kode_kabupaten_kota":"06","provinsi_id":18,"nama":"Bima","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":289,"kode_kabupaten_kota":"07","provinsi_id":18,"nama":"Sumbawa Barat","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":290,"kode_kabupaten_kota":"08","provinsi_id":18,"nama":"Lombok Utara","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":291,"kode_kabupaten_kota":"71","provinsi_id":18,"nama":"Kota Mataram","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":292,"kode_kabupaten_kota":"72","provinsi_id":18,"nama":"Kota Bima","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":293,"kode_kabupaten_kota":"01","provinsi_id":19,"nama":"Kupang","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":294,"kode_kabupaten_kota":"02","provinsi_id":19,"nama":"Timor Tengah Selatan","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":295,"kode_kabupaten_kota":"03","provinsi_id":19,"nama":"Timor Tengah Utara","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":296,"kode_kabupaten_kota":"04","provinsi_id":19,"nama":"Belu","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":297,"kode_kabupaten_kota":"05","provinsi_id":19,"nama":"Alor","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":298,"kode_kabupaten_kota":"06","provinsi_id":19,"nama":"Flores Timur","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":299,"kode_kabupaten_kota":"07","provinsi_id":19,"nama":"Sikka","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":300,"kode_kabupaten_kota":"08","provinsi_id":19,"nama":"Ende","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":301,"kode_kabupaten_kota":"09","provinsi_id":19,"nama":"Ngada","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":302,"kode_kabupaten_kota":"10","provinsi_id":19,"nama":"Manggarai","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":303,"kode_kabupaten_kota":"11","provinsi_id":19,"nama":"Sumba Timur","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":304,"kode_kabupaten_kota":"12","provinsi_id":19,"nama":"Sumba Barat","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":305,"kode_kabupaten_kota":"13","provinsi_id":19,"nama":"Lembata","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":306,"kode_kabupaten_kota":"14","provinsi_id":19,"nama":"Rote Ndao","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":307,"kode_kabupaten_kota":"15","provinsi_id":19,"nama":"Manggarai Barat","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":308,"kode_kabupaten_kota":"16","provinsi_id":19,"nama":"Nagekeo","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":309,"kode_kabupaten_kota":"17","provinsi_id":19,"nama":"Sumba Tengah","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":310,"kode_kabupaten_kota":"18","provinsi_id":19,"nama":"Sumba Barat Daya","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":311,"kode_kabupaten_kota":"19","provinsi_id":19,"nama":"Manggarai Timur","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":312,"kode_kabupaten_kota":"20","provinsi_id":19,"nama":"Sabu Raijua","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":313,"kode_kabupaten_kota":"21","provinsi_id":19,"nama":"Malaka","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":314,"kode_kabupaten_kota":"71","provinsi_id":19,"nama":"Kota Kupang","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":315,"kode_kabupaten_kota":"01","provinsi_id":20,"nama":"Sambas","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":316,"kode_kabupaten_kota":"02","provinsi_id":20,"nama":"Mempawah","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":317,"kode_kabupaten_kota":"03","provinsi_id":20,"nama":"Sanggau","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":318,"kode_kabupaten_kota":"04","provinsi_id":20,"nama":"Ketapang","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":319,"kode_kabupaten_kota":"05","provinsi_id":20,"nama":"Sintang","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":320,"kode_kabupaten_kota":"06","provinsi_id":20,"nama":"Kapuas Hulu","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":321,"kode_kabupaten_kota":"07","provinsi_id":20,"nama":"Bengkayang","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":322,"kode_kabupaten_kota":"08","provinsi_id":20,"nama":"Landak","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":323,"kode_kabupaten_kota":"09","provinsi_id":20,"nama":"Sekadau","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":324,"kode_kabupaten_kota":"10","provinsi_id":20,"nama":"Melawi","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":325,"kode_kabupaten_kota":"11","provinsi_id":20,"nama":"Kayong Utara","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":326,"kode_kabupaten_kota":"12","provinsi_id":20,"nama":"Kubu Raya","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":327,"kode_kabupaten_kota":"71","provinsi_id":20,"nama":"Kota Pontianak","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":328,"kode_kabupaten_kota":"72","provinsi_id":20,"nama":"Kota Singkawang","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":329,"kode_kabupaten_kota":"01","provinsi_id":21,"nama":"Kotawaringin Barat","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":330,"kode_kabupaten_kota":"02","provinsi_id":21,"nama":"Kotawaringin Timur","created_at":"2025-10-31 04:46:48","updated_at":"2025-10-31 04:46:48"}
+{"id":331,"kode_kabupaten_kota":"03","provinsi_id":21,"nama":"Kapuas","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":332,"kode_kabupaten_kota":"04","provinsi_id":21,"nama":"Barito Selatan","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":333,"kode_kabupaten_kota":"05","provinsi_id":21,"nama":"Barito Utara","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":334,"kode_kabupaten_kota":"06","provinsi_id":21,"nama":"Katingan","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":335,"kode_kabupaten_kota":"07","provinsi_id":21,"nama":"Seruyan","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":336,"kode_kabupaten_kota":"08","provinsi_id":21,"nama":"Sukamara","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":337,"kode_kabupaten_kota":"09","provinsi_id":21,"nama":"Lamandau","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":338,"kode_kabupaten_kota":"10","provinsi_id":21,"nama":"Gunung Mas","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":339,"kode_kabupaten_kota":"11","provinsi_id":21,"nama":"Pulang Pisau","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":340,"kode_kabupaten_kota":"12","provinsi_id":21,"nama":"Murung Raya","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":341,"kode_kabupaten_kota":"13","provinsi_id":21,"nama":"Barito Timur","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":342,"kode_kabupaten_kota":"71","provinsi_id":21,"nama":"Kota Palangkaraya","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":343,"kode_kabupaten_kota":"01","provinsi_id":22,"nama":"Tanah Laut","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":344,"kode_kabupaten_kota":"02","provinsi_id":22,"nama":"Kotabaru","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":345,"kode_kabupaten_kota":"03","provinsi_id":22,"nama":"Banjar","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":346,"kode_kabupaten_kota":"04","provinsi_id":22,"nama":"Barito Kuala","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":347,"kode_kabupaten_kota":"05","provinsi_id":22,"nama":"Tapin","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":348,"kode_kabupaten_kota":"06","provinsi_id":22,"nama":"Hulu Sungai Selatan","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":349,"kode_kabupaten_kota":"07","provinsi_id":22,"nama":"Hulu Sungai Tengah","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":350,"kode_kabupaten_kota":"08","provinsi_id":22,"nama":"Hulu Sungai Utara","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":351,"kode_kabupaten_kota":"09","provinsi_id":22,"nama":"Tabalong","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":352,"kode_kabupaten_kota":"10","provinsi_id":22,"nama":"Tanah Bumbu","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":353,"kode_kabupaten_kota":"11","provinsi_id":22,"nama":"Balangan","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":354,"kode_kabupaten_kota":"71","provinsi_id":22,"nama":"Kota Banjarmasin","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":355,"kode_kabupaten_kota":"72","provinsi_id":22,"nama":"Kota Banjarbaru","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":356,"kode_kabupaten_kota":"01","provinsi_id":23,"nama":"Paser","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":357,"kode_kabupaten_kota":"02","provinsi_id":23,"nama":"Kutai Kartanegara","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":358,"kode_kabupaten_kota":"03","provinsi_id":23,"nama":"Berau","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":359,"kode_kabupaten_kota":"07","provinsi_id":23,"nama":"Kutai Barat","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":360,"kode_kabupaten_kota":"08","provinsi_id":23,"nama":"Kutai Timur","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":361,"kode_kabupaten_kota":"09","provinsi_id":23,"nama":"Penajam Paser Utara","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":362,"kode_kabupaten_kota":"11","provinsi_id":23,"nama":"Mahakam Ulu","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":363,"kode_kabupaten_kota":"71","provinsi_id":23,"nama":"Kota Balikpapan","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":364,"kode_kabupaten_kota":"72","provinsi_id":23,"nama":"Kota Samarinda","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":365,"kode_kabupaten_kota":"74","provinsi_id":23,"nama":"Kota Bontang","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":366,"kode_kabupaten_kota":"01","provinsi_id":24,"nama":"Bulungan","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":367,"kode_kabupaten_kota":"02","provinsi_id":24,"nama":"Malinau","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":368,"kode_kabupaten_kota":"03","provinsi_id":24,"nama":"Nunukan","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":369,"kode_kabupaten_kota":"04","provinsi_id":24,"nama":"Tana Tidung","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":370,"kode_kabupaten_kota":"71","provinsi_id":24,"nama":"Kota Tarakan","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":371,"kode_kabupaten_kota":"01","provinsi_id":25,"nama":"Bolaang Mongondow","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":372,"kode_kabupaten_kota":"02","provinsi_id":25,"nama":"Minahasa","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":373,"kode_kabupaten_kota":"03","provinsi_id":25,"nama":"Kepulauan Sangihe","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":374,"kode_kabupaten_kota":"04","provinsi_id":25,"nama":"Kepulauan Talaud","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":375,"kode_kabupaten_kota":"05","provinsi_id":25,"nama":"Minahasa Selatan","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":376,"kode_kabupaten_kota":"06","provinsi_id":25,"nama":"Minahasa Utara","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":377,"kode_kabupaten_kota":"07","provinsi_id":25,"nama":"Minahasa Tenggara","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":378,"kode_kabupaten_kota":"08","provinsi_id":25,"nama":"Bolaang Mongondow Utara","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":379,"kode_kabupaten_kota":"09","provinsi_id":25,"nama":"Kepulauan Siau Tagulandang Biaro (Sitaro)","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":380,"kode_kabupaten_kota":"10","provinsi_id":25,"nama":"Bolaang Mongondow Timur","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":381,"kode_kabupaten_kota":"11","provinsi_id":25,"nama":"Bolaang Mongondow Selatan","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":382,"kode_kabupaten_kota":"71","provinsi_id":25,"nama":"Kota Manado","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":383,"kode_kabupaten_kota":"72","provinsi_id":25,"nama":"Kota Bitung","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":384,"kode_kabupaten_kota":"73","provinsi_id":25,"nama":"Kota Tomohon","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":385,"kode_kabupaten_kota":"74","provinsi_id":25,"nama":"Kota Kotamobagu","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":386,"kode_kabupaten_kota":"01","provinsi_id":26,"nama":"Banggai","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":387,"kode_kabupaten_kota":"02","provinsi_id":26,"nama":"Poso","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":388,"kode_kabupaten_kota":"03","provinsi_id":26,"nama":"Donggala","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":389,"kode_kabupaten_kota":"04","provinsi_id":26,"nama":"Toli Toli","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":390,"kode_kabupaten_kota":"05","provinsi_id":26,"nama":"Buol","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":391,"kode_kabupaten_kota":"06","provinsi_id":26,"nama":"Morowali","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":392,"kode_kabupaten_kota":"07","provinsi_id":26,"nama":"Banggai Kepulauan","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":393,"kode_kabupaten_kota":"08","provinsi_id":26,"nama":"Parigi Moutong","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":394,"kode_kabupaten_kota":"09","provinsi_id":26,"nama":"Tojo Una Una","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":395,"kode_kabupaten_kota":"10","provinsi_id":26,"nama":"Sigi","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":396,"kode_kabupaten_kota":"11","provinsi_id":26,"nama":"Banggai Laut","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":397,"kode_kabupaten_kota":"12","provinsi_id":26,"nama":"Morowali Utara","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":398,"kode_kabupaten_kota":"71","provinsi_id":26,"nama":"Kota Palu","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":399,"kode_kabupaten_kota":"01","provinsi_id":27,"nama":"Kepulauan Selayar","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":400,"kode_kabupaten_kota":"02","provinsi_id":27,"nama":"Bulukumba","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":401,"kode_kabupaten_kota":"03","provinsi_id":27,"nama":"Bantaeng","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":402,"kode_kabupaten_kota":"04","provinsi_id":27,"nama":"Jeneponto","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":403,"kode_kabupaten_kota":"05","provinsi_id":27,"nama":"Takalar","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":404,"kode_kabupaten_kota":"06","provinsi_id":27,"nama":"Gowa","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":405,"kode_kabupaten_kota":"07","provinsi_id":27,"nama":"Sinjai","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":406,"kode_kabupaten_kota":"08","provinsi_id":27,"nama":"Bone","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":407,"kode_kabupaten_kota":"09","provinsi_id":27,"nama":"Maros","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":408,"kode_kabupaten_kota":"10","provinsi_id":27,"nama":"Pangkajene Kepulauan","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":409,"kode_kabupaten_kota":"11","provinsi_id":27,"nama":"Barru","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":410,"kode_kabupaten_kota":"12","provinsi_id":27,"nama":"Soppeng","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":411,"kode_kabupaten_kota":"13","provinsi_id":27,"nama":"Wajo","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":412,"kode_kabupaten_kota":"14","provinsi_id":27,"nama":"Sidenreng Rappang","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":413,"kode_kabupaten_kota":"15","provinsi_id":27,"nama":"Pinrang","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":414,"kode_kabupaten_kota":"16","provinsi_id":27,"nama":"Enrekang","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":415,"kode_kabupaten_kota":"17","provinsi_id":27,"nama":"Luwu","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":416,"kode_kabupaten_kota":"18","provinsi_id":27,"nama":"Tana Toraja","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":417,"kode_kabupaten_kota":"22","provinsi_id":27,"nama":"Luwu Utara","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":418,"kode_kabupaten_kota":"24","provinsi_id":27,"nama":"Luwu Timur","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":419,"kode_kabupaten_kota":"26","provinsi_id":27,"nama":"Toraja Utara","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":420,"kode_kabupaten_kota":"71","provinsi_id":27,"nama":"Kota Makassar","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":421,"kode_kabupaten_kota":"72","provinsi_id":27,"nama":"Kota Pare Pare","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":422,"kode_kabupaten_kota":"73","provinsi_id":27,"nama":"Kota Palopo","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":423,"kode_kabupaten_kota":"01","provinsi_id":28,"nama":"Kolaka","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":424,"kode_kabupaten_kota":"02","provinsi_id":28,"nama":"Konawe","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":425,"kode_kabupaten_kota":"03","provinsi_id":28,"nama":"Muna","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":426,"kode_kabupaten_kota":"04","provinsi_id":28,"nama":"Buton","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":427,"kode_kabupaten_kota":"05","provinsi_id":28,"nama":"Konawe Selatan","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":428,"kode_kabupaten_kota":"06","provinsi_id":28,"nama":"Bombana","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":429,"kode_kabupaten_kota":"07","provinsi_id":28,"nama":"Wakatobi","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":430,"kode_kabupaten_kota":"08","provinsi_id":28,"nama":"Kolaka Utara","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":431,"kode_kabupaten_kota":"09","provinsi_id":28,"nama":"Konawe Utara","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":432,"kode_kabupaten_kota":"10","provinsi_id":28,"nama":"Buton Utara","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":433,"kode_kabupaten_kota":"11","provinsi_id":28,"nama":"Kolaka Timur","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":434,"kode_kabupaten_kota":"12","provinsi_id":28,"nama":"Konawe Kepulauan","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":435,"kode_kabupaten_kota":"13","provinsi_id":28,"nama":"Muna Barat","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":436,"kode_kabupaten_kota":"14","provinsi_id":28,"nama":"Buton Tengah","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":437,"kode_kabupaten_kota":"15","provinsi_id":28,"nama":"Buton Selatan","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":438,"kode_kabupaten_kota":"71","provinsi_id":28,"nama":"Kota Kendari","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":439,"kode_kabupaten_kota":"72","provinsi_id":28,"nama":"Kota Bau Bau","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":440,"kode_kabupaten_kota":"01","provinsi_id":29,"nama":"Gorontalo","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":441,"kode_kabupaten_kota":"02","provinsi_id":29,"nama":"Boalemo","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":442,"kode_kabupaten_kota":"03","provinsi_id":29,"nama":"Bone Bolango","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":443,"kode_kabupaten_kota":"04","provinsi_id":29,"nama":"Pahuwato","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":444,"kode_kabupaten_kota":"05","provinsi_id":29,"nama":"Gorontalo Utara","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":445,"kode_kabupaten_kota":"71","provinsi_id":29,"nama":"Kota Gorontalo","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":446,"kode_kabupaten_kota":"01","provinsi_id":30,"nama":"Pasangkayu (Mamuju Utara)","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":447,"kode_kabupaten_kota":"02","provinsi_id":30,"nama":"Mamuju","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":448,"kode_kabupaten_kota":"03","provinsi_id":30,"nama":"Mamasa","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":449,"kode_kabupaten_kota":"04","provinsi_id":30,"nama":"Polewali Mandar","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":450,"kode_kabupaten_kota":"05","provinsi_id":30,"nama":"Majene","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":451,"kode_kabupaten_kota":"06","provinsi_id":30,"nama":"Mamuju Tengah","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":452,"kode_kabupaten_kota":"01","provinsi_id":31,"nama":"Maluku Tengah","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":453,"kode_kabupaten_kota":"02","provinsi_id":31,"nama":"Maluku Tenggara","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":454,"kode_kabupaten_kota":"03","provinsi_id":31,"nama":"Kepulauan Tanimbar (Maluku Tenggara Barat)","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":455,"kode_kabupaten_kota":"04","provinsi_id":31,"nama":"Buru","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":456,"kode_kabupaten_kota":"05","provinsi_id":31,"nama":"Seram Bagian Timur","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":457,"kode_kabupaten_kota":"06","provinsi_id":31,"nama":"Seram Bagian Barat","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":458,"kode_kabupaten_kota":"07","provinsi_id":31,"nama":"Kepulauan Aru","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":459,"kode_kabupaten_kota":"08","provinsi_id":31,"nama":"Maluku Barat Daya","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":460,"kode_kabupaten_kota":"09","provinsi_id":31,"nama":"Buru Selatan","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":461,"kode_kabupaten_kota":"71","provinsi_id":31,"nama":"Kota Ambon","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":462,"kode_kabupaten_kota":"72","provinsi_id":31,"nama":"Kota Tual","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":463,"kode_kabupaten_kota":"01","provinsi_id":32,"nama":"Halmahera Barat","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":464,"kode_kabupaten_kota":"02","provinsi_id":32,"nama":"Halmahera Tengah","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":465,"kode_kabupaten_kota":"03","provinsi_id":32,"nama":"Halmahera Utara","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":466,"kode_kabupaten_kota":"04","provinsi_id":32,"nama":"Halmahera Selatan","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":467,"kode_kabupaten_kota":"05","provinsi_id":32,"nama":"Kepulauan Sula","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":468,"kode_kabupaten_kota":"06","provinsi_id":32,"nama":"Halmahera Timur","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":469,"kode_kabupaten_kota":"07","provinsi_id":32,"nama":"Pulau Morotai","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":470,"kode_kabupaten_kota":"08","provinsi_id":32,"nama":"Pulau Taliabu","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":471,"kode_kabupaten_kota":"71","provinsi_id":32,"nama":"Kota Ternate","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":472,"kode_kabupaten_kota":"72","provinsi_id":32,"nama":"Kota Tidore Kepulauan","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":473,"kode_kabupaten_kota":"03","provinsi_id":33,"nama":"Jayapura","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":474,"kode_kabupaten_kota":"05","provinsi_id":33,"nama":"Kepulauan Yapen","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":475,"kode_kabupaten_kota":"06","provinsi_id":33,"nama":"Biak Numfor","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":476,"kode_kabupaten_kota":"10","provinsi_id":33,"nama":"Sarmi","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":477,"kode_kabupaten_kota":"11","provinsi_id":33,"nama":"Keerom","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":478,"kode_kabupaten_kota":"15","provinsi_id":33,"nama":"Waropen","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":479,"kode_kabupaten_kota":"19","provinsi_id":33,"nama":"Supiori","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":480,"kode_kabupaten_kota":"20","provinsi_id":33,"nama":"Mamberamo Raya","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":481,"kode_kabupaten_kota":"71","provinsi_id":33,"nama":"Kota Jayapura","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":482,"kode_kabupaten_kota":"02","provinsi_id":34,"nama":"Manokwari","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":483,"kode_kabupaten_kota":"03","provinsi_id":34,"nama":"Fak Fak","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":484,"kode_kabupaten_kota":"06","provinsi_id":34,"nama":"Teluk Bintuni","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":485,"kode_kabupaten_kota":"07","provinsi_id":34,"nama":"Teluk Wondama","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":486,"kode_kabupaten_kota":"08","provinsi_id":34,"nama":"Kaimana","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":487,"kode_kabupaten_kota":"11","provinsi_id":34,"nama":"Manokwari Selatan","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":488,"kode_kabupaten_kota":"12","provinsi_id":34,"nama":"Pegunungan Arfak","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":489,"kode_kabupaten_kota":"01","provinsi_id":35,"nama":"Merauke","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":490,"kode_kabupaten_kota":"02","provinsi_id":35,"nama":"Boven Digoel","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":491,"kode_kabupaten_kota":"03","provinsi_id":35,"nama":"Mappi","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":492,"kode_kabupaten_kota":"04","provinsi_id":35,"nama":"Asmat","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":493,"kode_kabupaten_kota":"01","provinsi_id":36,"nama":"Nabire","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":494,"kode_kabupaten_kota":"02","provinsi_id":36,"nama":"Puncak Jaya","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":495,"kode_kabupaten_kota":"03","provinsi_id":36,"nama":"Paniai","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":496,"kode_kabupaten_kota":"04","provinsi_id":36,"nama":"Mimika","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":497,"kode_kabupaten_kota":"05","provinsi_id":36,"nama":"Puncak","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":498,"kode_kabupaten_kota":"06","provinsi_id":36,"nama":"Dogiyai","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":499,"kode_kabupaten_kota":"07","provinsi_id":36,"nama":"Intan Jaya","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":500,"kode_kabupaten_kota":"08","provinsi_id":36,"nama":"Deiyai","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":501,"kode_kabupaten_kota":"01","provinsi_id":37,"nama":"Jayawijaya","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":502,"kode_kabupaten_kota":"02","provinsi_id":37,"nama":"Pegunungan Bintang","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":503,"kode_kabupaten_kota":"03","provinsi_id":37,"nama":"Yahukimo","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":504,"kode_kabupaten_kota":"04","provinsi_id":37,"nama":"Tolikara","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":505,"kode_kabupaten_kota":"05","provinsi_id":37,"nama":"Mamberamo Tengah","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":506,"kode_kabupaten_kota":"06","provinsi_id":37,"nama":"Yalimo","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":507,"kode_kabupaten_kota":"07","provinsi_id":37,"nama":"Lanny Jaya","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":508,"kode_kabupaten_kota":"08","provinsi_id":37,"nama":"Nduga","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":509,"kode_kabupaten_kota":"01","provinsi_id":38,"nama":"Sorong","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":510,"kode_kabupaten_kota":"04","provinsi_id":38,"nama":"Sorong Selatan","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":511,"kode_kabupaten_kota":"05","provinsi_id":38,"nama":"Raja Ampat","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":512,"kode_kabupaten_kota":"09","provinsi_id":38,"nama":"Tambrauw","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":513,"kode_kabupaten_kota":"10","provinsi_id":38,"nama":"Maybrat","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}
+{"id":514,"kode_kabupaten_kota":"71","provinsi_id":38,"nama":"Kota Sorong","created_at":"2025-10-31 04:46:49","updated_at":"2025-10-31 04:46:49"}

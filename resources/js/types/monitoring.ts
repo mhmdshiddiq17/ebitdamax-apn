@@ -1,3 +1,5 @@
+import type { PaginatedResponse } from './ebitda';
+
 export type SarprasCompletionSummary = {
     filter: { batch: string | null };
     data: {
@@ -53,14 +55,15 @@ export type SdmEntry = {
     id: number;
     nik: string | null;
     nama_koperasi: string;
-    nama_kodim: string | null;
+    provinsi: string | null;
     kota_kabupaten: string | null;
+    kecamatan: string | null;
     jumlah_karyawan: number;
     updated_at: string | null;
 };
 
 export type SdmDataPageProps = {
-    entries: SdmEntry[];
+    entries: PaginatedResponse<SdmEntry>;
     summary: SdmSummary;
     filters: { search: string };
 };

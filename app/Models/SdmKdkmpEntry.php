@@ -10,6 +10,7 @@ class SdmKdkmpEntry extends Model
     protected $fillable = [
         'nik',
         'nama_koperasi',
+        'provinsi',
         'nama_kodam',
         'nama_korem',
         'nama_kodim',
