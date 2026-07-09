@@ -3,7 +3,9 @@
 namespace App\Services;
 
 use App\Models\KdkmpOperationalEntry;
+use App\Models\KoperasiSarprasStatusPoint;
 use App\Models\SdmKdkmpEntry;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
@@ -13,9 +15,7 @@ class MonitoringDashboardService
 {
     private const CACHE_TTL_SECONDS = 600;
 
-    private const MAP_POINTS_CACHE_TTL_SECONDS = 1800;
-
-    private const MAP_POINTS_PAGE_SIZE = 500;
+    private const MAP_POINTS_CACHE_TTL_SECONDS = 900;
 
     public function summary(): array
     {
@@ -135,59 +135,31 @@ class MonitoringDashboardService
      */
     public function mapPoints(): array
     {
-        $cacheKey = 'monitoring:koperasi-sarpras-status-points';
+        $latestSyncRaw = KoperasiSarprasStatusPoint::query()->max('synced_at');
 
-        return Cache::remember($cacheKey, self::MAP_POINTS_CACHE_TTL_SECONDS, function (): array {
-            $token = config('services.portal_pembangunan.sarpras_token');
-            $baseUrl = rtrim(config('services.portal_pembangunan.base_url'), '/').'/api/koperasi-sarpras-status';
+        if (! $latestSyncRaw) {
+            return ['status' => 'error', 'points' => [], 'fetched_at' => null];
+        }
 
-            $rawPoints = [];
+        $latestSync = Carbon::parse($latestSyncRaw)->toIso8601String();
+        $cacheKey = 'monitoring:koperasi-sarpras-status-points:'.$latestSync;
 
-            try {
-                $page = 1;
-                do {
-                    $response = Http::timeout(30)
-                        ->withToken($token)
-                        ->get($baseUrl, ['page' => $page, 'per_page' => self::MAP_POINTS_PAGE_SIZE]);
-
-                    if (! $response->successful()) {
-                        Log::warning("Monitoring dashboard: non-200 from {$baseUrl} page {$page}", ['status' => $response->status()]);
-
-                        return ['status' => 'error', 'points' => [], 'fetched_at' => null];
-                    }
-
-                    $body = $response->json();
-                    $rawPoints = [...$rawPoints, ...($body['data'] ?? [])];
-
-                    $hasMore = (bool) ($body['meta']['has_more'] ?? false);
-                    $page++;
-                } while ($hasMore);
-            } catch (\Throwable $e) {
-                Log::error("Monitoring dashboard: failed to fetch map points: {$e->getMessage()}");
-
-                return ['status' => 'error', 'points' => [], 'fetched_at' => null];
-            }
-
-            $niks = array_values(array_unique(array_filter(array_column($rawPoints, 'nik_koperasi'))));
-
-            $sdmByNik = SdmKdkmpEntry::query()
-                ->whereIn('nik', $niks)
-                ->pluck('jumlah_karyawan', 'nik');
+        return Cache::remember($cacheKey, self::MAP_POINTS_CACHE_TTL_SECONDS, function () use ($latestSync): array {
+            $sdmByNik = SdmKdkmpEntry::query()->pluck('jumlah_karyawan', 'nik');
 
             $odooByNik = KdkmpOperationalEntry::query()
-                ->whereIn('nik', $niks)
                 ->get(['nik', 'has_po', 'has_receipt', 'has_sales'])
                 ->keyBy('nik');
 
-            $points = array_map(
-                fn (array $point): array => $this->buildMapPoint($point, $sdmByNik, $odooByNik),
-                array_values(array_filter($rawPoints, fn (array $point): bool => $point['latitude'] !== null && $point['longitude'] !== null)),
-            );
+            $points = KoperasiSarprasStatusPoint::query()
+                ->cursor()
+                ->map(fn (KoperasiSarprasStatusPoint $point): array => $this->buildMapPoint($point, $sdmByNik, $odooByNik))
+                ->all();
 
             return [
                 'status' => 'ok',
                 'points' => $points,
-                'fetched_at' => now()->toIso8601String(),
+                'fetched_at' => $latestSync,
             ];
         });
     }
@@ -202,10 +174,10 @@ class MonitoringDashboardService
      * gak bengkak ~35 ribu titik x nama field. Urutan HARUS selaras dengan
      * MAP_POINT_FIELDS dan tipe MapPoint di resources/js/types/monitoring.ts.
      */
-    private function buildMapPoint(array $point, $sdmByNik, $odooByNik): array
+    private function buildMapPoint(KoperasiSarprasStatusPoint $point, $sdmByNik, $odooByNik): array
     {
-        $nik = $point['nik_koperasi'] ?? null;
-        $progress = (float) ($point['progress_percentage'] ?? 0);
+        $nik = $point->nik;
+        $progress = $point->progress_percentage;
         $jumlahKaryawan = $nik ? (int) ($sdmByNik[$nik] ?? 0) : 0;
         $odoo = $nik ? $odooByNik->get($nik) : null;
 
@@ -213,19 +185,19 @@ class MonitoringDashboardService
 
         return [
             $nik,
-            $point['koperasi_name'] ?? null,
-            $point['province_name'] ?? null,
-            $point['city_name'] ?? null,
-            $point['district_name'] ?? null,
-            $point['kodim_name'] ?? null,
-            round((float) $point['latitude'], 6),
-            round((float) $point['longitude'], 6),
-            $point['validation_status'] ?? null,
-            round($progress, 1),
-            (int) ($point['completed_sarpras_count'] ?? 0),
-            (bool) ($point['sarpras_primary_lengkap'] ?? false),
-            (bool) ($point['sarpras_secondary_lengkap'] ?? false),
-            (bool) ($point['sarpras_lengkap'] ?? false),
+            $point->nama_koperasi,
+            $point->provinsi,
+            $point->kota_kabupaten,
+            $point->kecamatan,
+            $point->kodim,
+            $point->lat,
+            $point->lng,
+            $point->validation_status,
+            $progress,
+            $point->completed_sarpras_count,
+            $point->sarpras_primary_lengkap,
+            $point->sarpras_secondary_lengkap,
+            $point->sarpras_lengkap,
             $jumlahKaryawan,
             (bool) ($odoo?->has_po ?? false),
             (bool) ($odoo?->has_receipt ?? false),
@@ -238,7 +210,7 @@ class MonitoringDashboardService
     /**
      * @return array{0: 'status'|'sarpras'|'sdm'|'odoo', 1: 'red'|'orange'|'yellow'|'green'|'blue'|'gray'}
      */
-    private function resolveMarker(array $point, float $progress, int $jumlahKaryawan, ?KdkmpOperationalEntry $odoo): array
+    private function resolveMarker(KoperasiSarprasStatusPoint $point, float $progress, int $jumlahKaryawan, ?KdkmpOperationalEntry $odoo): array
     {
         // Tier 3: sudah ada progres Odoo (PO/GR/penjualan) - paling prioritas diawasi
         if ($odoo && ($odoo->has_po || $odoo->has_receipt || $odoo->has_sales)) {
@@ -259,9 +231,9 @@ class MonitoringDashboardService
         // Tier 1: pembangunan 100%, fokus jadi kelengkapan sarpras
         if ($progress >= 100) {
             $color = match (true) {
-                (bool) ($point['sarpras_lengkap'] ?? false) => 'blue',
-                (bool) ($point['sarpras_secondary_lengkap'] ?? false) => 'green',
-                (bool) ($point['sarpras_primary_lengkap'] ?? false) => 'yellow',
+                $point->sarpras_lengkap => 'blue',
+                $point->sarpras_secondary_lengkap => 'green',
+                $point->sarpras_primary_lengkap => 'yellow',
                 default => 'red',
             };
 
@@ -269,7 +241,7 @@ class MonitoringDashboardService
         }
 
         // Tier 0: status verifikasi/pembangunan
-        $status = $point['validation_status'] ?? null;
+        $status = $point->validation_status;
 
         return match (true) {
             $status === 'Sedang Diverifikasi' => ['status', 'yellow'],
