@@ -61,7 +61,7 @@ Route::get('/monitoring', [MonitoringDashboardController::class, 'index'])
     ->name('monitoring.index');
 
 Route::resource('sdm-data', SdmKdkmpEntryController::class, ['parameters' => ['sdm-data' => 'sdm_data']])
-    ->only(['index', 'store', 'update', 'destroy']);
+    ->only(['index', 'update']);
 // });
 
 require __DIR__.'/settings.php';

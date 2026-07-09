@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreSdmKdkmpEntryRequest;
+use App\Http\Requests\UpdateSdmKdkmpEntryRequest;
 use App\Models\SdmKdkmpEntry;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -16,14 +16,21 @@ class SdmKdkmpEntryController extends Controller
         $search = trim((string) $request->input('search', ''));
 
         $entries = SdmKdkmpEntry::query()
-            ->when($search !== '', fn ($query) => $query->where('nama_koperasi', 'ilike', "%{$search}%"))
+            ->when($search !== '', function ($query) use ($search) {
+                $query
+                    ->where('nama_koperasi', 'ilike', "%{$search}%")
+                    ->orWhere('nik', 'ilike', "%{$search}%")
+                    ->orWhere('nama_kodim', 'ilike', "%{$search}%");
+            })
             ->orderBy('nama_koperasi')
             ->get()
             ->map(fn (SdmKdkmpEntry $entry): array => [
                 'id' => $entry->id,
+                'nik' => $entry->nik,
                 'nama_koperasi' => $entry->nama_koperasi,
+                'nama_kodim' => $entry->nama_kodim,
+                'kota_kabupaten' => $entry->kota_kabupaten,
                 'jumlah_karyawan' => $entry->jumlah_karyawan,
-                'catatan' => $entry->catatan,
                 'updated_at' => $entry->updated_at?->toIso8601String(),
             ]);
 
@@ -41,31 +48,13 @@ class SdmKdkmpEntryController extends Controller
         ]);
     }
 
-    public function store(StoreSdmKdkmpEntryRequest $request): RedirectResponse
-    {
-        SdmKdkmpEntry::query()->create([
-            ...$request->validated(),
-            'created_by' => $request->user()?->id,
-            'updated_by' => $request->user()?->id,
-        ]);
-
-        return back()->with('success', 'Data SDM KDKMP berhasil ditambahkan.');
-    }
-
-    public function update(StoreSdmKdkmpEntryRequest $request, SdmKdkmpEntry $sdm_data): RedirectResponse
+    public function update(UpdateSdmKdkmpEntryRequest $request, SdmKdkmpEntry $sdm_data): RedirectResponse
     {
         $sdm_data->update([
-            ...$request->validated(),
+            'jumlah_karyawan' => $request->validated('jumlah_karyawan'),
             'updated_by' => $request->user()?->id,
         ]);
 
-        return back()->with('success', 'Data SDM KDKMP berhasil diperbarui.');
-    }
-
-    public function destroy(SdmKdkmpEntry $sdm_data): RedirectResponse
-    {
-        $sdm_data->delete();
-
-        return back()->with('success', 'Data SDM KDKMP berhasil dihapus.');
+        return back()->with('success', 'Jumlah karyawan berhasil disimpan.');
     }
 }

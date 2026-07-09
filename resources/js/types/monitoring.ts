@@ -51,9 +51,11 @@ export type MonitoringDashboardProps = {
 
 export type SdmEntry = {
     id: number;
+    nik: string | null;
     nama_koperasi: string;
+    nama_kodim: string | null;
+    kota_kabupaten: string | null;
     jumlah_karyawan: number;
-    catatan: string | null;
     updated_at: string | null;
 };
 

@@ -8,7 +8,15 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class SdmKdkmpEntry extends Model
 {
     protected $fillable = [
+        'nik',
         'nama_koperasi',
+        'nama_kodam',
+        'nama_korem',
+        'nama_kodim',
+        'desa',
+        'kecamatan',
+        'kota_kabupaten',
+        'batch',
         'jumlah_karyawan',
         'catatan',
         'created_by',

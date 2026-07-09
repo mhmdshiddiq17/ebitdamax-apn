@@ -1,5 +1,5 @@
 import { Head, router } from '@inertiajs/react';
-import { Plus, Save, Search, Trash2, Users } from 'lucide-react';
+import { Pencil, Save, Search, Users } from 'lucide-react';
 import type { FormEvent } from 'react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -13,129 +13,73 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
-import {
-    destroy,
-    index as sdmDataIndex,
-    store,
-    update,
-} from '@/routes/sdm-data';
+import { index as sdmDataIndex, update } from '@/routes/sdm-data';
 import type { SdmDataPageProps, SdmEntry } from '@/types/monitoring';
 
 function SdmRow({ entry }: { entry: SdmEntry }) {
+    const [isEditing, setIsEditing] = useState(entry.jumlah_karyawan === 0);
     const [jumlahKaryawan, setJumlahKaryawan] = useState(
         String(entry.jumlah_karyawan),
     );
     const [saving, setSaving] = useState(false);
-    const dirty = jumlahKaryawan !== String(entry.jumlah_karyawan);
 
     const save = () => {
         setSaving(true);
         router.put(
             update.url(entry.id),
-            {
-                nama_koperasi: entry.nama_koperasi,
-                jumlah_karyawan: jumlahKaryawan,
-                catatan: entry.catatan ?? '',
-            },
+            { jumlah_karyawan: jumlahKaryawan },
             {
                 preserveScroll: true,
+                onSuccess: () => setIsEditing(false),
                 onFinish: () => setSaving(false),
             },
         );
-    };
-
-    const remove = () => {
-        if (!confirm(`Hapus data SDM untuk ${entry.nama_koperasi}?`)) {
-            return;
-        }
-
-        router.delete(destroy.url(entry.id), { preserveScroll: true });
     };
 
     return (
         <TableRow>
-            <TableCell className="font-medium">{entry.nama_koperasi}</TableCell>
-            <TableCell className="w-40">
-                <Input
-                    type="number"
-                    min={0}
-                    value={jumlahKaryawan}
-                    onChange={(e) => setJumlahKaryawan(e.target.value)}
-                    className="text-right"
-                />
+            <TableCell>
+                <p className="font-medium">{entry.nama_koperasi}</p>
+                <p className="text-xs text-muted-foreground">
+                    {[entry.nama_kodim, entry.kota_kabupaten]
+                        .filter(Boolean)
+                        .join(' · ')}
+                </p>
             </TableCell>
-            <TableCell className="w-40 text-right">
-                <div className="flex justify-end gap-1">
-                    <Button
-                        size="sm"
-                        variant={dirty ? 'default' : 'outline'}
-                        disabled={!dirty || saving}
-                        onClick={save}
-                    >
+            <TableCell className="w-40">
+                {isEditing ? (
+                    <Input
+                        type="number"
+                        min={0}
+                        autoFocus
+                        value={jumlahKaryawan}
+                        onChange={(e) => setJumlahKaryawan(e.target.value)}
+                        className="text-right"
+                    />
+                ) : (
+                    <p className="text-right font-semibold tabular-nums">
+                        {entry.jumlah_karyawan.toLocaleString('id-ID')}
+                    </p>
+                )}
+            </TableCell>
+            <TableCell className="w-32 text-right">
+                {isEditing ? (
+                    <Button size="sm" disabled={saving} onClick={save}>
                         <Save className="mr-1 h-4 w-4" />
                         Simpan
                     </Button>
-                    <Button size="icon" variant="ghost" onClick={remove}>
-                        <Trash2 className="h-4 w-4 text-destructive" />
+                ) : (
+                    <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setIsEditing(true)}
+                    >
+                        <Pencil className="mr-1 h-4 w-4" />
+                        Edit
                     </Button>
-                </div>
+                )}
             </TableCell>
         </TableRow>
-    );
-}
-
-function AddSdmRow() {
-    const [namaKoperasi, setNamaKoperasi] = useState('');
-    const [jumlahKaryawan, setJumlahKaryawan] = useState('0');
-    const [error, setError] = useState<string | null>(null);
-    const [saving, setSaving] = useState(false);
-
-    const submit = (event: FormEvent) => {
-        event.preventDefault();
-        setSaving(true);
-        setError(null);
-
-        router.post(
-            store.url(),
-            { nama_koperasi: namaKoperasi, jumlah_karyawan: jumlahKaryawan },
-            {
-                preserveScroll: true,
-                onSuccess: () => {
-                    setNamaKoperasi('');
-                    setJumlahKaryawan('0');
-                },
-                onError: (errors) => setError(errors.nama_koperasi ?? null),
-                onFinish: () => setSaving(false),
-            },
-        );
-    };
-
-    return (
-        <form onSubmit={submit} className="flex flex-wrap items-start gap-3">
-            <div className="min-w-[220px] flex-1">
-                <Input
-                    value={namaKoperasi}
-                    onChange={(e) => setNamaKoperasi(e.target.value)}
-                    placeholder="Nama koperasi baru"
-                    required
-                />
-                {error && (
-                    <p className="mt-1 text-sm text-destructive">{error}</p>
-                )}
-            </div>
-            <Input
-                type="number"
-                min={0}
-                value={jumlahKaryawan}
-                onChange={(e) => setJumlahKaryawan(e.target.value)}
-                className="w-40"
-                required
-            />
-            <Button type="submit" disabled={saving}>
-                <Plus className="mr-1 h-4 w-4" />
-                Tambah
-            </Button>
-        </form>
     );
 }
 
@@ -165,9 +109,8 @@ export default function SdmDataIndex({
                             Data SDM KDKMP
                         </h1>
                         <p className="mt-2 max-w-4xl text-muted-foreground">
-                            Jumlah karyawan yang sudah ditambahkan dan
-                            ditempatkan per KDKMP. Data diinput manual oleh tim
-                            HC.
+                            Daftar KDKMP dari data pembangunan. Isi jumlah
+                            karyawan yang sudah ditempatkan di tiap KDKMP.
                         </p>
                     </div>
 
@@ -221,7 +164,7 @@ export default function SdmDataIndex({
                                         onChange={(e) =>
                                             setSearch(e.target.value)
                                         }
-                                        placeholder="Cari nama koperasi..."
+                                        placeholder="Cari nama koperasi, NIK, atau kodim..."
                                         className="pl-8"
                                     />
                                 </div>
@@ -230,12 +173,10 @@ export default function SdmDataIndex({
                                 </Button>
                             </form>
 
-                            <AddSdmRow />
-
                             <Table>
                                 <TableHeader>
                                     <TableRow>
-                                        <TableHead>Nama Koperasi</TableHead>
+                                        <TableHead>KDKMP</TableHead>
                                         <TableHead>Jumlah Karyawan</TableHead>
                                         <TableHead className="text-right">
                                             Aksi
@@ -249,7 +190,7 @@ export default function SdmDataIndex({
                                                 colSpan={3}
                                                 className="text-center text-muted-foreground"
                                             >
-                                                Belum ada data.
+                                                Tidak ada data yang cocok.
                                             </TableCell>
                                         </TableRow>
                                     )}
