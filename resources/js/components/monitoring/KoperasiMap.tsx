@@ -1568,13 +1568,17 @@ export default function KoperasiMap() {
                 )}
 
                 <div
-                    ref={containerRef}
                     className={
                         isFullscreen
                             ? 'relative h-[calc(100vh-220px)] w-full overflow-hidden rounded-lg border'
                             : 'relative h-[480px] w-full overflow-hidden rounded-lg border'
                     }
-                />
+                >
+                    {/* className statis - Leaflet menambahkan class-nya
+                        sendiri ke elemen ini via DOM, className dinamis di
+                        sini akan menghapusnya saat re-render. */}
+                    <div ref={containerRef} className="h-full w-full" />
+                </div>
 
                 <div className="grid gap-4 border-t pt-4 sm:grid-cols-2 lg:grid-cols-4">
                     <LegendGroup
