@@ -64,6 +64,7 @@ class MonitoringDashboardService
         return $this->fetchExternal(
             cacheKey: 'monitoring:sarpras-completion-summary',
             url: rtrim(config('services.portal_pembangunan.base_url'), '/').'/api/laporan-vendor/sarpras-completion-summary',
+            token: config('services.portal_pembangunan.sarpras_token'),
         );
     }
 
@@ -108,11 +109,17 @@ class MonitoringDashboardService
     /**
      * @return array{status: 'ok'|'error', data: array|null, fetched_at: string|null}
      */
-    private function fetchExternal(string $cacheKey, string $url): array
+    private function fetchExternal(string $cacheKey, string $url, ?string $token = null): array
     {
-        return Cache::remember($cacheKey, self::CACHE_TTL_SECONDS, function () use ($url): array {
+        return Cache::remember($cacheKey, self::CACHE_TTL_SECONDS, function () use ($url, $token): array {
             try {
-                $response = Http::timeout(10)->get($url);
+                $request = Http::timeout(10);
+
+                if ($token) {
+                    $request = $request->withToken($token);
+                }
+
+                $response = $request->get($url);
 
                 if (! $response->successful()) {
                     Log::warning("Monitoring dashboard: non-200 from {$url}", ['status' => $response->status()]);

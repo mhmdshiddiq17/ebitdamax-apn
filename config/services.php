@@ -37,6 +37,7 @@ return [
 
     'portal_pembangunan' => [
         'base_url' => env('PORTAL_PEMBANGUNAN_BASE_URL', 'https://portalkdkmp.id'),
+        'sarpras_token' => env('PORTAL_PEMBANGUNAN_SARPRAS_TOKEN'),
     ],
 
     'portal_pemetaan' => [
