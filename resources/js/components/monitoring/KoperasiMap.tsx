@@ -1093,9 +1093,21 @@ export default function KoperasiMap() {
             setVisibleCount(nextDrawn.length);
         };
 
+        // render() (gambar GPU) langsung jalan supaya titik tetap terlihat
+        // menyatu dengan tile begitu pan/zoom berhenti. refreshVisibleForUI()
+        // (scan hit-test + hitung "menampilkan X dari Y") digeser ke frame
+        // berikutnya karena O(n) atas titik ter-buffer - kalau dijalankan
+        // sinkron bersama render(), scan ini yang bikin jeda terasa nge-lag
+        // tiap drag/zoom berhenti, bukan proses gambarnya sendiri.
+        let visibleRefreshFrame: number | null = null;
         const draw = () => {
             render();
-            refreshVisibleForUI();
+
+            if (visibleRefreshFrame !== null) {
+                cancelAnimationFrame(visibleRefreshFrame);
+            }
+
+            visibleRefreshFrame = requestAnimationFrame(refreshVisibleForUI);
         };
         drawRef.current = draw;
         rebuildBufferRef.current = rebuildBuffer;
@@ -1258,6 +1270,10 @@ export default function KoperasiMap() {
 
             if (resizeFrame !== null) {
                 cancelAnimationFrame(resizeFrame);
+            }
+
+            if (visibleRefreshFrame !== null) {
+                cancelAnimationFrame(visibleRefreshFrame);
             }
 
             map.remove();
