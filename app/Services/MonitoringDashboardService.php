@@ -128,8 +128,8 @@ class MonitoringDashboardService
      * Odoo (PO/GR/penjualan) > SDM > sarpras > status verifikasi/pembangunan.
      *
      * `points` adalah array tuple posisional (lihat MAP_POINT_FIELDS), bukan
-     * object berkey, biar payload ~35 ribu titik gak bengkak karena nama field
-     * keulang-ulang.
+     * object berkey, agar payload untuk sekitar 35 ribu titik tidak membengkak
+     * akibat pengulangan nama field.
      *
      * @return array{status: 'ok'|'error', points: array, fetched_at: string|null}
      */
@@ -165,14 +165,14 @@ class MonitoringDashboardService
     }
 
     /**
+     * Dikembalikan sebagai tuple posisional (bukan object berkey) agar payload
+     * untuk sekitar 35 ribu titik tidak membengkak akibat pengulangan nama
+     * field. Urutan elemen harus selaras dengan MAP_POINT_FIELDS dan tipe
+     * MapPointTuple di resources/js/types/monitoring.ts.
+     *
      * @param  array<string, int>  $sdmByNik
      * @param  Collection<string, KdkmpOperationalEntry>  $odooByNik
      * @return array<string, mixed>
-     */
-    /**
-     * Dikembalikan sebagai tuple posisional (bukan object berkey) supaya payload
-     * gak bengkak ~35 ribu titik x nama field. Urutan HARUS selaras dengan
-     * MAP_POINT_FIELDS dan tipe MapPoint di resources/js/types/monitoring.ts.
      */
     private function buildMapPoint(KoperasiSarprasStatusPoint $point, $sdmByNik, $odooByNik): array
     {
@@ -212,7 +212,7 @@ class MonitoringDashboardService
      */
     private function resolveMarker(KoperasiSarprasStatusPoint $point, float $progress, int $jumlahKaryawan, ?KdkmpOperationalEntry $odoo): array
     {
-        // Tier 3: sudah ada progres Odoo (PO/GR/penjualan) - paling prioritas diawasi
+        // Tier 3: sudah ada progres Odoo (PO/GR/penjualan), prioritas tertinggi.
         if ($odoo && ($odoo->has_po || $odoo->has_receipt || $odoo->has_sales)) {
             $color = match (true) {
                 $odoo->has_sales => 'blue',
@@ -223,15 +223,21 @@ class MonitoringDashboardService
             return ['odoo', $color];
         }
 
-        // Tier 2: SDM sudah ditambahkan
-        if ($jumlahKaryawan > 0) {
-            return ['sdm', $jumlahKaryawan >= 6 ? 'green' : 'yellow'];
+        // Tier 2: sarpras sudah lengkap semua, fokus berpindah ke SDM.
+        // Tiga warna: belum ada (merah), sebagian (kuning), 6 orang lengkap (hijau).
+        if ($point->sarpras_lengkap) {
+            $color = match (true) {
+                $jumlahKaryawan >= 6 => 'green',
+                $jumlahKaryawan > 0 => 'yellow',
+                default => 'red',
+            };
+
+            return ['sdm', $color];
         }
 
         // Tier 1: pembangunan 100%, fokus jadi kelengkapan sarpras
         if ($progress >= 100) {
             $color = match (true) {
-                $point->sarpras_lengkap => 'blue',
                 $point->sarpras_secondary_lengkap => 'green',
                 $point->sarpras_primary_lengkap => 'yellow',
                 default => 'red',
