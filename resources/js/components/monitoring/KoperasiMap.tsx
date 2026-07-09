@@ -703,7 +703,14 @@ export default function KoperasiMap() {
 
         L.tileLayer(
             'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-            { attribution: 'Tiles &copy; Esri', maxZoom: 19 },
+            {
+                attribution: 'Tiles &copy; Esri',
+                maxZoom: 19,
+                // ArcGIS mengizinkan CORS (Access-Control-Allow-Origin: *),
+                // ini diperlukan supaya tile bisa di-composite ke canvas
+                // export saat screenshot tanpa canvas jadi "tainted".
+                crossOrigin: true,
+            },
         ).addTo(map);
 
         // Pane khusus agar canvas titik berada di atas tile namun tetap di
