@@ -45,14 +45,6 @@ const TONE_BORDER: Record<Tone, string> = {
     neutral: 'border-l-slate-400',
 };
 
-const TONE_BAR: Record<Tone, string> = {
-    default: 'bg-primary',
-    success: 'bg-emerald-500',
-    warning: 'bg-amber-500',
-    danger: 'bg-destructive',
-    neutral: 'bg-slate-400',
-};
-
 function formatNumber(value: number) {
     return value.toLocaleString('id-ID');
 }
@@ -159,73 +151,6 @@ function SectionUnavailable({ label }: { label: string }) {
     );
 }
 
-type FunnelStage = {
-    label: string;
-    value: number;
-    tone: Tone;
-};
-
-function VerificationFunnel({
-    total,
-    stages,
-}: {
-    total: number;
-    stages: FunnelStage[];
-}) {
-    return (
-        <Card className="shadow-sm">
-            <CardContent className="space-y-4 p-5">
-                <p className="text-sm font-medium text-muted-foreground">
-                    Alur verifikasi dan pembangunan lahan
-                </p>
-
-                <div className="flex h-3 w-full overflow-hidden rounded-full bg-muted">
-                    {stages.map((stage) => (
-                        <div
-                            key={stage.label}
-                            className={`h-full ${TONE_BAR[stage.tone]}`}
-                            style={{
-                                width: `${total > 0 ? (stage.value / total) * 100 : 0}%`,
-                            }}
-                        />
-                    ))}
-                </div>
-
-                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                    {stages.map((stage) => {
-                        const percent =
-                            total > 0
-                                ? Math.round((stage.value / total) * 1000) / 10
-                                : 0;
-
-                        return (
-                            <div
-                                key={stage.label}
-                                className="flex items-start gap-2"
-                            >
-                                <span
-                                    className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${TONE_BAR[stage.tone]}`}
-                                />
-                                <div>
-                                    <p className="text-sm font-semibold tabular-nums">
-                                        {formatNumber(stage.value)}{' '}
-                                        <span className="text-xs font-normal text-muted-foreground">
-                                            ({percent}%)
-                                        </span>
-                                    </p>
-                                    <p className="text-xs text-muted-foreground">
-                                        {stage.label}
-                                    </p>
-                                </div>
-                            </div>
-                        );
-                    })}
-                </div>
-            </CardContent>
-        </Card>
-    );
-}
-
 export default function MonitoringIndex({
     sarpras,
     pemetaan_lahan: pemetaanLahan,
@@ -258,71 +183,6 @@ export default function MonitoringIndex({
 
                     <section className="space-y-3">
                         <SectionHeading
-                            icon={ShieldCheck}
-                            title="Sarana & Prasarana"
-                            tone="default"
-                            updatedAt={sarpras.fetched_at}
-                        />
-
-                        {sarpras.status === 'error' || !sarpras.data ? (
-                            <SectionUnavailable label="sarpras" />
-                        ) : (
-                            <div className="grid gap-4 md:grid-cols-2">
-                                <StatCard
-                                    title="Jumlah KDKMP Sarpras Esensial Lengkap"
-                                    value={
-                                        sarpras.data.data
-                                            .jumlah_koperasi_sarpras_mandatory_lengkap
-                                    }
-                                    icon={CheckCircle2}
-                                    tone="success"
-                                />
-                                <StatCard
-                                    title="Jumlah KDKMP Sudah Lengkap Sarprasnya"
-                                    value={
-                                        sarpras.data.data
-                                            .jumlah_koperasi_sarpras_lengkap_semua
-                                    }
-                                    icon={Building2}
-                                    tone="default"
-                                />
-                            </div>
-                        )}
-                        {sarpras.status === 'ok' && sarpras.data && (
-                            <IndicatorBarChart
-                                title="Perbandingan Indikator Sarpras"
-                                data={[
-                                    {
-                                        label: 'Sarpras Esensial Lengkap',
-                                        value: sarpras.data.data
-                                            .jumlah_koperasi_sarpras_mandatory_lengkap,
-                                        tone: 'success',
-                                    },
-                                    {
-                                        label: 'Sarpras Lengkap Semua',
-                                        value: sarpras.data.data
-                                            .jumlah_koperasi_sarpras_lengkap_semua,
-                                        tone: 'default',
-                                    },
-                                ]}
-                            />
-                        )}
-                        {sarpras.status === 'ok' && sarpras.data && (
-                            <p className="text-xs text-muted-foreground">
-                                Esensial: sarpras wajib operasional (saat ini{' '}
-                                {sarpras.data.meta.mandatory_requirement_count}{' '}
-                                jenis, mengikuti master data sarpras terkini).
-                                Status dianggap selesai:{' '}
-                                {sarpras.data.meta.completed_statuses.join(
-                                    ', ',
-                                )}
-                                .
-                            </p>
-                        )}
-                    </section>
-
-                    <section className="space-y-3">
-                        <SectionHeading
                             icon={Map}
                             title="Pemetaan & Validasi Lahan"
                             tone="default"
@@ -333,38 +193,6 @@ export default function MonitoringIndex({
                             <SectionUnavailable label="pemetaan lahan" />
                         ) : (
                             <div className="space-y-4">
-                                <VerificationFunnel
-                                    total={lahan.total}
-                                    stages={[
-                                        {
-                                            label: 'Terverifikasi belum bangun',
-                                            value: lahan.terverifikasi_belum_bangun,
-                                            tone: 'default',
-                                        },
-                                        {
-                                            label: 'Pembangunan',
-                                            value: lahan.mulai_dibangun,
-                                            tone: 'warning',
-                                        },
-                                        {
-                                            label: 'Pembangunan 100%',
-                                            value: lahan.done_pembangunan,
-                                            tone: 'success',
-                                        },
-                                        {
-                                            label: 'Belum terverifikasi (proses lain)',
-                                            value: Math.max(
-                                                lahan.total -
-                                                    lahan.terverifikasi_belum_bangun -
-                                                    lahan.mulai_dibangun -
-                                                    lahan.done_pembangunan,
-                                                0,
-                                            ),
-                                            tone: 'neutral',
-                                        },
-                                    ]}
-                                />
-
                                 <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
                                     <StatCard
                                         title="Lahan yang Diajukan"
@@ -429,6 +257,71 @@ export default function MonitoringIndex({
                                     ]}
                                 />
                             </div>
+                        )}
+                    </section>
+
+                    <section className="space-y-3">
+                        <SectionHeading
+                            icon={ShieldCheck}
+                            title="Sarana & Prasarana"
+                            tone="default"
+                            updatedAt={sarpras.fetched_at}
+                        />
+
+                        {sarpras.status === 'error' || !sarpras.data ? (
+                            <SectionUnavailable label="sarpras" />
+                        ) : (
+                            <div className="grid gap-4 md:grid-cols-2">
+                                <StatCard
+                                    title="Jumlah KDKMP Sarpras Esensial Lengkap"
+                                    value={
+                                        sarpras.data.data
+                                            .jumlah_koperasi_sarpras_mandatory_lengkap
+                                    }
+                                    icon={CheckCircle2}
+                                    tone="success"
+                                />
+                                <StatCard
+                                    title="Jumlah KDKMP Sudah Lengkap Sarprasnya"
+                                    value={
+                                        sarpras.data.data
+                                            .jumlah_koperasi_sarpras_lengkap_semua
+                                    }
+                                    icon={Building2}
+                                    tone="default"
+                                />
+                            </div>
+                        )}
+                        {sarpras.status === 'ok' && sarpras.data && (
+                            <IndicatorBarChart
+                                title="Perbandingan Indikator Sarpras"
+                                data={[
+                                    {
+                                        label: 'Sarpras Esensial Lengkap',
+                                        value: sarpras.data.data
+                                            .jumlah_koperasi_sarpras_mandatory_lengkap,
+                                        tone: 'success',
+                                    },
+                                    {
+                                        label: 'Sarpras Lengkap Semua',
+                                        value: sarpras.data.data
+                                            .jumlah_koperasi_sarpras_lengkap_semua,
+                                        tone: 'default',
+                                    },
+                                ]}
+                            />
+                        )}
+                        {sarpras.status === 'ok' && sarpras.data && (
+                            <p className="text-xs text-muted-foreground">
+                                Esensial: sarpras wajib operasional (saat ini{' '}
+                                {sarpras.data.meta.mandatory_requirement_count}{' '}
+                                jenis, mengikuti master data sarpras terkini).
+                                Status dianggap selesai:{' '}
+                                {sarpras.data.meta.completed_statuses.join(
+                                    ', ',
+                                )}
+                                .
+                            </p>
                         )}
                     </section>
 
