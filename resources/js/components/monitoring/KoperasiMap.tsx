@@ -41,7 +41,11 @@ function drawShape(
     ctx: CanvasRenderingContext2D,
     tier: MarkerTier,
     color: string,
+    offsetX = 0,
+    offsetY = 0,
 ) {
+    ctx.save();
+    ctx.translate(offsetX, offsetY);
     ctx.fillStyle = color;
     ctx.strokeStyle = '#ffffff';
     ctx.lineWidth = 1.5;
@@ -101,34 +105,8 @@ function drawShape(
             break;
         }
     }
-}
 
-// Setiap kombinasi tier dan warna dirender sekali menjadi bitmap, kemudian
-// digunakan berulang melalui drawImage() saat menggambar titik pada canvas.
-// Pendekatan ini jauh lebih efisien dibandingkan membuat elemen DOM per titik.
-function buildSpriteAtlas(): Map<string, HTMLCanvasElement> {
-    const atlas = new Map<string, HTMLCanvasElement>();
-
-    const tiers: MarkerTier[] = ['status', 'sarpras', 'sdm', 'odoo'];
-    const colors = Object.keys(COLOR_HEX) as MarkerColor[];
-
-    for (const tier of tiers) {
-        for (const color of colors) {
-            const sprite = document.createElement('canvas');
-            sprite.width = SPRITE_SIZE;
-            sprite.height = SPRITE_SIZE;
-
-            const ctx = sprite.getContext('2d');
-
-            if (ctx) {
-                drawShape(ctx, tier, COLOR_HEX[color]);
-            }
-
-            atlas.set(`${tier}_${color}`, sprite);
-        }
-    }
-
-    return atlas;
+    ctx.restore();
 }
 
 function shapeSvg(tier: MarkerTier, color: string): string {
@@ -278,6 +256,220 @@ function uniqueSorted(values: Array<string | null>): string[] {
     ).sort((a, b) => a.localeCompare(b));
 }
 
+// --- Sprite atlas: 24 kombinasi tier x warna digambar sekali ke satu bitmap
+// grid, lalu di-upload sebagai satu texture WebGL. Setiap titik hanya perlu
+// menyimpan index sel di atlas (bukan bitmap terpisah).
+const ATLAS_TIERS: MarkerTier[] = ['status', 'sarpras', 'sdm', 'odoo'];
+const ATLAS_COLORS = Object.keys(COLOR_HEX) as MarkerColor[];
+const ATLAS_COLS = ATLAS_COLORS.length;
+const ATLAS_ROWS = ATLAS_TIERS.length;
+const ATLAS_CELL = 32;
+
+const SPRITE_INDEX = new Map<string, number>();
+ATLAS_TIERS.forEach((tier, row) => {
+    ATLAS_COLORS.forEach((color, col) => {
+        SPRITE_INDEX.set(`${tier}_${color}`, row * ATLAS_COLS + col);
+    });
+});
+
+function buildSpriteAtlasCanvas(): HTMLCanvasElement {
+    const atlas = document.createElement('canvas');
+    atlas.width = ATLAS_COLS * ATLAS_CELL;
+    atlas.height = ATLAS_ROWS * ATLAS_CELL;
+    const ctx = atlas.getContext('2d');
+
+    if (!ctx) {
+        return atlas;
+    }
+
+    const margin = (ATLAS_CELL - SPRITE_SIZE) / 2;
+
+    ATLAS_TIERS.forEach((tier, row) => {
+        ATLAS_COLORS.forEach((color, col) => {
+            drawShape(
+                ctx,
+                tier,
+                COLOR_HEX[color],
+                col * ATLAS_CELL + margin,
+                row * ATLAS_CELL + margin,
+            );
+        });
+    });
+
+    return atlas;
+}
+
+const VERTEX_SHADER_SRC = `
+    attribute vec2 a_position;
+    attribute float a_texIndex;
+    uniform vec2 u_resolution;
+    uniform float u_pointSize;
+    varying float v_texIndex;
+
+    void main() {
+        vec2 zeroToOne = a_position / u_resolution;
+        vec2 clipSpace = zeroToOne * 2.0 - 1.0;
+        gl_Position = vec4(clipSpace * vec2(1.0, -1.0), 0.0, 1.0);
+        gl_PointSize = u_pointSize;
+        v_texIndex = a_texIndex;
+    }
+`;
+
+const FRAGMENT_SHADER_SRC = `
+    precision mediump float;
+    varying float v_texIndex;
+    uniform sampler2D u_atlas;
+    uniform float u_cols;
+    uniform float u_rows;
+
+    void main() {
+        float col = mod(v_texIndex, u_cols);
+        float row = floor(v_texIndex / u_cols);
+        vec2 cellSize = vec2(1.0 / u_cols, 1.0 / u_rows);
+        vec2 uv = (gl_PointCoord + vec2(col, row)) * cellSize;
+        vec4 texColor = texture2D(u_atlas, uv);
+        if (texColor.a < 0.05) {
+            discard;
+        }
+        gl_FragColor = texColor;
+    }
+`;
+
+function compileShader(
+    gl: WebGLRenderingContext,
+    type: number,
+    source: string,
+): WebGLShader | null {
+    const shader = gl.createShader(type);
+
+    if (!shader) {
+        return null;
+    }
+
+    gl.shaderSource(shader, source);
+    gl.compileShader(shader);
+
+    if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+        gl.deleteShader(shader);
+
+        return null;
+    }
+
+    return shader;
+}
+
+type GLState = {
+    gl: WebGLRenderingContext;
+    program: WebGLProgram;
+    positionBuffer: WebGLBuffer;
+    texIndexBuffer: WebGLBuffer;
+    positionLoc: number;
+    texIndexLoc: number;
+    resolutionLoc: WebGLUniformLocation;
+    pointSizeLoc: WebGLUniformLocation;
+    maxPointSize: number;
+};
+
+function initWebGL(
+    canvas: HTMLCanvasElement,
+    atlasCanvas: HTMLCanvasElement,
+): GLState | null {
+    const gl = (canvas.getContext('webgl', {
+        premultipliedAlpha: true,
+        preserveDrawingBuffer: true,
+    }) ??
+        canvas.getContext('experimental-webgl', {
+            premultipliedAlpha: true,
+            preserveDrawingBuffer: true,
+        })) as WebGLRenderingContext | null;
+
+    if (!gl) {
+        return null;
+    }
+
+    const vertexShader = compileShader(gl, gl.VERTEX_SHADER, VERTEX_SHADER_SRC);
+    const fragmentShader = compileShader(
+        gl,
+        gl.FRAGMENT_SHADER,
+        FRAGMENT_SHADER_SRC,
+    );
+
+    if (!vertexShader || !fragmentShader) {
+        return null;
+    }
+
+    const program = gl.createProgram();
+
+    if (!program) {
+        return null;
+    }
+
+    gl.attachShader(program, vertexShader);
+    gl.attachShader(program, fragmentShader);
+    gl.linkProgram(program);
+
+    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+        return null;
+    }
+
+    const texture = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    // Tidak di-flip: baris atlas (canvas, atas ke bawah) diupload apa adanya
+    // sehingga tier index 0..3 pada shader selaras langsung dengan koordinat
+    // V=0..1 tanpa perlu pembalikan tambahan.
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+    gl.texImage2D(
+        gl.TEXTURE_2D,
+        0,
+        gl.RGBA,
+        gl.RGBA,
+        gl.UNSIGNED_BYTE,
+        atlasCanvas,
+    );
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+    const positionBuffer = gl.createBuffer();
+    const texIndexBuffer = gl.createBuffer();
+
+    if (!positionBuffer || !texIndexBuffer) {
+        return null;
+    }
+
+    const resolutionLoc = gl.getUniformLocation(program, 'u_resolution');
+    const pointSizeLoc = gl.getUniformLocation(program, 'u_pointSize');
+    const atlasLoc = gl.getUniformLocation(program, 'u_atlas');
+    const colsLoc = gl.getUniformLocation(program, 'u_cols');
+    const rowsLoc = gl.getUniformLocation(program, 'u_rows');
+
+    if (!resolutionLoc || !pointSizeLoc) {
+        return null;
+    }
+
+    gl.useProgram(program);
+    gl.uniform1i(atlasLoc, 0);
+    gl.uniform1f(colsLoc, ATLAS_COLS);
+    gl.uniform1f(rowsLoc, ATLAS_ROWS);
+
+    const pointSizeRange = gl.getParameter(gl.ALIASED_POINT_SIZE_RANGE) as
+        Float32Array | number[];
+    const maxPointSize = pointSizeRange ? pointSizeRange[1] : 64;
+
+    return {
+        gl,
+        program,
+        positionBuffer,
+        texIndexBuffer,
+        positionLoc: gl.getAttribLocation(program, 'a_position'),
+        texIndexLoc: gl.getAttribLocation(program, 'a_texIndex'),
+        resolutionLoc,
+        pointSizeLoc,
+        maxPointSize,
+    };
+}
+
 export default function KoperasiMap() {
     const containerRef = useRef<HTMLDivElement>(null);
     const cardRef = useRef<HTMLDivElement>(null);
@@ -296,6 +488,7 @@ export default function KoperasiMap() {
     const [isCapturing, setIsCapturing] = useState(false);
     const [captureError, setCaptureError] = useState(false);
     const [allPoints, setAllPoints] = useState<MapPointTuple[]>([]);
+    const [glUnsupported, setGlUnsupported] = useState(false);
 
     const provinsiOptions = useMemo(
         () => uniqueSorted(allPoints.map((p) => p[FIELD.provinsi])),
@@ -367,8 +560,15 @@ export default function KoperasiMap() {
         canvas.style.position = 'absolute';
         canvas.style.top = '0';
         canvas.style.left = '0';
-        const ctx = canvas.getContext('2d');
-        const spriteAtlas = buildSpriteAtlas();
+
+        const atlasCanvas = buildSpriteAtlasCanvas();
+        const glState = initWebGL(canvas, atlasCanvas);
+
+        if (!glState) {
+            setGlUnsupported(true);
+
+            return;
+        }
 
         let drawnPoints: DrawnPoint[] = [];
         let lastTopLeft = L.point(0, 0);
@@ -383,23 +583,26 @@ export default function KoperasiMap() {
         const draw = () => {
             const points = allPointsRef.current;
 
-            if (!ctx || points.length === 0) {
+            if (points.length === 0) {
                 return;
             }
 
             const size = map.getSize();
-            canvas.width = size.x;
-            canvas.height = size.y;
+            const dpr = Math.min(window.devicePixelRatio || 1, 2);
+            canvas.width = Math.round(size.x * dpr);
+            canvas.height = Math.round(size.y * dpr);
+            canvas.style.width = `${size.x}px`;
+            canvas.style.height = `${size.y}px`;
 
             const topLeft = map.containerPointToLayerPoint([0, 0]);
             lastTopLeft = topLeft;
             L.DomUtil.setPosition(canvas, topLeft);
 
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
             const bounds = map.getBounds().pad(0.15);
             const nextDrawn: DrawnPoint[] = [];
             const activeFilters = filtersRef.current;
+            const positions: number[] = [];
+            const texIndices: number[] = [];
 
             for (let i = 0; i < points.length; i++) {
                 const point = points[i];
@@ -418,15 +621,68 @@ export default function KoperasiMap() {
                 const x = layerPoint.x - topLeft.x;
                 const y = layerPoint.y - topLeft.y;
 
-                const sprite = spriteAtlas.get(
+                const spriteIndex = SPRITE_INDEX.get(
                     `${point[FIELD.tier]}_${point[FIELD.color]}`,
                 );
 
-                if (sprite) {
-                    ctx.drawImage(sprite, x - SPRITE_RADIUS, y - SPRITE_RADIUS);
-                }
-
+                positions.push(x * dpr, y * dpr);
+                texIndices.push(spriteIndex ?? 0);
                 nextDrawn.push({ x, y, index: i });
+            }
+
+            const { gl } = glState;
+            gl.viewport(0, 0, canvas.width, canvas.height);
+            gl.clearColor(0, 0, 0, 0);
+            gl.clear(gl.COLOR_BUFFER_BIT);
+
+            if (nextDrawn.length > 0) {
+                gl.enable(gl.BLEND);
+                gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+                gl.useProgram(glState.program);
+
+                gl.uniform2f(
+                    glState.resolutionLoc,
+                    canvas.width,
+                    canvas.height,
+                );
+                gl.uniform1f(
+                    glState.pointSizeLoc,
+                    Math.min(SPRITE_SIZE * dpr, glState.maxPointSize),
+                );
+
+                gl.bindBuffer(gl.ARRAY_BUFFER, glState.positionBuffer);
+                gl.bufferData(
+                    gl.ARRAY_BUFFER,
+                    new Float32Array(positions),
+                    gl.DYNAMIC_DRAW,
+                );
+                gl.enableVertexAttribArray(glState.positionLoc);
+                gl.vertexAttribPointer(
+                    glState.positionLoc,
+                    2,
+                    gl.FLOAT,
+                    false,
+                    0,
+                    0,
+                );
+
+                gl.bindBuffer(gl.ARRAY_BUFFER, glState.texIndexBuffer);
+                gl.bufferData(
+                    gl.ARRAY_BUFFER,
+                    new Float32Array(texIndices),
+                    gl.DYNAMIC_DRAW,
+                );
+                gl.enableVertexAttribArray(glState.texIndexLoc);
+                gl.vertexAttribPointer(
+                    glState.texIndexLoc,
+                    1,
+                    gl.FLOAT,
+                    false,
+                    0,
+                    0,
+                );
+
+                gl.drawArrays(gl.POINTS, 0, nextDrawn.length);
             }
 
             drawnPoints = nextDrawn;
@@ -677,7 +933,7 @@ export default function KoperasiMap() {
             <CardContent className="space-y-4 p-5">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                     <p className="text-sm font-medium text-muted-foreground">
-                        Peta Sebaran KDKMP
+                        Peta Sebaran KDKMP (WebGL)
                         {status === 'ok' && (
                             <span className="ml-2 text-xs text-muted-foreground">
                                 (menampilkan{' '}
@@ -700,6 +956,12 @@ export default function KoperasiMap() {
                             <span className="flex items-center gap-1.5 text-xs text-destructive">
                                 <AlertTriangle className="h-3.5 w-3.5" />
                                 Gagal memuat data peta
+                            </span>
+                        )}
+                        {glUnsupported && (
+                            <span className="flex items-center gap-1.5 text-xs text-destructive">
+                                <AlertTriangle className="h-3.5 w-3.5" />
+                                WebGL tidak didukung browser ini
                             </span>
                         )}
                         {captureError && (
