@@ -1,8 +1,5 @@
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import 'leaflet.markercluster';
-import 'leaflet.markercluster/dist/MarkerCluster.css';
-import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
 import { AlertTriangle, Loader2 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
@@ -23,6 +20,103 @@ const COLOR_HEX: Record<MarkerColor, string> = {
     gray: '#9ca3af',
 };
 
+const SPRITE_SIZE = 22;
+const SPRITE_RADIUS = SPRITE_SIZE / 2;
+
+function drawShape(
+    ctx: CanvasRenderingContext2D,
+    tier: MarkerTier,
+    color: string,
+) {
+    ctx.fillStyle = color;
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 1.5;
+
+    switch (tier) {
+        case 'sarpras': {
+            ctx.beginPath();
+            ctx.moveTo(11, 2);
+            ctx.lineTo(20, 19);
+            ctx.lineTo(2, 19);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+            break;
+        }
+        case 'sdm': {
+            ctx.beginPath();
+            ctx.arc(11, 7, 4, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(3, 20);
+            ctx.bezierCurveTo(3, 15.6, 6.6, 13, 11, 13);
+            ctx.bezierCurveTo(15.4, 13, 19, 15.6, 19, 20);
+            ctx.fill();
+            ctx.stroke();
+            break;
+        }
+        case 'odoo': {
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 2;
+            ctx.lineJoin = 'round';
+            ctx.beginPath();
+            ctx.moveTo(2, 3);
+            ctx.lineTo(4, 3);
+            ctx.lineTo(6, 15);
+            ctx.lineTo(17, 15);
+            ctx.lineTo(19, 7);
+            ctx.lineTo(6, 7);
+            ctx.stroke();
+
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.arc(8, 19, 1.6, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(16, 19, 1.6, 0, Math.PI * 2);
+            ctx.fill();
+            break;
+        }
+        default: {
+            ctx.beginPath();
+            ctx.arc(SPRITE_RADIUS, SPRITE_RADIUS, 7, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+            break;
+        }
+    }
+}
+
+// Pre-render 24 kombinasi tier x warna jadi bitmap sekali di awal, dipakai
+// berulang via drawImage() saat render titik di canvas (jauh lebih murah
+// daripada bikin elemen DOM per titik).
+function buildSpriteAtlas(): Map<string, HTMLCanvasElement> {
+    const atlas = new Map<string, HTMLCanvasElement>();
+
+    const tiers: MarkerTier[] = ['status', 'sarpras', 'sdm', 'odoo'];
+    const colors = Object.keys(COLOR_HEX) as MarkerColor[];
+
+    for (const tier of tiers) {
+        for (const color of colors) {
+            const sprite = document.createElement('canvas');
+            sprite.width = SPRITE_SIZE;
+            sprite.height = SPRITE_SIZE;
+
+            const ctx = sprite.getContext('2d');
+
+            if (ctx) {
+                drawShape(ctx, tier, COLOR_HEX[color]);
+            }
+
+            atlas.set(`${tier}_${color}`, sprite);
+        }
+    }
+
+    return atlas;
+}
+
 function shapeSvg(tier: MarkerTier, color: string): string {
     switch (tier) {
         case 'sarpras':
@@ -34,15 +128,6 @@ function shapeSvg(tier: MarkerTier, color: string): string {
         default:
             return `<svg width="18" height="18" viewBox="0 0 18 18"><circle cx="9" cy="9" r="7" fill="${color}" stroke="white" stroke-width="1.5"/></svg>`;
     }
-}
-
-function pointIcon(tier: MarkerTier, color: MarkerColor): L.DivIcon {
-    return L.divIcon({
-        html: shapeSvg(tier, COLOR_HEX[color]),
-        className: 'koperasi-map-marker',
-        iconSize: [22, 22],
-        iconAnchor: [11, 11],
-    });
 }
 
 const FIELD = {
@@ -125,8 +210,16 @@ function LegendGroup({
     );
 }
 
+// TEST SEMENTARA (jangan di-commit): render semua titik ke satu <canvas>
+// (drawImage sprite per titik), bukan DOM marker sama sekali. Jauh lebih
+// murah daripada divIcon/clustering buat puluhan ribu titik.
+const HIT_TEST_RADIUS_PX = 9;
+
+type DrawnPoint = { x: number; y: number; index: number };
+
 export default function KoperasiMap() {
     const containerRef = useRef<HTMLDivElement>(null);
+    const canvasRef = useRef<HTMLCanvasElement>(null);
     const mapRef = useRef<L.Map | null>(null);
     const [status, setStatus] = useState<'loading' | 'ok' | 'error'>('loading');
     const [pointCount, setPointCount] = useState(0);
@@ -150,13 +243,115 @@ export default function KoperasiMap() {
             { attribution: 'Tiles &copy; Esri', maxZoom: 19 },
         ).addTo(map);
 
-        const clusterGroup = L.markerClusterGroup({
-            chunkedLoading: true,
-            maxClusterRadius: 50,
-            disableClusteringAtZoom: 14,
-        });
+        // Pane custom biar canvas titik ada di atas tile tapi di bawah popup
+        // (markerPane=600, tooltipPane=650, popupPane=700 di Leaflet).
+        const pane = map.createPane('koperasiPointsPane');
+        pane.style.zIndex = '610';
+        pane.style.pointerEvents = 'none';
 
-        map.addLayer(clusterGroup);
+        const canvas = L.DomUtil.create(
+            'canvas',
+            'koperasi-map-canvas',
+            pane,
+        ) as HTMLCanvasElement;
+        canvas.style.position = 'absolute';
+        canvas.style.top = '0';
+        canvas.style.left = '0';
+        canvasRef.current = canvas;
+        const ctx = canvas.getContext('2d');
+        const spriteAtlas = buildSpriteAtlas();
+
+        let allPoints: MapPointTuple[] = [];
+        let drawnPoints: DrawnPoint[] = [];
+        let lastTopLeft = L.point(0, 0);
+        let popup: L.Popup | null = null;
+
+        // Canvas ada di dalam pane custom yang ikut di-transform (digeser)
+        // otomatis sama Leaflet pas drag, kayak tilePane/markerPane. Jadi
+        // titik digambar pakai koordinat layerPoint (bukan containerPoint),
+        // relatif ke top-left canvas, dan posisi+ukuran canvas di-reset tiap
+        // draw() ngikutin origin viewport saat itu.
+        const draw = () => {
+            if (!ctx || allPoints.length === 0) {
+                return;
+            }
+
+            const size = map.getSize();
+            canvas.width = size.x;
+            canvas.height = size.y;
+
+            const topLeft = map.containerPointToLayerPoint([0, 0]);
+            lastTopLeft = topLeft;
+            L.DomUtil.setPosition(canvas, topLeft);
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const bounds = map.getBounds().pad(0.15);
+            const nextDrawn: DrawnPoint[] = [];
+
+            for (let i = 0; i < allPoints.length; i++) {
+                const point = allPoints[i];
+                const lat = point[FIELD.lat];
+                const lng = point[FIELD.lng];
+
+                if (!bounds.contains([lat, lng])) {
+                    continue;
+                }
+
+                const layerPoint = map.latLngToLayerPoint([lat, lng]);
+                const x = layerPoint.x - topLeft.x;
+                const y = layerPoint.y - topLeft.y;
+
+                const sprite = spriteAtlas.get(
+                    `${point[FIELD.tier]}_${point[FIELD.color]}`,
+                );
+
+                if (sprite) {
+                    ctx.drawImage(sprite, x - SPRITE_RADIUS, y - SPRITE_RADIUS);
+                }
+
+                nextDrawn.push({ x, y, index: i });
+            }
+
+            drawnPoints = nextDrawn;
+        };
+
+        const onClick = (event: L.LeafletMouseEvent) => {
+            const clickLayerPoint = map.latLngToLayerPoint(event.latlng);
+            const clickPoint = clickLayerPoint.subtract(lastTopLeft);
+
+            let closest: DrawnPoint | null = null;
+            let closestDistSq = HIT_TEST_RADIUS_PX * HIT_TEST_RADIUS_PX;
+
+            for (const drawn of drawnPoints) {
+                const dx = drawn.x - clickPoint.x;
+                const dy = drawn.y - clickPoint.y;
+                const distSq = dx * dx + dy * dy;
+
+                if (distSq <= closestDistSq) {
+                    closest = drawn;
+                    closestDistSq = distSq;
+                }
+            }
+
+            if (!closest) {
+                return;
+            }
+
+            const point = allPoints[closest.index];
+
+            if (popup) {
+                map.closePopup(popup);
+            }
+
+            popup = L.popup()
+                .setLatLng([point[FIELD.lat], point[FIELD.lng]])
+                .setContent(popupHtml(point))
+                .openOn(map);
+        };
+
+        map.on('moveend zoomend resize', draw);
+        map.on('click', onClick);
 
         fetch(mapPointsRoute.url())
             .then((response) => response.json() as Promise<MapPointsResponse>)
@@ -167,29 +362,17 @@ export default function KoperasiMap() {
                     return;
                 }
 
-                const markers = body.points.map((point) => {
-                    const marker = L.marker(
-                        [point[FIELD.lat], point[FIELD.lng]],
-                        {
-                            icon: pointIcon(
-                                point[FIELD.tier],
-                                point[FIELD.color],
-                            ),
-                        },
-                    );
-                    marker.bindPopup(popupHtml(point));
-
-                    return marker;
-                });
-
-                clusterGroup.addLayers(markers);
+                allPoints = body.points;
                 setPointCount(body.points.length);
                 setFetchedAt(body.fetched_at);
                 setStatus('ok');
+                draw();
             })
             .catch(() => setStatus('error'));
 
         return () => {
+            map.off('moveend zoomend resize', draw);
+            map.off('click', onClick);
             map.remove();
             mapRef.current = null;
         };
@@ -226,7 +409,7 @@ export default function KoperasiMap() {
 
                 <div
                     ref={containerRef}
-                    className="h-[480px] w-full overflow-hidden rounded-lg border"
+                    className="relative h-[480px] w-full overflow-hidden rounded-lg border"
                 />
 
                 <div className="grid gap-4 border-t pt-4 sm:grid-cols-2 lg:grid-cols-4">
