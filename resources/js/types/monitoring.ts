@@ -78,6 +78,47 @@ export type MonitoringDashboardProps = {
     produk_subsidi: ProdukSubsidiSummary;
 };
 
+export type MarkerTier = 'status' | 'sarpras' | 'sdm' | 'odoo';
+export type MarkerColor =
+    'red' | 'orange' | 'yellow' | 'green' | 'blue' | 'gray';
+
+/**
+ * Tuple posisional, urutan HARUS sama dengan
+ * MonitoringDashboardService::MAP_POINT_FIELDS di backend:
+ * [nik, nama_koperasi, provinsi, kota_kabupaten, kecamatan, kodim, lat, lng,
+ *  validation_status, progress_percentage, completed_sarpras_count,
+ *  sarpras_primary_lengkap, sarpras_secondary_lengkap, sarpras_lengkap,
+ *  jumlah_karyawan, has_po, has_receipt, has_sales, marker_tier, marker_color]
+ */
+export type MapPointTuple = [
+    string | null, // nik
+    string | null, // nama_koperasi
+    string | null, // provinsi
+    string | null, // kota_kabupaten
+    string | null, // kecamatan
+    string | null, // kodim
+    number, // lat
+    number, // lng
+    string | null, // validation_status
+    number, // progress_percentage
+    number, // completed_sarpras_count
+    boolean, // sarpras_primary_lengkap
+    boolean, // sarpras_secondary_lengkap
+    boolean, // sarpras_lengkap
+    number, // jumlah_karyawan
+    boolean, // has_po
+    boolean, // has_receipt
+    boolean, // has_sales
+    MarkerTier, // marker_tier
+    MarkerColor, // marker_color
+];
+
+export type MapPointsResponse = {
+    status: 'ok' | 'error';
+    points: MapPointTuple[];
+    fetched_at: string | null;
+};
+
 export type SdmEntry = {
     id: number;
     nik: string | null;

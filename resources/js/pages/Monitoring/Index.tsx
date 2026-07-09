@@ -17,6 +17,7 @@ import {
     Users,
 } from 'lucide-react';
 import IndicatorBarChart from '@/components/monitoring/IndicatorBarChart';
+import KoperasiMap from '@/components/monitoring/KoperasiMap';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -277,6 +278,15 @@ export default function MonitoringIndex({
                     <section className="space-y-3">
                         <SectionHeading
                             icon={Map}
+                            title="Peta Sebaran KDKMP"
+                            tone="default"
+                        />
+                        <KoperasiMap />
+                    </section>
+
+                    <section className="space-y-3">
+                        <SectionHeading
+                            icon={Map}
                             title="Pemetaan & Validasi Lahan"
                             tone="default"
                             updatedAt={pemetaanLahan.fetched_at}
@@ -481,9 +491,7 @@ export default function MonitoringIndex({
                         <div className="grid gap-4 md:grid-cols-3">
                             <StatCard
                                 title="KDKMP Sudah Dibuatkan PO"
-                                value={
-                                    operasionalOdoo.kdkmp_sudah_dibuatkan_po
-                                }
+                                value={operasionalOdoo.kdkmp_sudah_dibuatkan_po}
                                 icon={Package}
                                 tone="default"
                             />
@@ -644,10 +652,10 @@ export default function MonitoringIndex({
                         />
                         <p className="text-xs text-muted-foreground">
                             Flagging SKU subsidi mengikuti master penandaan
-                            subsidi di Odoo. Availability menunjukkan
-                            persentase gerai yang memiliki stok SKU subsidi
-                            pada saat snapshot. Saat ini menggunakan data dummy
-                            menunggu integrasi Odoo.
+                            subsidi di Odoo. Availability menunjukkan persentase
+                            gerai yang memiliki stok SKU subsidi pada saat
+                            snapshot. Saat ini menggunakan data dummy menunggu
+                            integrasi Odoo.
                         </p>
                     </section>
                 </div>

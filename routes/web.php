@@ -60,6 +60,9 @@ Route::delete('/value-chain-jobdesk/{profile}', [ValueChainJobdeskController::cl
 Route::get('/monitoring', [MonitoringDashboardController::class, 'index'])
     ->name('monitoring.index');
 
+Route::get('/monitoring/map-points', [MonitoringDashboardController::class, 'mapPoints'])
+    ->name('monitoring.map-points');
+
 Route::resource('sdm-data', SdmKdkmpEntryController::class, ['parameters' => ['sdm-data' => 'sdm_data']])
     ->only(['index', 'update']);
 // });
