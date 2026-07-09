@@ -271,9 +271,9 @@ export default function MonitoringIndex({
                         {sarpras.status === 'error' || !sarpras.data ? (
                             <SectionUnavailable label="sarpras" />
                         ) : (
-                            <div className="grid gap-4 md:grid-cols-2">
+                            <div className="grid gap-4 md:grid-cols-3">
                                 <StatCard
-                                    title="Jumlah KDKMP Sarpras Esensial Lengkap"
+                                    title="Sarpras Esensial 1 Lengkap"
                                     value={
                                         sarpras.data.data
                                             .jumlah_koperasi_sarpras_mandatory_lengkap
@@ -282,7 +282,16 @@ export default function MonitoringIndex({
                                     tone="success"
                                 />
                                 <StatCard
-                                    title="Jumlah KDKMP Sudah Lengkap Sarprasnya"
+                                    title="Sarpras Esensial 2 Lengkap"
+                                    value={
+                                        sarpras.data.data
+                                            .jumlah_koperasi_sarpras_secondary_lengkap
+                                    }
+                                    icon={CheckCircle2}
+                                    tone="success"
+                                />
+                                <StatCard
+                                    title="Sarpras Lengkap Semua"
                                     value={
                                         sarpras.data.data
                                             .jumlah_koperasi_sarpras_lengkap_semua
@@ -297,9 +306,15 @@ export default function MonitoringIndex({
                                 title="Perbandingan Indikator Sarpras"
                                 data={[
                                     {
-                                        label: 'Sarpras Esensial Lengkap',
+                                        label: 'Sarpras Esensial 1 Lengkap',
                                         value: sarpras.data.data
                                             .jumlah_koperasi_sarpras_mandatory_lengkap,
+                                        tone: 'success',
+                                    },
+                                    {
+                                        label: 'Sarpras Esensial 2 Lengkap',
+                                        value: sarpras.data.data
+                                            .jumlah_koperasi_sarpras_secondary_lengkap,
                                         tone: 'success',
                                     },
                                     {
@@ -313,10 +328,12 @@ export default function MonitoringIndex({
                         )}
                         {sarpras.status === 'ok' && sarpras.data && (
                             <p className="text-xs text-muted-foreground">
-                                Esensial: sarpras wajib operasional (saat ini{' '}
+                                Esensial 1: sarpras wajib operasional (saat ini{' '}
                                 {sarpras.data.meta.mandatory_requirement_count}{' '}
-                                jenis, mengikuti master data sarpras terkini).
-                                Status dianggap selesai:{' '}
+                                jenis). Esensial 2: sarpras tambahan (saat ini{' '}
+                                {sarpras.data.meta.secondary_requirement_count}{' '}
+                                jenis). Jumlah jenis mengikuti master data
+                                sarpras terkini. Status dianggap selesai:{' '}
                                 {sarpras.data.meta.completed_statuses.join(
                                     ', ',
                                 )}
