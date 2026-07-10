@@ -104,6 +104,7 @@ export default function KdkmpSkuDistributionChart({
                                 const point = context?.payload as
                                     | (typeof chartData)[number]
                                     | undefined;
+
                                 return [
                                     `${context.value} SKU`,
                                     point?.nama ?? 'KDKMP',
