@@ -98,60 +98,73 @@ ls public/build/
 
 ## 4. Menyiapkan Database
 
-### Opsi A: Database Baru (Fresh)
+### Kondisi Awal
 
-Jika tidak ada backup, buat database dari awal:
+Anda sudah memiliki:
+- Database PostgreSQL kosong bernama **`ebitdamax`** dengan owner **`agrinas`**
+- File backup di folder `database/`: **`database.backup`** dan/atau **`database.dump`**
+
+### Langkah 1 — Kenali Format Backup
+
+Jalankan **dari bash shell** (bukan dari dalam `psql`):
 
 ```bash
-# Buat database & user di PostgreSQL
-sudo -u postgres psql
-```
-```sql
-CREATE USER ebitdamax WITH PASSWORD 'password-kuat';
-CREATE DATABASE ebitdamax OWNER ebitdamax;
-\c ebitdamax
-GRANT ALL ON SCHEMA public TO ebitdamax;
-\q
+# Ganti nama file sesuai backup Anda
+file dump-ebitdaapn-202607122005.backup
 ```
 
-Kemudian jalankan migrasi:
+Outputnya akan memberi tahu:
+
+| Output `file`                        | Artinya                           |
+| ------------------------------------ | --------------------------------- |
+| `PostgreSQL custom database dump`    | Format biner (`pg_dump -Fc`)      |
+| `ASCII text` / `SQL script text`     | Format SQL teks biasa             |
+
+### Langkah 2 — Hapus Isi Database Lama (Reset)
+
+Kosongkan database `ebitdamax` yang ada agar bersih sebelum import:
+
+```bash
+sudo -u postgres psql -d ebitdamax -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public; GRANT ALL ON SCHEMA public TO agrinas;"
+```
+
+### Langkah 3 — Import Backup
+
+> **PENTING:** Jalankan perintah ini dari **bash shell biasa**, BUKAN dari dalam `psql`.
+> Pastikan prompt Anda adalah `localadm@apnvmapp01:~$` bukan `postgres=#`.
+
+Pilih perintah sesuai format yang terdeteksi:
+
+**Format SQL teks** (output `file`: `ASCII text`):
+
+```bash
+# Gunakan export agar password dengan karakter khusus (!) aman
+export PGPASSWORD='Agrinas123!'
+psql -U agrinas -h 127.0.0.1 -d ebitdamax < dump-ebitdaapn-202607122005.backup
+```
+
+**Format biner / custom** (output `file`: `PostgreSQL custom database dump`):
+
+```bash
+export PGPASSWORD='Agrinas123!'
+pg_restore -U agrinas -h 127.0.0.1 -d ebitdamax --clean --no-owner dump-ebitdaapn-202607122005.backup
+```
+
+### Langkah 4 — Jalankan Migrasi Terbaru
+
+Setelah import, pastikan semua migration project ini juga sudah diterapkan:
+
+```bash
+php artisan migrate --force
+```
+
+### Opsi Alternatif: Database Baru dari Nol
+
+Jika tidak ada backup sama sekali:
 
 ```bash
 php artisan migrate --force
 php artisan db:seed --force
-```
-
-### Opsi B: Import dari Backup Dump (`.sql`)
-
-Jika Anda memiliki file backup dump PostgreSQL (misalnya `database.backup.sql`):
-
-1.  Buat database kosong:
-    ```bash
-    sudo -u postgres psql
-    ```
-    ```sql
-    CREATE USER ebitdamax WITH PASSWORD 'password-kuat';
-    CREATE DATABASE ebitdamax OWNER ebitdamax;
-    \q
-    ```
-
-2.  Import file dump:
-    ```bash
-    PGPASSWORD=password-kuat psql -U ebitdamax -h 127.0.0.1 -d ebitdamax < database.backup.sql
-    ```
-
-3.  Jalankan migrasi baru (jika ada yang belum di dump):
-    ```bash
-    php artisan migrate --force
-    ```
-
-### Opsi C: Import dari Backup Custom Format (`.dump`)
-
-Jika backup dibuat dengan `pg_dump -Fc`:
-
-```bash
-PGPASSWORD=password-kuat pg_restore -U ebitdamax -h 127.0.0.1 -d ebitdamax --clean --no-owner database.backup.dump
-php artisan migrate --force
 ```
 
 ---
