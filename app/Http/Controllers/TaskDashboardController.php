@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Task;
 use App\Models\TaskAdditionalField;
+use App\Models\TaskReport;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -13,6 +14,13 @@ class TaskDashboardController extends Controller
     public function index(Request $request): Response
     {
         $user = $request->user();
+
+        $reportByTaskId = TaskReport::query()
+            ->where('user_id', $user?->id)
+            ->latest('created_at')
+            ->get()
+            ->unique('task_id')
+            ->keyBy('task_id');
 
         $tasks = Task::query()
             ->with(['taskCategory', 'role', 'additionalFields'])
@@ -24,16 +32,16 @@ class TaskDashboardController extends Controller
             )
             ->orderBy('name')
             ->get()
-            ->map(fn (Task $task): array => $this->transformTask($task))
+            ->map(fn (Task $task): array => $this->transformTask($task, $reportByTaskId->get($task->id)))
             ->values();
 
         return Inertia::render('TaskDashboard/Index', [
             'tasks' => $tasks,
             'summary' => [
                 'total' => $tasks->count(),
-                'pending' => $tasks->count(),
-                'in_progress' => 0,
-                'completed' => 0,
+                'pending' => $tasks->where('status', 'pending')->count(),
+                'in_progress' => $tasks->where('status', 'in_progress')->count(),
+                'completed' => $tasks->where('status', 'completed')->count(),
             ],
         ]);
     }
@@ -41,16 +49,18 @@ class TaskDashboardController extends Controller
     /**
      * @return array<string, mixed>
      */
-    private function transformTask(Task $task): array
+    private function transformTask(Task $task, ?TaskReport $report): array
     {
+        $status = $report?->status;
+
         return [
             'id' => $task->id,
             'uuid' => $task->uuid,
             'name' => $task->name,
             'description' => $task->description,
             'time_require' => $task->time_require,
-            'status' => 'pending',
-            'status_label' => 'Belum Dimulai',
+            'status' => $status?->value ?? 'pending',
+            'status_label' => $status?->label() ?? 'Belum Dimulai',
             'task_category' => [
                 'id' => $task->taskCategory->id,
                 'name' => $task->taskCategory->name,

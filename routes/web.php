@@ -14,6 +14,7 @@ use App\Http\Controllers\SdmKdkmpEntryController;
 use App\Http\Controllers\TaskCategoryController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\TaskDashboardController;
+use App\Http\Controllers\TaskReportController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ValueChainJobdeskController;
 use Illuminate\Support\Facades\Route;
@@ -26,6 +27,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard/tasks', [TaskDashboardController::class, 'index'])
         ->middleware('role.level:staff,manager,superadmin')
         ->name('task-dashboard.index');
+
+    Route::post('/tasks/{task}/start', [TaskReportController::class, 'start'])
+        ->middleware('role.level:staff,manager,superadmin')
+        ->name('tasks.start');
+
+    Route::post('/tasks/{task}/finish', [TaskReportController::class, 'finish'])
+        ->middleware('role.level:staff,manager,superadmin')
+        ->name('tasks.finish');
 
     Route::middleware('role.level:superadmin')->group(function () {
         Route::get('/admin-dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');

@@ -1,6 +1,13 @@
-import { Head } from '@inertiajs/react';
-import { Camera, CheckCircle2, ClipboardList, Clock, Play } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { Head, useForm } from '@inertiajs/react';
+import {
+    Camera,
+    CheckCircle2,
+    ClipboardList,
+    Clock,
+    ImageIcon,
+    Play,
+} from 'lucide-react';
+import { useMemo, useRef, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -22,6 +29,10 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
+import {
+    finish as finishTaskRoute,
+    start as startTaskRoute,
+} from '@/routes/tasks';
 import type { TaskAdditionalFieldItem, TaskItem } from '@/types/task';
 
 type DashboardTask = TaskItem & {
@@ -39,6 +50,14 @@ type Props = {
     };
 };
 
+type AdditionalFieldValue = string | string[] | boolean;
+
+type TaskActionFormData = {
+    started_photo: File | null;
+    finished_photo: File | null;
+    values: Record<string, AdditionalFieldValue>;
+};
+
 function fieldsFor(task: DashboardTask | null, showWhen: 'start' | 'finish') {
     return (
         task?.additional_fields.filter(
@@ -47,19 +66,33 @@ function fieldsFor(task: DashboardTask | null, showWhen: 'start' | 'finish') {
     );
 }
 
-function FieldPreview({ field }: { field: TaskAdditionalFieldItem }) {
+function FieldPreview({
+    field,
+    value,
+    onChange,
+}: {
+    field: TaskAdditionalFieldItem;
+    value: AdditionalFieldValue | undefined;
+    onChange: (value: AdditionalFieldValue) => void;
+}) {
     if (field.input_type === 'textarea') {
         return (
             <textarea
                 className="min-h-24 w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-xs outline-none"
                 placeholder={field.label}
+                value={(value as string | undefined) ?? ''}
+                onChange={(event) => onChange(event.target.value)}
             />
         );
     }
 
     if (field.input_type === 'select') {
         return (
-            <select className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm">
+            <select
+                className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
+                value={(value as string | undefined) ?? ''}
+                onChange={(event) => onChange(event.target.value)}
+            >
                 <option value="">Pilih {field.label}</option>
                 {field.options.map((option) => (
                     <option key={option} value={option}>
@@ -82,6 +115,31 @@ function FieldPreview({ field }: { field: TaskAdditionalFieldItem }) {
                             type={field.input_type}
                             name={field.field_name}
                             value={option}
+                            checked={
+                                field.input_type === 'checkbox'
+                                    ? Array.isArray(value) &&
+                                      value.includes(option)
+                                    : value === option
+                            }
+                            onChange={(event) => {
+                                if (field.input_type === 'radio') {
+                                    onChange(option);
+
+                                    return;
+                                }
+
+                                const current = Array.isArray(value)
+                                    ? value
+                                    : [];
+
+                                onChange(
+                                    event.target.checked
+                                        ? [...current, option]
+                                        : current.filter(
+                                              (item) => item !== option,
+                                          ),
+                                );
+                            }}
                         />
                         {option}
                     </label>
@@ -93,7 +151,11 @@ function FieldPreview({ field }: { field: TaskAdditionalFieldItem }) {
     if (field.input_type === 'boolean') {
         return (
             <label className="flex items-center gap-2 text-sm">
-                <input type="checkbox" />
+                <input
+                    type="checkbox"
+                    checked={value === true}
+                    onChange={(event) => onChange(event.target.checked)}
+                />
                 Ya
             </label>
         );
@@ -102,7 +164,62 @@ function FieldPreview({ field }: { field: TaskAdditionalFieldItem }) {
     const type =
         field.input_type === 'datetime' ? 'datetime-local' : field.input_type;
 
-    return <Input type={type} placeholder={field.label} />;
+    return (
+        <Input
+            type={type}
+            placeholder={field.label}
+            value={(value as string | undefined) ?? ''}
+            onChange={(event) => onChange(event.target.value)}
+        />
+    );
+}
+
+async function compressImage(file: File): Promise<File> {
+    if (!file.type.startsWith('image/')) {
+        return file;
+    }
+
+    const image = await new Promise<HTMLImageElement>((resolve, reject) => {
+        const reader = new FileReader();
+
+        reader.onload = () => {
+            const element = new Image();
+
+            element.onload = () => resolve(element);
+            element.onerror = reject;
+            element.src = reader.result as string;
+        };
+
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
+
+    const maxSize = 1280;
+    const ratio = Math.min(maxSize / image.width, maxSize / image.height, 1);
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.round(image.width * ratio);
+    canvas.height = Math.round(image.height * ratio);
+
+    const context = canvas.getContext('2d');
+
+    if (!context) {
+        return file;
+    }
+
+    context.drawImage(image, 0, 0, canvas.width, canvas.height);
+
+    const blob = await new Promise<Blob | null>((resolve) => {
+        canvas.toBlob(resolve, 'image/jpeg', 0.72);
+    });
+
+    if (!blob || blob.size >= file.size) {
+        return file;
+    }
+
+    return new File([blob], file.name.replace(/\.[^.]+$/, '.jpg'), {
+        type: 'image/jpeg',
+        lastModified: Date.now(),
+    });
 }
 
 export default function TaskDashboardIndex({ tasks, summary }: Props) {
@@ -274,7 +391,9 @@ export default function TaskDashboardIndex({ tasks, summary }: Props) {
                 title="Mulai Task"
                 open={startTask !== null}
                 onOpenChange={(open) => !open && setStartTask(null)}
+                actionUrl={startTask ? startTaskRoute.url(startTask.id) : ''}
                 photoLabel="Foto Mulai"
+                photoField="started_photo"
                 fields={startFields}
                 submitLabel="Mulai"
             />
@@ -283,7 +402,9 @@ export default function TaskDashboardIndex({ tasks, summary }: Props) {
                 title="Selesaikan Task"
                 open={finishTask !== null}
                 onOpenChange={(open) => !open && setFinishTask(null)}
+                actionUrl={finishTask ? finishTaskRoute.url(finishTask.id) : ''}
                 photoLabel="Foto Selesai"
+                photoField="finished_photo"
                 fields={finishFields}
                 submitLabel="Selesaikan"
             />
@@ -311,19 +432,101 @@ function TaskActionDialog({
     title,
     open,
     onOpenChange,
+    actionUrl,
     photoLabel,
+    photoField,
     fields,
     submitLabel,
 }: {
     title: string;
     open: boolean;
     onOpenChange: (open: boolean) => void;
+    actionUrl: string;
     photoLabel: string;
+    photoField: 'started_photo' | 'finished_photo';
     fields: TaskAdditionalFieldItem[];
     submitLabel: string;
 }) {
+    const fileInputRef = useRef<HTMLInputElement | null>(null);
+    const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+    const [compressionLabel, setCompressionLabel] = useState<string | null>(
+        null,
+    );
+    const { data, setData, post, processing, errors, reset, clearErrors } =
+        useForm<TaskActionFormData>({
+            started_photo: null,
+            finished_photo: null,
+            values: {},
+        });
+
+    const handlePhotoChange = async (file: File | null) => {
+        if (!file) {
+            return;
+        }
+
+        setCompressionLabel('Mengompres foto...');
+
+        const compressedFile = await compressImage(file);
+        const beforeKb = Math.round(file.size / 1024);
+        const afterKb = Math.round(compressedFile.size / 1024);
+
+        setData(photoField, compressedFile);
+        setPreviewUrl(URL.createObjectURL(compressedFile));
+        setCompressionLabel(
+            compressedFile.size < file.size
+                ? `Dikompres dari ${beforeKb} KB menjadi ${afterKb} KB`
+                : `${afterKb} KB`,
+        );
+    };
+
+    const handleValueChange = (
+        field: TaskAdditionalFieldItem,
+        value: AdditionalFieldValue,
+    ) => {
+        if (!field.field_name) {
+            return;
+        }
+
+        setData('values', {
+            ...data.values,
+            [field.field_name]: value,
+        });
+    };
+
+    const closeDialog = () => {
+        reset();
+        clearErrors();
+        setPreviewUrl(null);
+        setCompressionLabel(null);
+
+        if (fileInputRef.current) {
+            fileInputRef.current.value = '';
+        }
+
+        onOpenChange(false);
+    };
+
+    const handleSubmit = () => {
+        if (!actionUrl) {
+            return;
+        }
+
+        post(actionUrl, {
+            forceFormData: true,
+            preserveScroll: true,
+            onSuccess: closeDialog,
+        });
+    };
+
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
+        <Dialog
+            open={open}
+            onOpenChange={(nextOpen) => {
+                if (!nextOpen) {
+                    closeDialog();
+                }
+            }}
+        >
             <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
                 <DialogHeader>
                     <DialogTitle>{title}</DialogTitle>
@@ -336,13 +539,70 @@ function TaskActionDialog({
                     <div className="space-y-2">
                         <Label>{photoLabel}</Label>
                         <div className="rounded-lg border bg-background p-4">
-                            <div className="flex items-center gap-3">
-                                <Camera className="size-5 text-primary" />
-                                <Input
-                                    type="file"
-                                    accept="image/*"
-                                    capture="environment"
-                                />
+                            <input
+                                ref={fileInputRef}
+                                type="file"
+                                accept="image/*"
+                                capture="environment"
+                                className="hidden"
+                                onChange={(event) =>
+                                    void handlePhotoChange(
+                                        event.target.files?.[0] ?? null,
+                                    )
+                                }
+                            />
+
+                            <div className="grid gap-4 sm:grid-cols-[180px_1fr]">
+                                <div className="flex aspect-[4/3] items-center justify-center overflow-hidden rounded-md border bg-muted">
+                                    {previewUrl ? (
+                                        <img
+                                            src={previewUrl}
+                                            alt="Preview foto task"
+                                            className="h-full w-full object-cover"
+                                        />
+                                    ) : (
+                                        <div className="flex flex-col items-center gap-2 text-muted-foreground">
+                                            <ImageIcon className="size-10" />
+                                            <span className="text-xs">
+                                                Preview foto
+                                            </span>
+                                        </div>
+                                    )}
+                                </div>
+
+                                <div className="flex flex-col justify-center gap-3">
+                                    <div>
+                                        <p className="text-sm font-medium">
+                                            Ambil foto dari kamera device
+                                        </p>
+                                        <p className="mt-1 text-sm text-muted-foreground">
+                                            Foto akan dikompres otomatis sebelum
+                                            diupload.
+                                        </p>
+                                    </div>
+                                    <div className="flex flex-wrap items-center gap-2">
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            onClick={() =>
+                                                fileInputRef.current?.click()
+                                            }
+                                        >
+                                            <Camera className="size-4" />
+                                            Capture Foto
+                                        </Button>
+                                        {compressionLabel && (
+                                            <Badge variant="secondary">
+                                                {compressionLabel}
+                                            </Badge>
+                                        )}
+                                    </div>
+                                    {errors[photoField] && (
+                                        <p className="text-sm text-destructive">
+                                            {errors[photoField]}
+                                        </p>
+                                    )}
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -360,7 +620,23 @@ function TaskActionDialog({
                                     </span>
                                 )}
                             </Label>
-                            <FieldPreview field={field} />
+                            <FieldPreview
+                                field={field}
+                                value={
+                                    field.field_name
+                                        ? data.values[field.field_name]
+                                        : undefined
+                                }
+                                onChange={(value) =>
+                                    handleValueChange(field, value)
+                                }
+                            />
+                            {field.field_name &&
+                                errors[`values.${field.field_name}`] && (
+                                    <p className="text-sm text-destructive">
+                                        {errors[`values.${field.field_name}`]}
+                                    </p>
+                                )}
                         </div>
                     ))}
                 </div>
@@ -369,11 +645,15 @@ function TaskActionDialog({
                     <Button
                         type="button"
                         variant="outline"
-                        onClick={() => onOpenChange(false)}
+                        onClick={closeDialog}
                     >
                         Batal
                     </Button>
-                    <Button type="button" disabled>
+                    <Button
+                        type="button"
+                        disabled={processing}
+                        onClick={handleSubmit}
+                    >
                         {submitLabel}
                     </Button>
                 </DialogFooter>

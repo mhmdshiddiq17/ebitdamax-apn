@@ -58,7 +58,7 @@ class Task extends Model
 
     public function reports(): HasMany
     {
-        return $this->hasMany('App\Models\TaskReport');
+        return $this->hasMany(TaskReport::class);
     }
 
     public function scopeActive(Builder $query): Builder
