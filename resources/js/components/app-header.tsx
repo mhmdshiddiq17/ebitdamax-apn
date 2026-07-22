@@ -6,6 +6,7 @@ import {
     Menu,
     Search,
     ShieldCheck,
+    UserCog,
 } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import AppLogoIcon from '@/components/app-logo-icon';
@@ -41,6 +42,7 @@ import { useInitials } from '@/hooks/use-initials';
 import { cn, toUrl } from '@/lib/utils';
 import { dashboard } from '@/routes';
 import { index as rolesIndex } from '@/routes/roles';
+import { index as usersIndex } from '@/routes/users';
 import type { BreadcrumbItem, NavItem } from '@/types';
 
 type Props = {
@@ -57,6 +59,11 @@ const mainNavItems: NavItem[] = [
         title: 'Roles',
         href: rolesIndex(),
         icon: ShieldCheck,
+    },
+    {
+        title: 'Users',
+        href: usersIndex(),
+        icon: UserCog,
     },
 ];
 

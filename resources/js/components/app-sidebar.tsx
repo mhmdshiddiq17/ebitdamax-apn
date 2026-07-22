@@ -10,6 +10,7 @@ import {
     Network,
     Radar,
     ShieldCheck,
+    UserCog,
     Users,
 } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
@@ -34,6 +35,7 @@ import { index as monitoringIndex } from '@/routes/monitoring';
 import { index as organizationsIndex } from '@/routes/organizations';
 import { index as rolesIndex } from '@/routes/roles';
 import { index as sdmDataIndex } from '@/routes/sdm-data';
+import { index as usersIndex } from '@/routes/users';
 import { index as valueChainJobdeskIndex } from '@/routes/value-chain-jobdesk';
 import type { NavItem } from '@/types';
 
@@ -77,6 +79,11 @@ const mainNavItems: NavItem[] = [
         title: 'Roles',
         href: rolesIndex(),
         icon: ShieldCheck,
+    },
+    {
+        title: 'Users',
+        href: usersIndex(),
+        icon: UserCog,
     },
     {
         title: 'Value Chain & Jobdesk',
