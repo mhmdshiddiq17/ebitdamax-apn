@@ -1,4 +1,4 @@
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import {
     Calculator,
     ChartColumn,
@@ -6,9 +6,14 @@ import {
     Database,
     FileSpreadsheet,
     FileText,
+    FolderCheck,
+    FolderKanban,
     LayoutDashboard,
     Network,
     Radar,
+    ShieldCheck,
+    SquareCheckBig,
+    UserCog,
     Users,
 } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
@@ -24,6 +29,7 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
+import { dashboard as adminDashboard } from '@/routes/admin';
 import { index as calculationsIndex } from '@/routes/calculations';
 import { index as ebitdaTreeIndex } from '@/routes/ebitda-tree';
 import { index as ebitdaValuesIndex } from '@/routes/ebitda-values';
@@ -31,14 +37,20 @@ import { index as importExcelIndex } from '@/routes/import-excel';
 import { index as meetingMinutesIndex } from '@/routes/meeting-minutes';
 import { index as monitoringIndex } from '@/routes/monitoring';
 import { index as organizationsIndex } from '@/routes/organizations';
+import { index as rolesIndex } from '@/routes/roles';
 import { index as sdmDataIndex } from '@/routes/sdm-data';
+import { index as taskCategoriesIndex } from '@/routes/task-categories';
+import { completed as taskDashboardCompleted } from '@/routes/task-dashboard';
+import { index as taskDashboardIndex } from '@/routes/task-dashboard';
+import { index as tasksIndex } from '@/routes/tasks';
+import { index as usersIndex } from '@/routes/users';
 import { index as valueChainJobdeskIndex } from '@/routes/value-chain-jobdesk';
 import type { NavItem } from '@/types';
 
-const mainNavItems: NavItem[] = [
+const superadminNavItems: NavItem[] = [
     {
         title: 'Dashboard',
-        href: dashboard(),
+        href: adminDashboard(),
         icon: LayoutDashboard,
     },
     {
@@ -72,6 +84,16 @@ const mainNavItems: NavItem[] = [
         icon: Network,
     },
     {
+        title: 'Roles',
+        href: rolesIndex(),
+        icon: ShieldCheck,
+    },
+    {
+        title: 'Users',
+        href: usersIndex(),
+        icon: UserCog,
+    },
+    {
         title: 'Value Chain & Jobdesk',
         href: valueChainJobdeskIndex(),
         icon: ClipboardList,
@@ -88,7 +110,55 @@ const mainNavItems: NavItem[] = [
     },
 ];
 
+const superadminWorkReportNavItems: NavItem[] = [
+    {
+        title: 'Tasks',
+        href: tasksIndex(),
+        icon: SquareCheckBig,
+        items: [
+            {
+                title: 'Semua Tugas',
+                href: tasksIndex(),
+                icon: ClipboardList,
+            },
+            {
+                title: 'Tugas sudah selesai',
+                href: taskDashboardCompleted(),
+                icon: FolderCheck,
+            },
+            {
+                title: 'Kategori Tugas',
+                href: taskCategoriesIndex(),
+                icon: FolderKanban,
+            },
+        ],
+    },
+];
+
+const staffWorkReportNavItems: NavItem[] = [
+    {
+        title: 'Tasks',
+        href: taskDashboardIndex(),
+        icon: SquareCheckBig,
+        items: [
+            {
+                title: 'Semua Tugas',
+                href: taskDashboardIndex(),
+                icon: ClipboardList,
+            },
+            {
+                title: 'Tugas sudah selesai',
+                href: taskDashboardCompleted(),
+                icon: FolderCheck,
+            },
+        ],
+    },
+];
+
 export function AppSidebar() {
+    const { auth } = usePage().props;
+    const isSuperadmin = auth.user?.role?.level === 'superadmin';
+
     return (
         <Sidebar collapsible="icon" variant="inset">
             <SidebarHeader>
@@ -104,7 +174,15 @@ export function AppSidebar() {
             </SidebarHeader>
 
             <SidebarContent>
-                <NavMain items={mainNavItems} />
+                {isSuperadmin && <NavMain items={superadminNavItems} />}
+                <NavMain
+                    items={
+                        isSuperadmin
+                            ? superadminWorkReportNavItems
+                            : staffWorkReportNavItems
+                    }
+                    label="Laporan Pekerjaan"
+                />
             </SidebarContent>
 
             <SidebarFooter>

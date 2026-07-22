@@ -1,5 +1,18 @@
 import { Link, usePage } from '@inertiajs/react';
-import { BookOpen, Folder, LayoutGrid, Menu, Search } from 'lucide-react';
+import {
+    BookOpen,
+    ChevronDown,
+    ClipboardList,
+    Folder,
+    FolderCheck,
+    FolderKanban,
+    LayoutGrid,
+    Menu,
+    Search,
+    ShieldCheck,
+    SquareCheckBig,
+    UserCog,
+} from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import AppLogoIcon from '@/components/app-logo-icon';
 import { Breadcrumbs } from '@/components/breadcrumbs';
@@ -8,6 +21,7 @@ import { Button } from '@/components/ui/button';
 import {
     DropdownMenu,
     DropdownMenuContent,
+    DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import {
@@ -33,17 +47,79 @@ import { useCurrentUrl } from '@/hooks/use-current-url';
 import { useInitials } from '@/hooks/use-initials';
 import { cn, toUrl } from '@/lib/utils';
 import { dashboard } from '@/routes';
+import { dashboard as adminDashboard } from '@/routes/admin';
+import { index as rolesIndex } from '@/routes/roles';
+import { index as taskCategoriesIndex } from '@/routes/task-categories';
+import { completed as taskDashboardCompleted } from '@/routes/task-dashboard';
+import { index as taskDashboardIndex } from '@/routes/task-dashboard';
+import { index as tasksIndex } from '@/routes/tasks';
+import { index as usersIndex } from '@/routes/users';
 import type { BreadcrumbItem, NavItem } from '@/types';
 
 type Props = {
     breadcrumbs?: BreadcrumbItem[];
 };
 
-const mainNavItems: NavItem[] = [
+const superadminNavItems: NavItem[] = [
     {
         title: 'Dashboard',
-        href: dashboard(),
+        href: adminDashboard(),
         icon: LayoutGrid,
+    },
+    {
+        title: 'Roles',
+        href: rolesIndex(),
+        icon: ShieldCheck,
+    },
+    {
+        title: 'Users',
+        href: usersIndex(),
+        icon: UserCog,
+    },
+];
+
+const superadminWorkReportNavItems: NavItem[] = [
+    {
+        title: 'Tasks',
+        href: tasksIndex(),
+        icon: SquareCheckBig,
+        items: [
+            {
+                title: 'Semua Tugas',
+                href: tasksIndex(),
+                icon: ClipboardList,
+            },
+            {
+                title: 'Tugas sudah selesai',
+                href: taskDashboardCompleted(),
+                icon: FolderCheck,
+            },
+            {
+                title: 'Kategori Tugas',
+                href: taskCategoriesIndex(),
+                icon: FolderKanban,
+            },
+        ],
+    },
+];
+
+const staffWorkReportNavItems: NavItem[] = [
+    {
+        title: 'Tasks',
+        href: taskDashboardIndex(),
+        icon: SquareCheckBig,
+        items: [
+            {
+                title: 'Semua Tugas',
+                href: taskDashboardIndex(),
+                icon: ClipboardList,
+            },
+            {
+                title: 'Tugas sudah selesai',
+                href: taskDashboardCompleted(),
+                icon: FolderCheck,
+            },
+        ],
     },
 ];
 
@@ -68,6 +144,11 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
     const { auth } = page.props;
     const getInitials = useInitials();
     const { isCurrentUrl, whenCurrentUrl } = useCurrentUrl();
+    const isSuperadmin = auth.user?.role?.level === 'superadmin';
+    const mainNavItems = isSuperadmin ? superadminNavItems : [];
+    const workReportNavItems = isSuperadmin
+        ? superadminWorkReportNavItems
+        : staffWorkReportNavItems;
 
     return (
         <>
@@ -99,16 +180,19 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
                                     <div className="flex h-full flex-col justify-between text-sm">
                                         <div className="flex flex-col space-y-4">
                                             {mainNavItems.map((item) => (
-                                                <Link
+                                                <MobileNavItem
                                                     key={item.title}
-                                                    href={item.href}
-                                                    className="flex items-center space-x-2 font-medium"
-                                                >
-                                                    {item.icon && (
-                                                        <item.icon className="h-5 w-5" />
-                                                    )}
-                                                    <span>{item.title}</span>
-                                                </Link>
+                                                    item={item}
+                                                />
+                                            ))}
+                                            <p className="pt-2 text-xs font-medium text-muted-foreground uppercase">
+                                                Laporan Pekerjaan
+                                            </p>
+                                            {workReportNavItems.map((item) => (
+                                                <MobileNavItem
+                                                    key={item.title}
+                                                    item={item}
+                                                />
                                             ))}
                                         </div>
 
@@ -169,6 +253,80 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
                                         </Link>
                                         {isCurrentUrl(item.href) && (
                                             <div className="absolute bottom-0 left-0 h-0.5 w-full translate-y-px bg-black dark:bg-white"></div>
+                                        )}
+                                    </NavigationMenuItem>
+                                ))}
+                                {workReportNavItems.map((item) => (
+                                    <NavigationMenuItem
+                                        key={item.title}
+                                        className="relative flex h-full items-center"
+                                    >
+                                        {item.items && item.items.length > 0 ? (
+                                            <DropdownMenu>
+                                                <DropdownMenuTrigger asChild>
+                                                    <Button
+                                                        type="button"
+                                                        variant="ghost"
+                                                        className={cn(
+                                                            navigationMenuTriggerStyle(),
+                                                            item.items.some(
+                                                                (child) =>
+                                                                    isCurrentUrl(
+                                                                        child.href,
+                                                                    ),
+                                                            ) &&
+                                                                activeItemStyles,
+                                                            'h-9 cursor-pointer px-3',
+                                                        )}
+                                                    >
+                                                        {item.icon && (
+                                                            <item.icon className="mr-2 h-4 w-4" />
+                                                        )}
+                                                        {item.title}
+                                                        <ChevronDown className="ml-1 h-4 w-4" />
+                                                    </Button>
+                                                </DropdownMenuTrigger>
+                                                <DropdownMenuContent
+                                                    align="start"
+                                                    className="w-56"
+                                                >
+                                                    {item.items.map((child) => (
+                                                        <DropdownMenuItem
+                                                            key={child.title}
+                                                            asChild
+                                                        >
+                                                            <Link
+                                                                href={
+                                                                    child.href
+                                                                }
+                                                                prefetch
+                                                            >
+                                                                {child.icon && (
+                                                                    <child.icon className="size-4" />
+                                                                )}
+                                                                {child.title}
+                                                            </Link>
+                                                        </DropdownMenuItem>
+                                                    ))}
+                                                </DropdownMenuContent>
+                                            </DropdownMenu>
+                                        ) : (
+                                            <Link
+                                                href={item.href}
+                                                className={cn(
+                                                    navigationMenuTriggerStyle(),
+                                                    whenCurrentUrl(
+                                                        item.href,
+                                                        activeItemStyles,
+                                                    ),
+                                                    'h-9 cursor-pointer px-3',
+                                                )}
+                                            >
+                                                {item.icon && (
+                                                    <item.icon className="mr-2 h-4 w-4" />
+                                                )}
+                                                {item.title}
+                                            </Link>
                                         )}
                                     </NavigationMenuItem>
                                 ))}
@@ -244,5 +402,33 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
                 </div>
             )}
         </>
+    );
+}
+
+function MobileNavItem({ item }: { item: NavItem }) {
+    return (
+        <div className="space-y-2">
+            <Link
+                href={item.href}
+                className="flex items-center space-x-2 font-medium"
+            >
+                {item.icon && <item.icon className="h-5 w-5" />}
+                <span>{item.title}</span>
+            </Link>
+            {item.items && item.items.length > 0 && (
+                <div className="ml-7 flex flex-col space-y-2">
+                    {item.items.map((child) => (
+                        <Link
+                            key={child.title}
+                            href={child.href}
+                            className="flex items-center space-x-2 text-muted-foreground"
+                        >
+                            {child.icon && <child.icon className="h-4 w-4" />}
+                            <span>{child.title}</span>
+                        </Link>
+                    ))}
+                </div>
+            )}
+        </div>
     );
 }
