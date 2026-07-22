@@ -2,6 +2,7 @@ import { Head, router, useForm } from '@inertiajs/react';
 import {
     CheckCircle2,
     ClipboardList,
+    Eye,
     Pencil,
     Plus,
     Search,
@@ -144,6 +145,7 @@ export default function TasksIndex({
     filters,
 }: Props) {
     const [selectedTask, setSelectedTask] = useState<TaskItem | null>(null);
+    const [detailTask, setDetailTask] = useState<TaskItem | null>(null);
     const [deleteTarget, setDeleteTarget] = useState<TaskItem | null>(null);
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [filterForm, setFilterForm] = useState({
@@ -551,6 +553,17 @@ export default function TasksIndex({
                                                         variant="outline"
                                                         size="sm"
                                                         onClick={() =>
+                                                            setDetailTask(task)
+                                                        }
+                                                    >
+                                                        <Eye className="size-4" />
+                                                        Detail
+                                                    </Button>
+                                                    <Button
+                                                        type="button"
+                                                        variant="outline"
+                                                        size="sm"
+                                                        onClick={() =>
                                                             openEditForm(task)
                                                         }
                                                     >
@@ -906,6 +919,110 @@ export default function TasksIndex({
             </Dialog>
 
             <Dialog
+                open={detailTask !== null}
+                onOpenChange={(open) => !open && setDetailTask(null)}
+            >
+                <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
+                    <DialogHeader>
+                        <DialogTitle>Detail Task</DialogTitle>
+                        <DialogDescription>
+                            Informasi lengkap task dan field tambahan.
+                        </DialogDescription>
+                    </DialogHeader>
+
+                    {detailTask && (
+                        <div className="space-y-5">
+                            <div className="grid gap-4 md:grid-cols-2">
+                                <DetailItem
+                                    label="Nama Task"
+                                    value={detailTask.name}
+                                />
+                                <DetailItem
+                                    label="Kategori"
+                                    value={detailTask.task_category.name}
+                                />
+                                <DetailItem
+                                    label="PIC Role"
+                                    value={detailTask.role.name}
+                                />
+                                <DetailItem
+                                    label="Estimasi Waktu"
+                                    value={`${detailTask.time_require} menit`}
+                                />
+                                <DetailItem
+                                    label="Status"
+                                    value={
+                                        detailTask.is_active
+                                            ? 'Active'
+                                            : 'Non Active'
+                                    }
+                                />
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label>Deskripsi</Label>
+                                <div className="rounded-md border bg-muted/30 p-3 text-sm text-muted-foreground">
+                                    {detailTask.description ?? '-'}
+                                </div>
+                            </div>
+
+                            <div className="space-y-3">
+                                <Label>Additional Field</Label>
+                                {detailTask.additional_fields.length === 0 && (
+                                    <div className="rounded-md border bg-muted/30 p-3 text-sm text-muted-foreground">
+                                        Tidak ada additional field.
+                                    </div>
+                                )}
+                                {detailTask.additional_fields.map((field) => (
+                                    <div
+                                        key={field.id ?? field.field_name}
+                                        className="rounded-md border p-3"
+                                    >
+                                        <div className="flex flex-wrap items-center justify-between gap-2">
+                                            <div>
+                                                <p className="text-sm font-medium">
+                                                    {field.label}
+                                                </p>
+                                                <p className="text-xs text-muted-foreground">
+                                                    {field.field_name}
+                                                </p>
+                                            </div>
+                                            <div className="flex flex-wrap gap-2">
+                                                <Badge variant="outline">
+                                                    {field.input_type_label}
+                                                </Badge>
+                                                <Badge variant="outline">
+                                                    {field.show_when_label}
+                                                </Badge>
+                                                {field.is_required && (
+                                                    <Badge>Required</Badge>
+                                                )}
+                                            </div>
+                                        </div>
+                                        {field.options.length > 0 && (
+                                            <p className="mt-3 text-xs text-muted-foreground">
+                                                Opsi: {field.options.join(', ')}
+                                            </p>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    <DialogFooter>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => setDetailTask(null)}
+                        >
+                            Tutup
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            <Dialog
                 open={deleteTarget !== null}
                 onOpenChange={(open) => !open && setDeleteTarget(null)}
             >
@@ -936,6 +1053,17 @@ export default function TasksIndex({
                 </DialogContent>
             </Dialog>
         </>
+    );
+}
+
+function DetailItem({ label, value }: { label: string; value: string }) {
+    return (
+        <div className="space-y-2">
+            <Label>{label}</Label>
+            <div className="rounded-md border bg-muted/30 px-3 py-2 text-sm">
+                {value}
+            </div>
+        </div>
     );
 }
 

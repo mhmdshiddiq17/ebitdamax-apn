@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\TaskReportStatus;
 use App\Models\Task;
 use App\Models\TaskAdditionalField;
 use App\Models\TaskReport;
@@ -43,6 +44,49 @@ class TaskDashboardController extends Controller
                 'in_progress' => $tasks->where('status', 'in_progress')->count(),
                 'completed' => $tasks->where('status', 'completed')->count(),
             ],
+        ]);
+    }
+
+    public function completed(Request $request): Response
+    {
+        $user = $request->user();
+
+        $reports = TaskReport::query()
+            ->with(['task.taskCategory', 'task.role'])
+            ->where('user_id', $user?->id)
+            ->where('status', TaskReportStatus::Completed->value)
+            ->latest('finished_at')
+            ->paginate(15)
+            ->through(fn (TaskReport $report): array => [
+                'id' => $report->id,
+                'uuid' => $report->uuid,
+                'started_at' => $report->started_at?->toIso8601String(),
+                'finished_at' => $report->finished_at?->toIso8601String(),
+                'duration_minutes' => $report->duration_minutes,
+                'status_label' => $report->status->label(),
+                'task' => [
+                    'id' => $report->task->id,
+                    'uuid' => $report->task->uuid,
+                    'name' => $report->task->name,
+                    'description' => $report->task->description,
+                    'time_require' => $report->task->time_require,
+                    'task_category' => [
+                        'id' => $report->task->taskCategory->id,
+                        'name' => $report->task->taskCategory->name,
+                        'slug' => $report->task->taskCategory->slug,
+                    ],
+                    'role' => [
+                        'id' => $report->task->role->id,
+                        'name' => $report->task->role->name,
+                        'slug' => $report->task->role->slug,
+                        'level' => $report->task->role->level->value,
+                        'level_label' => $report->task->role->level->label(),
+                    ],
+                ],
+            ]);
+
+        return Inertia::render('TaskDashboard/Completed', [
+            'reports' => $reports,
         ]);
     }
 

@@ -28,6 +28,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->middleware('role.level:staff,manager,superadmin')
         ->name('task-dashboard.index');
 
+    Route::get('/dashboard/tasks/completed', [TaskDashboardController::class, 'completed'])
+        ->middleware('role.level:staff,manager,superadmin')
+        ->name('task-dashboard.completed');
+
     Route::post('/tasks/{task}/start', [TaskReportController::class, 'start'])
         ->middleware('role.level:staff,manager,superadmin')
         ->name('tasks.start');

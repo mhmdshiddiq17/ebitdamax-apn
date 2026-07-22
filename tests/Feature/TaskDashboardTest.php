@@ -2,10 +2,12 @@
 
 use App\Actions\Fortify\CreateNewUser;
 use App\Enums\RoleLevel;
+use App\Enums\TaskReportStatus;
 use App\Models\Role;
 use App\Models\Task;
 use App\Models\TaskAdditionalField;
 use App\Models\TaskCategory;
+use App\Models\TaskReport;
 use App\Models\User;
 use Inertia\Testing\AssertableInertia as Assert;
 
@@ -82,6 +84,55 @@ test('task dashboard only shows active tasks for user role', function () {
             ->where('tasks.0.name', 'Input Uang Masuk')
             ->where('tasks.0.additional_fields.0.label', 'Nama Pelanggan')
             ->where('summary.total', 1)
+        );
+});
+
+test('completed task page only shows completed reports for current user', function () {
+    $category = TaskCategory::factory()->create(['name' => 'Operasional']);
+    $role = Role::factory()->create(['name' => 'Kasir', 'level' => RoleLevel::Staff]);
+    $user = User::factory()->create(['role_id' => $role->id]);
+    $otherUser = User::factory()->create(['role_id' => $role->id]);
+    $task = Task::factory()->create([
+        'task_category_id' => $category->id,
+        'role_id' => $role->id,
+        'name' => 'Input Uang Masuk',
+    ]);
+    $pendingTask = Task::factory()->create([
+        'task_category_id' => $category->id,
+        'role_id' => $role->id,
+        'name' => 'Belum Selesai',
+    ]);
+
+    TaskReport::query()->create([
+        'task_id' => $task->id,
+        'user_id' => $user->id,
+        'started_at' => now()->subMinutes(20),
+        'finished_at' => now(),
+        'duration_minutes' => 20,
+        'status' => TaskReportStatus::Completed,
+    ]);
+    TaskReport::query()->create([
+        'task_id' => $pendingTask->id,
+        'user_id' => $user->id,
+        'started_at' => now()->subMinutes(5),
+        'status' => TaskReportStatus::InProgress,
+    ]);
+    TaskReport::query()->create([
+        'task_id' => $task->id,
+        'user_id' => $otherUser->id,
+        'started_at' => now()->subMinutes(10),
+        'finished_at' => now(),
+        'duration_minutes' => 10,
+        'status' => TaskReportStatus::Completed,
+    ]);
+
+    $this->actingAs($user)
+        ->get(route('task-dashboard.completed'))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('TaskDashboard/Completed')
+            ->where('reports.data.0.task.name', 'Input Uang Masuk')
+            ->where('reports.total', 1)
         );
 });
 

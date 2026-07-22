@@ -6,6 +6,7 @@ import {
     Database,
     FileSpreadsheet,
     FileText,
+    FolderCheck,
     FolderKanban,
     LayoutDashboard,
     Network,
@@ -39,6 +40,7 @@ import { index as organizationsIndex } from '@/routes/organizations';
 import { index as rolesIndex } from '@/routes/roles';
 import { index as sdmDataIndex } from '@/routes/sdm-data';
 import { index as taskCategoriesIndex } from '@/routes/task-categories';
+import { completed as taskDashboardCompleted } from '@/routes/task-dashboard';
 import { index as taskDashboardIndex } from '@/routes/task-dashboard';
 import { index as tasksIndex } from '@/routes/tasks';
 import { index as usersIndex } from '@/routes/users';
@@ -92,16 +94,6 @@ const superadminNavItems: NavItem[] = [
         icon: UserCog,
     },
     {
-        title: 'Task Categories',
-        href: taskCategoriesIndex(),
-        icon: FolderKanban,
-    },
-    {
-        title: 'Tasks',
-        href: tasksIndex(),
-        icon: SquareCheckBig,
-    },
-    {
         title: 'Value Chain & Jobdesk',
         href: valueChainJobdeskIndex(),
         icon: ClipboardList,
@@ -118,20 +110,54 @@ const superadminNavItems: NavItem[] = [
     },
 ];
 
-const taskNavItems: NavItem[] = [
+const superadminWorkReportNavItems: NavItem[] = [
     {
-        title: 'Dashboard Task',
+        title: 'Tasks',
+        href: tasksIndex(),
+        icon: SquareCheckBig,
+        items: [
+            {
+                title: 'Semua Tugas',
+                href: tasksIndex(),
+                icon: ClipboardList,
+            },
+            {
+                title: 'Tugas sudah selesai',
+                href: taskDashboardCompleted(),
+                icon: FolderCheck,
+            },
+            {
+                title: 'Kategori Tugas',
+                href: taskCategoriesIndex(),
+                icon: FolderKanban,
+            },
+        ],
+    },
+];
+
+const staffWorkReportNavItems: NavItem[] = [
+    {
+        title: 'Tasks',
         href: taskDashboardIndex(),
         icon: SquareCheckBig,
+        items: [
+            {
+                title: 'Semua Tugas',
+                href: taskDashboardIndex(),
+                icon: ClipboardList,
+            },
+            {
+                title: 'Tugas sudah selesai',
+                href: taskDashboardCompleted(),
+                icon: FolderCheck,
+            },
+        ],
     },
 ];
 
 export function AppSidebar() {
     const { auth } = usePage().props;
-    const navItems =
-        auth.user?.role?.level === 'superadmin'
-            ? superadminNavItems
-            : taskNavItems;
+    const isSuperadmin = auth.user?.role?.level === 'superadmin';
 
     return (
         <Sidebar collapsible="icon" variant="inset">
@@ -148,7 +174,15 @@ export function AppSidebar() {
             </SidebarHeader>
 
             <SidebarContent>
-                <NavMain items={navItems} />
+                {isSuperadmin && <NavMain items={superadminNavItems} />}
+                <NavMain
+                    items={
+                        isSuperadmin
+                            ? superadminWorkReportNavItems
+                            : staffWorkReportNavItems
+                    }
+                    label="Laporan Pekerjaan"
+                />
             </SidebarContent>
 
             <SidebarFooter>
