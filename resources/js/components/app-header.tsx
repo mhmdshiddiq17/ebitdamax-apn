@@ -2,6 +2,7 @@ import { Link, usePage } from '@inertiajs/react';
 import {
     BookOpen,
     Folder,
+    FolderKanban,
     LayoutGrid,
     Menu,
     Search,
@@ -42,6 +43,7 @@ import { useInitials } from '@/hooks/use-initials';
 import { cn, toUrl } from '@/lib/utils';
 import { dashboard } from '@/routes';
 import { index as rolesIndex } from '@/routes/roles';
+import { index as taskCategoriesIndex } from '@/routes/task-categories';
 import { index as usersIndex } from '@/routes/users';
 import type { BreadcrumbItem, NavItem } from '@/types';
 
@@ -64,6 +66,11 @@ const mainNavItems: NavItem[] = [
         title: 'Users',
         href: usersIndex(),
         icon: UserCog,
+    },
+    {
+        title: 'Task Categories',
+        href: taskCategoriesIndex(),
+        icon: FolderKanban,
     },
 ];
 
