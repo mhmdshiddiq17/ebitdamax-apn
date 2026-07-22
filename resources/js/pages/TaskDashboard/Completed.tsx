@@ -22,6 +22,12 @@ type CompletedTaskReport = {
     finished_at: string | null;
     duration_minutes: number | null;
     status_label: string;
+    user: {
+        id: number;
+        name: string;
+        username: string | null;
+        email: string;
+    } | null;
     task: {
         id: number;
         uuid: string;
@@ -35,6 +41,7 @@ type CompletedTaskReport = {
 
 type Props = {
     reports: PaginatedResponse<CompletedTaskReport>;
+    isSuperadmin: boolean;
 };
 
 function formatDateTime(value: string | null) {
@@ -60,7 +67,10 @@ function paginationLabel(label: string) {
     return label;
 }
 
-export default function CompletedTaskDashboard({ reports }: Props) {
+export default function CompletedTaskDashboard({
+    reports,
+    isSuperadmin,
+}: Props) {
     return (
         <>
             <Head title="Tugas sudah selesai" />
@@ -99,6 +109,11 @@ export default function CompletedTaskDashboard({ reports }: Props) {
                                         <TableHead className="p-4">
                                             PIC Role
                                         </TableHead>
+                                        {isSuperadmin && (
+                                            <TableHead className="p-4">
+                                                Diselesaikan Oleh
+                                            </TableHead>
+                                        )}
                                         <TableHead className="p-4">
                                             Mulai
                                         </TableHead>
@@ -117,7 +132,7 @@ export default function CompletedTaskDashboard({ reports }: Props) {
                                     {reports.data.length === 0 && (
                                         <TableRow>
                                             <TableCell
-                                                colSpan={7}
+                                                colSpan={isSuperadmin ? 8 : 7}
                                                 className="p-8 text-center text-muted-foreground"
                                             >
                                                 Belum ada tugas selesai.
@@ -152,6 +167,23 @@ export default function CompletedTaskDashboard({ reports }: Props) {
                                                     {report.task.role.name}
                                                 </Badge>
                                             </TableCell>
+                                            {isSuperadmin && (
+                                                <TableCell className="p-4">
+                                                    <div>
+                                                        <p className="font-medium text-foreground">
+                                                            {report.user
+                                                                ?.name ?? '-'}
+                                                        </p>
+                                                        <p className="text-xs text-muted-foreground">
+                                                            {report.user
+                                                                ?.username ??
+                                                                report.user
+                                                                    ?.email ??
+                                                                '-'}
+                                                        </p>
+                                                    </div>
+                                                </TableCell>
+                                            )}
                                             <TableCell className="p-4">
                                                 {formatDateTime(
                                                     report.started_at,

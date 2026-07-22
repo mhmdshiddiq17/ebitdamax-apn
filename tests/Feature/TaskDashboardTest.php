@@ -131,7 +131,9 @@ test('completed task page only shows completed reports for current user', functi
         ->assertOk()
         ->assertInertia(fn (Assert $page) => $page
             ->component('TaskDashboard/Completed')
+            ->where('isSuperadmin', false)
             ->where('reports.data.0.task.name', 'Input Uang Masuk')
+            ->where('reports.data.0.user', null)
             ->where('reports.total', 1)
         );
 });
@@ -177,9 +179,12 @@ test('superadmin completed task page shows completed reports from all roles', fu
         ->assertOk()
         ->assertInertia(fn (Assert $page) => $page
             ->component('TaskDashboard/Completed')
+            ->where('isSuperadmin', true)
             ->where('reports.total', 2)
             ->where('reports.data.0.task.role.name', 'Manager')
+            ->where('reports.data.0.user.name', $manager->name)
             ->where('reports.data.1.task.role.name', 'Kasir')
+            ->where('reports.data.1.user.name', $staff->name)
         );
 });
 

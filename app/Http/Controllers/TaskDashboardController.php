@@ -54,7 +54,7 @@ class TaskDashboardController extends Controller
         $isSuperadmin = $user?->role?->level === RoleLevel::Superadmin;
 
         $reports = TaskReport::query()
-            ->with(['task.taskCategory', 'task.role'])
+            ->with(['task.taskCategory', 'task.role', 'user'])
             ->when(! $isSuperadmin, fn ($query) => $query->where('user_id', $user?->id))
             ->where('status', TaskReportStatus::Completed->value)
             ->latest('finished_at')
@@ -85,10 +85,17 @@ class TaskDashboardController extends Controller
                         'level_label' => $report->task->role->level->label(),
                     ],
                 ],
+                'user' => $isSuperadmin ? [
+                    'id' => $report->user->id,
+                    'name' => $report->user->name,
+                    'username' => $report->user->username,
+                    'email' => $report->user->email,
+                ] : null,
             ]);
 
         return Inertia::render('TaskDashboard/Completed', [
             'reports' => $reports,
+            'isSuperadmin' => $isSuperadmin,
         ]);
     }
 
