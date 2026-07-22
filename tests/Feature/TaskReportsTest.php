@@ -106,6 +106,36 @@ test('staff can finish in progress task for their role', function () {
         ->value('value'))->toBe('150000');
 });
 
+test('finishing task stores integer duration for short task', function () {
+    Storage::fake('local');
+
+    $category = TaskCategory::factory()->create();
+    $role = Role::factory()->create(['level' => RoleLevel::Staff]);
+    $user = User::factory()->create(['role_id' => $role->id]);
+    $task = Task::factory()->create([
+        'task_category_id' => $category->id,
+        'role_id' => $role->id,
+    ]);
+    $report = TaskReport::query()->create([
+        'task_id' => $task->id,
+        'user_id' => $user->id,
+        'started_photo' => 'task-reports/start/example.jpg',
+        'started_at' => now()->subSeconds(14),
+        'status' => TaskReportStatus::InProgress,
+    ]);
+
+    $this->actingAs($user)
+        ->post(route('tasks.finish', $task), [
+            'finished_photo' => UploadedFile::fake()->image('selesai.jpg'),
+        ])
+        ->assertRedirect()
+        ->assertSessionHasNoErrors();
+
+    $report->refresh();
+
+    expect($report->duration_minutes)->toBe(0);
+});
+
 test('staff cannot start task for another role', function () {
     $category = TaskCategory::factory()->create();
     $role = Role::factory()->create(['level' => RoleLevel::Staff]);

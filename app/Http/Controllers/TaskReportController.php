@@ -72,7 +72,7 @@ class TaskReportController extends Controller
                 'finished_photo' => $request->file('finished_photo')->store('task-reports/finish', config('filesystems.default')),
                 'finished_at' => $finishedAt,
                 'duration_minutes' => $report->started_at
-                    ? max(0, $report->started_at->diffInMinutes($finishedAt))
+                    ? max(0, (int) floor($report->started_at->diffInSeconds($finishedAt) / 60))
                     : null,
                 'status' => TaskReportStatus::Completed,
             ]);

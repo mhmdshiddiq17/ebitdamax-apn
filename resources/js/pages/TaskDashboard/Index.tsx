@@ -5,6 +5,7 @@ import {
     ClipboardList,
     Clock,
     ImageIcon,
+    Images,
     Play,
 } from 'lucide-react';
 import { useMemo, useRef, useState } from 'react';
@@ -256,7 +257,7 @@ export default function TaskDashboardIndex({ tasks, summary }: Props) {
                         </div>
                     </section>
 
-                    <section className="grid gap-4 md:grid-cols-4">
+                    <section className="grid gap-4 grid-cols-2 md:grid-cols-4">
                         <SummaryCard label="Total Task" value={summary.total} />
                         <SummaryCard
                             label="Belum Dimulai"
@@ -447,11 +448,15 @@ function TaskActionDialog({
     fields: TaskAdditionalFieldItem[];
     submitLabel: string;
 }) {
-    const fileInputRef = useRef<HTMLInputElement | null>(null);
+    const galleryInputRef = useRef<HTMLInputElement | null>(null);
+    const videoRef = useRef<HTMLVideoElement | null>(null);
+    const streamRef = useRef<MediaStream | null>(null);
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
     const [compressionLabel, setCompressionLabel] = useState<string | null>(
         null,
     );
+    const [cameraActive, setCameraActive] = useState(false);
+    const [cameraError, setCameraError] = useState<string | null>(null);
     const { data, setData, post, processing, errors, reset, clearErrors } =
         useForm<TaskActionFormData>({
             started_photo: null,
@@ -479,6 +484,88 @@ function TaskActionDialog({
         );
     };
 
+    const stopCamera = () => {
+        streamRef.current?.getTracks().forEach((track) => track.stop());
+        streamRef.current = null;
+        setCameraActive(false);
+    };
+
+    const openCamera = async () => {
+        setCameraError(null);
+
+        if (!navigator.mediaDevices?.getUserMedia) {
+            setCameraError('Browser tidak mendukung akses kamera langsung.');
+
+            return;
+        }
+
+        try {
+            stopCamera();
+
+            const stream = await navigator.mediaDevices.getUserMedia({
+                video: {
+                    facingMode: { ideal: 'environment' },
+                },
+                audio: false,
+            });
+
+            streamRef.current = stream;
+            setCameraActive(true);
+            await new Promise((resolve) => requestAnimationFrame(resolve));
+
+            if (videoRef.current) {
+                videoRef.current.srcObject = stream;
+                await videoRef.current.play();
+            }
+        } catch {
+            setCameraError(
+                'Kamera tidak dapat diakses. Pastikan permission kamera diizinkan.',
+            );
+        }
+    };
+
+    const captureCameraPhoto = async () => {
+        const video = videoRef.current;
+
+        if (!video || video.videoWidth === 0 || video.videoHeight === 0) {
+            setCameraError('Kamera belum siap. Coba beberapa detik lagi.');
+
+            return;
+        }
+
+        const canvas = document.createElement('canvas');
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+
+        const context = canvas.getContext('2d');
+
+        if (!context) {
+            setCameraError('Foto tidak dapat diproses.');
+
+            return;
+        }
+
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        const blob = await new Promise<Blob | null>((resolve) => {
+            canvas.toBlob(resolve, 'image/jpeg', 0.9);
+        });
+
+        if (!blob) {
+            setCameraError('Foto tidak dapat diproses.');
+
+            return;
+        }
+
+        const file = new File([blob], `task-photo-${Date.now()}.jpg`, {
+            type: 'image/jpeg',
+            lastModified: Date.now(),
+        });
+
+        stopCamera();
+        await handlePhotoChange(file);
+    };
+
     const handleValueChange = (
         field: TaskAdditionalFieldItem,
         value: AdditionalFieldValue,
@@ -496,11 +583,13 @@ function TaskActionDialog({
     const closeDialog = () => {
         reset();
         clearErrors();
+        stopCamera();
         setPreviewUrl(null);
         setCompressionLabel(null);
+        setCameraError(null);
 
-        if (fileInputRef.current) {
-            fileInputRef.current.value = '';
+        if (galleryInputRef.current) {
+            galleryInputRef.current.value = '';
         }
 
         onOpenChange(false);
@@ -540,10 +629,9 @@ function TaskActionDialog({
                         <Label>{photoLabel}</Label>
                         <div className="rounded-lg border bg-background p-4">
                             <input
-                                ref={fileInputRef}
+                                ref={galleryInputRef}
                                 type="file"
                                 accept="image/*"
-                                capture="environment"
                                 className="hidden"
                                 onChange={(event) =>
                                     void handlePhotoChange(
@@ -554,7 +642,14 @@ function TaskActionDialog({
 
                             <div className="grid gap-4 sm:grid-cols-[180px_1fr]">
                                 <div className="flex aspect-[4/3] items-center justify-center overflow-hidden rounded-md border bg-muted">
-                                    {previewUrl ? (
+                                    {cameraActive ? (
+                                        <video
+                                            ref={videoRef}
+                                            className="h-full w-full object-cover"
+                                            muted
+                                            playsInline
+                                        />
+                                    ) : previewUrl ? (
                                         <img
                                             src={previewUrl}
                                             alt="Preview foto task"
@@ -573,7 +668,7 @@ function TaskActionDialog({
                                 <div className="flex flex-col justify-center gap-3">
                                     <div>
                                         <p className="text-sm font-medium">
-                                            Ambil foto dari kamera device
+                                            Ambil foto atau pilih dari galeri
                                         </p>
                                         <p className="mt-1 text-sm text-muted-foreground">
                                             Foto akan dikompres otomatis sebelum
@@ -584,12 +679,40 @@ function TaskActionDialog({
                                         <Button
                                             type="button"
                                             variant="outline"
-                                            onClick={() =>
-                                                fileInputRef.current?.click()
-                                            }
+                                            onClick={() => void openCamera()}
                                         >
                                             <Camera className="size-4" />
-                                            Capture Foto
+                                            Buka Kamera
+                                        </Button>
+                                        {cameraActive && (
+                                            <>
+                                                <Button
+                                                    type="button"
+                                                    onClick={() =>
+                                                        void captureCameraPhoto()
+                                                    }
+                                                >
+                                                    <Camera className="size-4" />
+                                                    Capture
+                                                </Button>
+                                                <Button
+                                                    type="button"
+                                                    variant="ghost"
+                                                    onClick={stopCamera}
+                                                >
+                                                    Tutup Kamera
+                                                </Button>
+                                            </>
+                                        )}
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            onClick={() =>
+                                                galleryInputRef.current?.click()
+                                            }
+                                        >
+                                            <Images className="size-4" />
+                                            Pilih Galeri
                                         </Button>
                                         {compressionLabel && (
                                             <Badge variant="secondary">
@@ -597,6 +720,11 @@ function TaskActionDialog({
                                             </Badge>
                                         )}
                                     </div>
+                                    {cameraError && (
+                                        <p className="text-sm text-destructive">
+                                            {cameraError}
+                                        </p>
+                                    )}
                                     {errors[photoField] && (
                                         <p className="text-sm text-destructive">
                                             {errors[photoField]}
