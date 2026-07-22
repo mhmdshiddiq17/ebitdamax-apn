@@ -35,7 +35,7 @@ type CompletedTaskReport = {
         description: string | null;
         time_require: number;
         task_category: TaskCategoryOption;
-        role: UserRole;
+        roles: UserRole[];
     };
 };
 
@@ -107,7 +107,7 @@ export default function CompletedTaskDashboard({
                                             Kategori
                                         </TableHead>
                                         <TableHead className="p-4">
-                                            PIC Role
+                                            PIC Roles
                                         </TableHead>
                                         {isSuperadmin && (
                                             <TableHead className="p-4">
@@ -163,9 +163,17 @@ export default function CompletedTaskDashboard({
                                                 {report.task.task_category.name}
                                             </TableCell>
                                             <TableCell className="p-4">
-                                                <Badge>
-                                                    {report.task.role.name}
-                                                </Badge>
+                                                <div className="flex flex-wrap gap-2">
+                                                    {report.task.roles.map(
+                                                        (role) => (
+                                                            <Badge
+                                                                key={role.id}
+                                                            >
+                                                                {role.name}
+                                                            </Badge>
+                                                        ),
+                                                    )}
+                                                </div>
                                             </TableCell>
                                             {isSuperadmin && (
                                                 <TableCell className="p-4">

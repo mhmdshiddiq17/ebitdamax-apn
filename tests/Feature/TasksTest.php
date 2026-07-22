@@ -24,11 +24,11 @@ test('tasks page displays the correct component', function () {
     $category = TaskCategory::factory()->create(['name' => 'Operasional']);
     $role = Role::factory()->create(['name' => 'Kasir', 'level' => RoleLevel::Staff]);
 
-    Task::factory()->create([
+    $task = Task::factory()->create([
         'task_category_id' => $category->id,
-        'role_id' => $role->id,
         'name' => 'Input Uang Masuk',
     ]);
+    $task->roles()->sync([$role->id]);
 
     $response = $this->get(route('tasks.index'));
 
@@ -38,20 +38,22 @@ test('tasks page displays the correct component', function () {
             ->component('Tasks/Index')
             ->where('tasks.data.0.name', 'Input Uang Masuk')
             ->where('tasks.data.0.task_category.name', 'Operasional')
-            ->where('tasks.data.0.role.name', 'Kasir')
+            ->where('tasks.data.0.roles.0.name', 'Kasir')
         );
 });
 
 test('store creates task with additional fields', function () {
     $category = TaskCategory::factory()->create();
     $role = Role::factory()->create();
+    $otherRole = Role::factory()->create();
 
     $this->post(route('tasks.store'), [
         'task_category_id' => $category->id,
-        'role_id' => $role->id,
+        'role_ids' => [$role->id, $otherRole->id],
         'name' => 'Input Uang Masuk',
         'description' => 'Catat uang masuk harian.',
         'time_require' => 30,
+        'period' => 'daily',
         'is_active' => true,
         'additional_fields' => [
             [
@@ -77,6 +79,8 @@ test('store creates task with additional fields', function () {
 
     expect($task->uuid)->not->toBeEmpty()
         ->and(Str::isUuid($task->uuid))->toBeTrue()
+        ->and($task->period->value)->toBe('daily')
+        ->and($task->roles()->pluck('roles.id')->all())->toBe([$role->id, $otherRole->id])
         ->and($task->additionalFields()->count())->toBe(2);
 
     $field = $task->additionalFields()->where('label', 'Uang Masuk')->firstOrFail();
@@ -93,10 +97,11 @@ test('store saves options for select fields', function () {
 
     $this->post(route('tasks.store'), [
         'task_category_id' => $category->id,
-        'role_id' => $role->id,
+        'role_ids' => [$role->id],
         'name' => 'Cek Kondisi Gudang',
         'description' => null,
         'time_require' => 45,
+        'period' => 'once',
         'is_active' => true,
         'additional_fields' => [
             [
@@ -117,11 +122,12 @@ test('store saves options for select fields', function () {
 test('update modifies task and syncs additional fields', function () {
     $category = TaskCategory::factory()->create();
     $role = Role::factory()->create();
+    $otherRole = Role::factory()->create();
     $task = Task::factory()->create([
         'task_category_id' => $category->id,
-        'role_id' => $role->id,
         'name' => 'Task Lama',
     ]);
+    $task->roles()->sync([$role->id]);
     $field = TaskAdditionalField::factory()->create([
         'task_id' => $task->id,
         'label' => 'Field Lama',
@@ -135,10 +141,11 @@ test('update modifies task and syncs additional fields', function () {
 
     $this->put(route('tasks.update', $task), [
         'task_category_id' => $category->id,
-        'role_id' => $role->id,
+        'role_ids' => [$otherRole->id],
         'name' => 'Task Baru',
         'description' => 'Deskripsi baru.',
         'time_require' => 90,
+        'period' => 'weekly',
         'is_active' => false,
         'additional_fields' => [
             [
@@ -165,7 +172,9 @@ test('update modifies task and syncs additional fields', function () {
 
     expect($task->name)->toBe('Task Baru')
         ->and($task->time_require)->toBe(90)
+        ->and($task->period->value)->toBe('weekly')
         ->and($task->is_active)->toBeFalse()
+        ->and($task->roles()->pluck('roles.id')->all())->toBe([$otherRole->id])
         ->and($task->additionalFields()->count())->toBe(2);
 
     $field->refresh();
@@ -192,18 +201,18 @@ test('filters tasks by category role and active status', function () {
     $role = Role::factory()->create(['name' => 'Admin Gudang']);
     $otherRole = Role::factory()->create(['name' => 'Kasir']);
 
-    Task::factory()->create([
+    $task = Task::factory()->create([
         'task_category_id' => $category->id,
-        'role_id' => $role->id,
         'name' => 'Stock Opname',
         'is_active' => true,
     ]);
-    Task::factory()->create([
+    $task->roles()->sync([$role->id]);
+    $otherTask = Task::factory()->create([
         'task_category_id' => $otherCategory->id,
-        'role_id' => $otherRole->id,
         'name' => 'Tutup Kasir',
         'is_active' => false,
     ]);
+    $otherTask->roles()->sync([$otherRole->id]);
 
     $response = $this->get(route('tasks.index', [
         'task_category_id' => $category->id,

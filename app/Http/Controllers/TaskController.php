@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enums\TaskAdditionalFieldInputType;
 use App\Enums\TaskAdditionalFieldShowWhen;
+use App\Enums\TaskPeriod;
 use App\Http\Requests\StoreTaskRequest;
 use App\Http\Requests\UpdateTaskRequest;
 use App\Models\Role;
@@ -33,9 +34,9 @@ class TaskController extends Controller
         $direction = $direction === 'desc' ? 'desc' : 'asc';
 
         $tasks = Task::query()
-            ->with(['taskCategory', 'role', 'additionalFields'])
+            ->with(['taskCategory', 'roles', 'additionalFields'])
             ->when($categoryId, fn ($query) => $query->where('task_category_id', $categoryId))
-            ->when($roleId, fn ($query) => $query->where('role_id', $roleId))
+            ->when($roleId, fn ($query) => $query->whereHas('roles', fn ($roleQuery) => $roleQuery->whereKey($roleId)))
             ->when($status === 'active', fn ($query) => $query->where('is_active', true))
             ->when($status === 'inactive', fn ($query) => $query->where('is_active', false))
             ->when($search !== '', function ($query) use ($search): void {
@@ -44,7 +45,7 @@ class TaskController extends Controller
                         ->where('name', 'like', "%{$search}%")
                         ->orWhere('description', 'like', "%{$search}%")
                         ->orWhereHas('taskCategory', fn ($categoryQuery) => $categoryQuery->where('name', 'like', "%{$search}%"))
-                        ->orWhereHas('role', fn ($roleQuery) => $roleQuery->where('name', 'like', "%{$search}%"));
+                        ->orWhereHas('roles', fn ($roleQuery) => $roleQuery->where('name', 'like', "%{$search}%"));
                 });
             })
             ->orderBy($sort, $direction)
@@ -57,6 +58,7 @@ class TaskController extends Controller
             'tasks' => $tasks,
             'taskCategories' => $this->taskCategoryOptions(),
             'roles' => $this->roleOptions(),
+            'periodOptions' => TaskPeriod::options(),
             'inputTypeOptions' => TaskAdditionalFieldInputType::options(),
             'showWhenOptions' => TaskAdditionalFieldShowWhen::options(),
             'filters' => [
@@ -75,6 +77,7 @@ class TaskController extends Controller
         DB::transaction(function () use ($request): void {
             $task = Task::query()->create($this->taskPayload($request->validated()));
 
+            $task->roles()->sync($request->validated('role_ids', []));
             $this->syncAdditionalFields($task, $request->validated('additional_fields', []));
         });
 
@@ -86,6 +89,7 @@ class TaskController extends Controller
         DB::transaction(function () use ($request, $task): void {
             $task->update($this->taskPayload($request->validated()));
 
+            $task->roles()->sync($request->validated('role_ids', []));
             $this->syncAdditionalFields($task, $request->validated('additional_fields', []));
         });
 
@@ -111,10 +115,10 @@ class TaskController extends Controller
     {
         return [
             'task_category_id' => $payload['task_category_id'],
-            'role_id' => $payload['role_id'],
             'name' => $payload['name'],
             'description' => $payload['description'] ?? null,
             'time_require' => $payload['time_require'],
+            'period' => $payload['period'],
             'is_active' => $payload['is_active'],
         ];
     }
@@ -232,27 +236,42 @@ class TaskController extends Controller
      */
     private function transformTask(Task $task): array
     {
+        $firstRole = $task->roles->first();
+
         return [
             'id' => $task->id,
             'uuid' => $task->uuid,
             'task_category_id' => $task->task_category_id,
-            'role_id' => $task->role_id,
+            'role_id' => $firstRole?->id,
+            'role_ids' => $task->roles->pluck('id')->values()->all(),
             'name' => $task->name,
             'description' => $task->description,
             'time_require' => $task->time_require,
+            'period' => $task->period->value,
+            'period_label' => $task->period->label(),
             'is_active' => $task->is_active,
             'task_category' => [
                 'id' => $task->taskCategory->id,
                 'name' => $task->taskCategory->name,
                 'slug' => $task->taskCategory->slug,
             ],
-            'role' => [
-                'id' => $task->role->id,
-                'name' => $task->role->name,
-                'slug' => $task->role->slug,
-                'level' => $task->role->level->value,
-                'level_label' => $task->role->level->label(),
-            ],
+            'role' => $firstRole ? [
+                'id' => $firstRole->id,
+                'name' => $firstRole->name,
+                'slug' => $firstRole->slug,
+                'level' => $firstRole->level->value,
+                'level_label' => $firstRole->level->label(),
+            ] : null,
+            'roles' => $task->roles
+                ->map(fn (Role $role): array => [
+                    'id' => $role->id,
+                    'name' => $role->name,
+                    'slug' => $role->slug,
+                    'level' => $role->level->value,
+                    'level_label' => $role->level->label(),
+                ])
+                ->values()
+                ->all(),
             'additional_fields' => $task->additionalFields
                 ->map(fn (TaskAdditionalField $field): array => [
                     'id' => $field->id,
