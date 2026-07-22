@@ -54,6 +54,7 @@ import type {
     TaskFilters,
     TaskItem,
     TaskPaginatedResponse,
+    TaskPeriod,
     TaskSelectOption,
 } from '@/types/task';
 import type { UserRole } from '@/types/user';
@@ -64,15 +65,17 @@ type Props = {
     roles: UserRole[];
     inputTypeOptions: TaskSelectOption[];
     showWhenOptions: TaskSelectOption[];
+    periodOptions: TaskSelectOption[];
     filters: TaskFilters;
 };
 
 type TaskFormData = {
     task_category_id: string;
-    role_id: string;
+    role_ids: string[];
     name: string;
     description: string;
     time_require: string;
+    period: TaskPeriod;
     is_active: boolean;
     additional_fields: TaskAdditionalFieldItem[];
 };
@@ -89,10 +92,11 @@ const emptyField = (): TaskAdditionalFieldItem => ({
 
 const defaultForm: TaskFormData = {
     task_category_id: '',
-    role_id: '',
+    role_ids: [],
     name: '',
     description: '',
     time_require: '30',
+    period: 'once',
     is_active: true,
     additional_fields: [],
 };
@@ -120,10 +124,11 @@ function paginationLabel(label: string) {
 function toFormData(task: TaskItem): TaskFormData {
     return {
         task_category_id: String(task.task_category_id),
-        role_id: String(task.role_id),
+        role_ids: task.role_ids.map((roleId) => String(roleId)),
         name: task.name,
         description: task.description ?? '',
         time_require: String(task.time_require),
+        period: task.period,
         is_active: task.is_active,
         additional_fields: task.additional_fields.map((field) => ({
             id: field.id,
@@ -142,6 +147,7 @@ export default function TasksIndex({
     roles,
     inputTypeOptions,
     showWhenOptions,
+    periodOptions,
     filters,
 }: Props) {
     const [selectedTask, setSelectedTask] = useState<TaskItem | null>(null);
@@ -266,6 +272,15 @@ export default function TasksIndex({
             data.additional_fields.filter(
                 (_, fieldIndex) => fieldIndex !== index,
             ),
+        );
+    };
+
+    const toggleRole = (roleId: string, checked: boolean) => {
+        setData(
+            'role_ids',
+            checked
+                ? [...data.role_ids, roleId]
+                : data.role_ids.filter((item) => item !== roleId),
         );
     };
 
@@ -478,7 +493,10 @@ export default function TasksIndex({
                                             Kategori
                                         </TableHead>
                                         <TableHead className="p-4">
-                                            PIC Role
+                                            PIC Roles
+                                        </TableHead>
+                                        <TableHead className="p-4">
+                                            Periode
                                         </TableHead>
                                         <TableHead className="p-4 text-right">
                                             Estimasi
@@ -495,7 +513,7 @@ export default function TasksIndex({
                                     {tasks.data.length === 0 && (
                                         <TableRow>
                                             <TableCell
-                                                colSpan={6}
+                                                colSpan={7}
                                                 className="p-8 text-center text-muted-foreground"
                                             >
                                                 Data task belum tersedia.
@@ -529,7 +547,18 @@ export default function TasksIndex({
                                                 {task.task_category.name}
                                             </TableCell>
                                             <TableCell className="p-4">
-                                                <Badge>{task.role.name}</Badge>
+                                                <div className="flex flex-wrap gap-2">
+                                                    {task.roles.map((role) => (
+                                                        <Badge key={role.id}>
+                                                            {role.name}
+                                                        </Badge>
+                                                    ))}
+                                                </div>
+                                            </TableCell>
+                                            <TableCell className="p-4">
+                                                <Badge variant="outline">
+                                                    {task.period_label}
+                                                </Badge>
                                             </TableCell>
                                             <TableCell className="p-4 text-right">
                                                 {task.time_require} menit
@@ -654,22 +683,47 @@ export default function TasksIndex({
                                 error={errors.task_category_id}
                             />
 
-                            <FormSelect
-                                label="PIC Role"
-                                value={data.role_id}
-                                onValueChange={(value) =>
-                                    setData('role_id', value)
-                                }
-                                placeholder="Pilih role"
-                                items={roles.map((role) => ({
-                                    value: String(role.id),
-                                    label: `${role.name} - ${role.level_label}`,
-                                }))}
-                                error={errors.role_id}
-                            />
+                            <div className="space-y-2">
+                                <Label>PIC Roles</Label>
+                                <div className="max-h-44 space-y-2 overflow-y-auto rounded-md border bg-background p-3">
+                                    {roles.map((role) => {
+                                        const roleId = String(role.id);
+
+                                        return (
+                                            <label
+                                                key={role.id}
+                                                className="flex items-center gap-3 text-sm"
+                                            >
+                                                <Checkbox
+                                                    checked={data.role_ids.includes(
+                                                        roleId,
+                                                    )}
+                                                    onCheckedChange={(
+                                                        checked,
+                                                    ) =>
+                                                        toggleRole(
+                                                            roleId,
+                                                            checked === true,
+                                                        )
+                                                    }
+                                                />
+                                                <span>
+                                                    {role.name} -{' '}
+                                                    {role.level_label}
+                                                </span>
+                                            </label>
+                                        );
+                                    })}
+                                </div>
+                                <FieldError
+                                    message={
+                                        errors.role_ids ?? errors['role_ids.0']
+                                    }
+                                />
+                            </div>
                         </div>
 
-                        <div className="grid gap-4 md:grid-cols-[1fr_160px]">
+                        <div className="grid gap-4 md:grid-cols-[1fr_160px_180px]">
                             <div className="space-y-2">
                                 <Label>Nama Task</Label>
                                 <Input
@@ -697,6 +751,17 @@ export default function TasksIndex({
                                 />
                                 <FieldError message={errors.time_require} />
                             </div>
+
+                            <FormSelect
+                                label="Periode"
+                                value={data.period}
+                                onValueChange={(value) =>
+                                    setData('period', value as TaskPeriod)
+                                }
+                                placeholder="Pilih periode"
+                                items={periodOptions}
+                                error={errors.period}
+                            />
                         </div>
 
                         <div className="space-y-2">
@@ -942,12 +1007,20 @@ export default function TasksIndex({
                                     value={detailTask.task_category.name}
                                 />
                                 <DetailItem
-                                    label="PIC Role"
-                                    value={detailTask.role.name}
+                                    label="PIC Roles"
+                                    value={
+                                        detailTask.roles
+                                            .map((role) => role.name)
+                                            .join(', ') || '-'
+                                    }
                                 />
                                 <DetailItem
                                     label="Estimasi Waktu"
                                     value={`${detailTask.time_require} menit`}
+                                />
+                                <DetailItem
+                                    label="Periode"
+                                    value={detailTask.period_label}
                                 />
                                 <DetailItem
                                     label="Status"

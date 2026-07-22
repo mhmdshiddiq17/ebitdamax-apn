@@ -7,6 +7,7 @@ use Database\Factories\RoleFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
 
@@ -40,9 +41,10 @@ class Role extends Model
         return $this->hasMany(User::class);
     }
 
-    public function tasks(): HasMany
+    public function tasks(): BelongsToMany
     {
-        return $this->hasMany('App\Models\Task');
+        return $this->belongsToMany(Task::class, 'task_roles')
+            ->withTimestamps();
     }
 
     public function scopeOrdered(Builder $query): Builder

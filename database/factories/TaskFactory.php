@@ -23,11 +23,22 @@ class TaskFactory extends Factory
         return [
             'uuid' => (string) Str::uuid(),
             'task_category_id' => TaskCategory::factory(),
-            'role_id' => Role::factory(),
             'name' => fake()->sentence(3),
             'description' => fake()->optional()->sentence(),
             'time_require' => fake()->numberBetween(15, 240),
+            'period' => 'once',
             'is_active' => true,
         ];
+    }
+
+    public function configure(): static
+    {
+        return $this->afterCreating(function (Task $task): void {
+            if ($task->roles()->exists()) {
+                return;
+            }
+
+            $task->roles()->attach(Role::factory()->create());
+        });
     }
 }

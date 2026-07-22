@@ -257,7 +257,7 @@ export default function TaskDashboardIndex({ tasks, summary }: Props) {
                         </div>
                     </section>
 
-                    <section className="grid gap-4 grid-cols-2 md:grid-cols-4">
+                    <section className="grid grid-cols-2 gap-4 md:grid-cols-4">
                         <SummaryCard label="Total Task" value={summary.total} />
                         <SummaryCard
                             label="Belum Dimulai"
@@ -288,7 +288,7 @@ export default function TaskDashboardIndex({ tasks, summary }: Props) {
                                             Kategori
                                         </TableHead>
                                         <TableHead className="p-4">
-                                            PIC Role
+                                            PIC Roles
                                         </TableHead>
                                         <TableHead className="p-4 text-right">
                                             Estimasi Waktu
@@ -335,7 +335,13 @@ export default function TaskDashboardIndex({ tasks, summary }: Props) {
                                                 {task.task_category.name}
                                             </TableCell>
                                             <TableCell className="p-4">
-                                                <Badge>{task.role.name}</Badge>
+                                                <div className="flex flex-wrap gap-2">
+                                                    {task.roles.map((role) => (
+                                                        <Badge key={role.id}>
+                                                            {role.name}
+                                                        </Badge>
+                                                    ))}
+                                                </div>
                                             </TableCell>
                                             <TableCell className="p-4 text-right">
                                                 {task.time_require} menit

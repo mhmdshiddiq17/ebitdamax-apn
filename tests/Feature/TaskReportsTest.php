@@ -20,8 +20,8 @@ test('staff can start task for their role', function () {
     $user = User::factory()->create(['role_id' => $role->id]);
     $task = Task::factory()->create([
         'task_category_id' => $category->id,
-        'role_id' => $role->id,
     ]);
+    $task->roles()->sync([$role->id]);
     $field = TaskAdditionalField::factory()->create([
         'task_id' => $task->id,
         'label' => 'Nama Pelanggan',
@@ -44,6 +44,7 @@ test('staff can start task for their role', function () {
 
     expect($report->task_id)->toBe($task->id)
         ->and($report->user_id)->toBe($user->id)
+        ->and($report->period_key)->toBe('once')
         ->and($report->status)->toBe(TaskReportStatus::InProgress)
         ->and($report->started_at)->not->toBeNull()
         ->and($report->started_photo)->not->toBeNull();
@@ -64,8 +65,8 @@ test('staff can finish in progress task for their role', function () {
     $user = User::factory()->create(['role_id' => $role->id]);
     $task = Task::factory()->create([
         'task_category_id' => $category->id,
-        'role_id' => $role->id,
     ]);
+    $task->roles()->sync([$role->id]);
     $field = TaskAdditionalField::factory()->create([
         'task_id' => $task->id,
         'label' => 'Uang Masuk',
@@ -76,6 +77,7 @@ test('staff can finish in progress task for their role', function () {
     $report = TaskReport::query()->create([
         'task_id' => $task->id,
         'user_id' => $user->id,
+        'period_key' => 'once',
         'started_photo' => 'task-reports/start/example.jpg',
         'started_at' => now()->subMinutes(18),
         'status' => TaskReportStatus::InProgress,
@@ -114,11 +116,12 @@ test('finishing task stores integer duration for short task', function () {
     $user = User::factory()->create(['role_id' => $role->id]);
     $task = Task::factory()->create([
         'task_category_id' => $category->id,
-        'role_id' => $role->id,
     ]);
+    $task->roles()->sync([$role->id]);
     $report = TaskReport::query()->create([
         'task_id' => $task->id,
         'user_id' => $user->id,
+        'period_key' => 'once',
         'started_photo' => 'task-reports/start/example.jpg',
         'started_at' => now()->subSeconds(14),
         'status' => TaskReportStatus::InProgress,
@@ -143,8 +146,8 @@ test('staff cannot start task for another role', function () {
     $user = User::factory()->create(['role_id' => $role->id]);
     $task = Task::factory()->create([
         'task_category_id' => $category->id,
-        'role_id' => $otherRole->id,
     ]);
+    $task->roles()->sync([$otherRole->id]);
 
     $this->actingAs($user)
         ->post(route('tasks.start', $task), [
@@ -161,8 +164,8 @@ test('required additional fields are validated when starting task', function () 
     $user = User::factory()->create(['role_id' => $role->id]);
     $task = Task::factory()->create([
         'task_category_id' => $category->id,
-        'role_id' => $role->id,
     ]);
+    $task->roles()->sync([$role->id]);
     TaskAdditionalField::factory()->create([
         'task_id' => $task->id,
         'label' => 'Nama Pelanggan',

@@ -2,11 +2,13 @@
 
 namespace App\Models;
 
+use App\Enums\TaskPeriod;
 use Database\Factories\TaskFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
 
@@ -18,15 +20,16 @@ class Task extends Model
     protected $fillable = [
         'uuid',
         'task_category_id',
-        'role_id',
         'name',
         'description',
         'time_require',
+        'period',
         'is_active',
     ];
 
     protected $casts = [
         'time_require' => 'integer',
+        'period' => TaskPeriod::class,
         'is_active' => 'boolean',
     ];
 
@@ -44,9 +47,10 @@ class Task extends Model
         return $this->belongsTo(TaskCategory::class);
     }
 
-    public function role(): BelongsTo
+    public function roles(): BelongsToMany
     {
-        return $this->belongsTo(Role::class);
+        return $this->belongsToMany(Role::class, 'task_roles')
+            ->withTimestamps();
     }
 
     public function additionalFields(): HasMany

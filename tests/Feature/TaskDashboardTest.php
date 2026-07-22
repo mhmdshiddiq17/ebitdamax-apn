@@ -9,6 +9,7 @@ use App\Models\TaskAdditionalField;
 use App\Models\TaskCategory;
 use App\Models\TaskReport;
 use App\Models\User;
+use Illuminate\Support\Carbon;
 use Inertia\Testing\AssertableInertia as Assert;
 
 test('guests are redirected to login for dashboard', function () {
@@ -50,10 +51,10 @@ test('task dashboard only shows active tasks for user role', function () {
 
     $task = Task::factory()->create([
         'task_category_id' => $category->id,
-        'role_id' => $role->id,
         'name' => 'Input Uang Masuk',
         'is_active' => true,
     ]);
+    $task->roles()->sync([$role->id]);
 
     TaskAdditionalField::factory()->create([
         'task_id' => $task->id,
@@ -62,19 +63,19 @@ test('task dashboard only shows active tasks for user role', function () {
         'show_when' => 'start',
     ]);
 
-    Task::factory()->create([
+    $otherTask = Task::factory()->create([
         'task_category_id' => $category->id,
-        'role_id' => $otherRole->id,
         'name' => 'Stock Opname',
         'is_active' => true,
     ]);
+    $otherTask->roles()->sync([$otherRole->id]);
 
-    Task::factory()->create([
+    $inactiveTask = Task::factory()->create([
         'task_category_id' => $category->id,
-        'role_id' => $role->id,
         'name' => 'Task Non Active',
         'is_active' => false,
     ]);
+    $inactiveTask->roles()->sync([$role->id]);
 
     $this->actingAs($user)
         ->get(route('task-dashboard.index'))
@@ -87,6 +88,86 @@ test('task dashboard only shows active tasks for user role', function () {
         );
 });
 
+test('periodic task status is calculated from current period report history', function () {
+    Carbon::setTestNow(Carbon::parse('2026-07-22 10:00:00'));
+
+    $category = TaskCategory::factory()->create(['name' => 'Operasional']);
+    $role = Role::factory()->create(['name' => 'Kasir', 'level' => RoleLevel::Staff]);
+    $user = User::factory()->create(['role_id' => $role->id]);
+    $onceTask = Task::factory()->create([
+        'task_category_id' => $category->id,
+        'name' => 'Setup Awal',
+        'period' => 'once',
+    ]);
+    $dailyTask = Task::factory()->create([
+        'task_category_id' => $category->id,
+        'name' => 'Bersihkan Gudang',
+        'period' => 'daily',
+    ]);
+    $weeklyTask = Task::factory()->create([
+        'task_category_id' => $category->id,
+        'name' => 'Rekap Mingguan',
+        'period' => 'weekly',
+    ]);
+    $monthlyTask = Task::factory()->create([
+        'task_category_id' => $category->id,
+        'name' => 'Rekap Bulanan',
+        'period' => 'monthly',
+    ]);
+
+    collect([$onceTask, $dailyTask, $weeklyTask, $monthlyTask])
+        ->each(fn (Task $task) => $task->roles()->sync([$role->id]));
+
+    TaskReport::query()->create([
+        'task_id' => $onceTask->id,
+        'user_id' => $user->id,
+        'period_key' => 'once',
+        'started_at' => now()->subDay(),
+        'finished_at' => now()->subDay(),
+        'duration_minutes' => 1,
+        'status' => TaskReportStatus::Completed,
+    ]);
+    TaskReport::query()->create([
+        'task_id' => $dailyTask->id,
+        'user_id' => $user->id,
+        'period_key' => '2026-07-21',
+        'started_at' => now()->subDay(),
+        'finished_at' => now()->subDay(),
+        'duration_minutes' => 1,
+        'status' => TaskReportStatus::Completed,
+    ]);
+    TaskReport::query()->create([
+        'task_id' => $weeklyTask->id,
+        'user_id' => $user->id,
+        'period_key' => '2026-W29',
+        'started_at' => now()->subWeek(),
+        'finished_at' => now()->subWeek(),
+        'duration_minutes' => 1,
+        'status' => TaskReportStatus::Completed,
+    ]);
+    TaskReport::query()->create([
+        'task_id' => $monthlyTask->id,
+        'user_id' => $user->id,
+        'period_key' => '2026-06',
+        'started_at' => now()->subMonth(),
+        'finished_at' => now()->subMonth(),
+        'duration_minutes' => 1,
+        'status' => TaskReportStatus::Completed,
+    ]);
+
+    $page = $this->actingAs($user)
+        ->get(route('task-dashboard.index'))
+        ->assertOk()
+        ->inertiaProps();
+
+    expect(collect($page['tasks'])->pluck('name')->all())
+        ->toBe(['Bersihkan Gudang', 'Rekap Bulanan', 'Rekap Mingguan'])
+        ->and(collect($page['tasks'])->pluck('status')->unique()->values()->all())
+        ->toBe(['pending']);
+
+    Carbon::setTestNow();
+});
+
 test('completed task page only shows completed reports for current user', function () {
     $category = TaskCategory::factory()->create(['name' => 'Operasional']);
     $role = Role::factory()->create(['name' => 'Kasir', 'level' => RoleLevel::Staff]);
@@ -94,14 +175,14 @@ test('completed task page only shows completed reports for current user', functi
     $otherUser = User::factory()->create(['role_id' => $role->id]);
     $task = Task::factory()->create([
         'task_category_id' => $category->id,
-        'role_id' => $role->id,
         'name' => 'Input Uang Masuk',
     ]);
+    $task->roles()->sync([$role->id]);
     $pendingTask = Task::factory()->create([
         'task_category_id' => $category->id,
-        'role_id' => $role->id,
         'name' => 'Belum Selesai',
     ]);
+    $pendingTask->roles()->sync([$role->id]);
 
     TaskReport::query()->create([
         'task_id' => $task->id,
@@ -148,14 +229,14 @@ test('superadmin completed task page shows completed reports from all roles', fu
     $manager = User::factory()->create(['role_id' => $managerRole->id]);
     $staffTask = Task::factory()->create([
         'task_category_id' => $category->id,
-        'role_id' => $staffRole->id,
         'name' => 'Tutup Kasir',
     ]);
+    $staffTask->roles()->sync([$staffRole->id]);
     $managerTask = Task::factory()->create([
         'task_category_id' => $category->id,
-        'role_id' => $managerRole->id,
         'name' => 'Review Shift',
     ]);
+    $managerTask->roles()->sync([$managerRole->id]);
 
     TaskReport::query()->create([
         'task_id' => $staffTask->id,
@@ -181,9 +262,9 @@ test('superadmin completed task page shows completed reports from all roles', fu
             ->component('TaskDashboard/Completed')
             ->where('isSuperadmin', true)
             ->where('reports.total', 2)
-            ->where('reports.data.0.task.role.name', 'Manager')
+            ->where('reports.data.0.task.roles.0.name', 'Manager')
             ->where('reports.data.0.user.name', $manager->name)
-            ->where('reports.data.1.task.role.name', 'Kasir')
+            ->where('reports.data.1.task.roles.0.name', 'Kasir')
             ->where('reports.data.1.user.name', $staff->name)
         );
 });

@@ -27,6 +27,7 @@ export type TaskAdditionalFieldInputType =
     | 'checkbox';
 
 export type TaskAdditionalFieldShowWhen = 'start' | 'finish';
+export type TaskPeriod = 'once' | 'daily' | 'weekly' | 'monthly';
 
 export type TaskAdditionalFieldItem = {
     id?: number;
@@ -46,13 +47,17 @@ export type TaskItem = {
     id: number;
     uuid: string;
     task_category_id: number;
-    role_id: number;
+    role_id: number | null;
+    role_ids: number[];
     name: string;
     description: string | null;
     time_require: number;
+    period: TaskPeriod;
+    period_label: string;
     is_active: boolean;
     task_category: TaskCategoryOption;
-    role: UserRole;
+    role: UserRole | null;
+    roles: UserRole[];
     additional_fields: TaskAdditionalFieldItem[];
     created_at: string | null;
     updated_at: string | null;

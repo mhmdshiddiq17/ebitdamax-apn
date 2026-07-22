@@ -19,6 +19,7 @@ class TaskReport extends Model
         'uuid',
         'task_id',
         'user_id',
+        'period_key',
         'started_photo',
         'finished_photo',
         'started_at',

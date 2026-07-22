@@ -3,10 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Enums\RoleLevel;
+use App\Enums\TaskPeriod;
 use App\Enums\TaskReportStatus;
+use App\Models\Role;
 use App\Models\Task;
 use App\Models\TaskAdditionalField;
 use App\Models\TaskReport;
+use Carbon\CarbonInterface;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -17,24 +20,43 @@ class TaskDashboardController extends Controller
     {
         $user = $request->user();
 
-        $reportByTaskId = TaskReport::query()
-            ->where('user_id', $user?->id)
-            ->latest('created_at')
-            ->get()
-            ->unique('task_id')
-            ->keyBy('task_id');
-
         $tasks = Task::query()
-            ->with(['taskCategory', 'role', 'additionalFields'])
+            ->with(['taskCategory', 'roles', 'additionalFields'])
             ->active()
             ->when(
                 $user?->role_id,
-                fn ($query) => $query->where('role_id', $user->role_id),
+                fn ($query) => $query->whereHas('roles', fn ($roleQuery) => $roleQuery->whereKey($user->role_id)),
                 fn ($query) => $query->whereRaw('1 = 0')
             )
             ->orderBy('name')
+            ->get();
+
+        $periodKeysByTaskId = $tasks
+            ->mapWithKeys(fn (Task $task): array => [
+                $task->id => $this->periodKey($task->period, now()),
+            ]);
+
+        $reportByTaskAndPeriod = TaskReport::query()
+            ->where('user_id', $user?->id)
+            ->whereIn('task_id', $tasks->pluck('id'))
+            ->whereIn('period_key', $periodKeysByTaskId->values()->unique())
+            ->latest('created_at')
             ->get()
-            ->map(fn (Task $task): array => $this->transformTask($task, $reportByTaskId->get($task->id)))
+            ->unique(fn (TaskReport $report): string => $report->task_id.'|'.$report->period_key)
+            ->keyBy(fn (TaskReport $report): string => $report->task_id.'|'.$report->period_key);
+
+        $tasks = $tasks
+            ->map(function (Task $task) use ($periodKeysByTaskId, $reportByTaskAndPeriod): ?array {
+                $periodKey = $periodKeysByTaskId->get($task->id);
+                $report = $reportByTaskAndPeriod->get($task->id.'|'.$periodKey);
+
+                if ($task->period === TaskPeriod::Once && $report?->status === TaskReportStatus::Completed) {
+                    return null;
+                }
+
+                return $this->transformTask($task, $report, $periodKey);
+            })
+            ->filter()
             ->values();
 
         return Inertia::render('TaskDashboard/Index', [
@@ -54,7 +76,7 @@ class TaskDashboardController extends Controller
         $isSuperadmin = $user?->role?->level === RoleLevel::Superadmin;
 
         $reports = TaskReport::query()
-            ->with(['task.taskCategory', 'task.role', 'user'])
+            ->with(['task.taskCategory', 'task.roles', 'user'])
             ->when(! $isSuperadmin, fn ($query) => $query->where('user_id', $user?->id))
             ->where('status', TaskReportStatus::Completed->value)
             ->latest('finished_at')
@@ -77,13 +99,16 @@ class TaskDashboardController extends Controller
                         'name' => $report->task->taskCategory->name,
                         'slug' => $report->task->taskCategory->slug,
                     ],
-                    'role' => [
-                        'id' => $report->task->role->id,
-                        'name' => $report->task->role->name,
-                        'slug' => $report->task->role->slug,
-                        'level' => $report->task->role->level->value,
-                        'level_label' => $report->task->role->level->label(),
-                    ],
+                    'roles' => $report->task->roles
+                        ->map(fn (Role $role): array => [
+                            'id' => $role->id,
+                            'name' => $role->name,
+                            'slug' => $role->slug,
+                            'level' => $role->level->value,
+                            'level_label' => $role->level->label(),
+                        ])
+                        ->values()
+                        ->all(),
                 ],
                 'user' => $isSuperadmin ? [
                     'id' => $report->user->id,
@@ -102,9 +127,10 @@ class TaskDashboardController extends Controller
     /**
      * @return array<string, mixed>
      */
-    private function transformTask(Task $task, ?TaskReport $report): array
+    private function transformTask(Task $task, ?TaskReport $report, string $periodKey): array
     {
         $status = $report?->status;
+        $firstRole = $task->roles->first();
 
         return [
             'id' => $task->id,
@@ -112,6 +138,9 @@ class TaskDashboardController extends Controller
             'name' => $task->name,
             'description' => $task->description,
             'time_require' => $task->time_require,
+            'period' => $task->period->value,
+            'period_label' => $task->period->label(),
+            'period_key' => $periodKey,
             'status' => $status?->value ?? 'pending',
             'status_label' => $status?->label() ?? 'Belum Dimulai',
             'task_category' => [
@@ -119,13 +148,23 @@ class TaskDashboardController extends Controller
                 'name' => $task->taskCategory->name,
                 'slug' => $task->taskCategory->slug,
             ],
-            'role' => [
-                'id' => $task->role->id,
-                'name' => $task->role->name,
-                'slug' => $task->role->slug,
-                'level' => $task->role->level->value,
-                'level_label' => $task->role->level->label(),
-            ],
+            'role' => $firstRole ? [
+                'id' => $firstRole->id,
+                'name' => $firstRole->name,
+                'slug' => $firstRole->slug,
+                'level' => $firstRole->level->value,
+                'level_label' => $firstRole->level->label(),
+            ] : null,
+            'roles' => $task->roles
+                ->map(fn (Role $role): array => [
+                    'id' => $role->id,
+                    'name' => $role->name,
+                    'slug' => $role->slug,
+                    'level' => $role->level->value,
+                    'level_label' => $role->level->label(),
+                ])
+                ->values()
+                ->all(),
             'additional_fields' => $task->additionalFields
                 ->map(fn (TaskAdditionalField $field): array => [
                     'id' => $field->id,
@@ -139,5 +178,15 @@ class TaskDashboardController extends Controller
                 ->values()
                 ->all(),
         ];
+    }
+
+    private function periodKey(TaskPeriod $period, CarbonInterface $date): string
+    {
+        return match ($period) {
+            TaskPeriod::Once => 'once',
+            TaskPeriod::Daily => $date->toDateString(),
+            TaskPeriod::Weekly => $date->isoWeekYear().'-W'.str_pad((string) $date->isoWeek(), 2, '0', STR_PAD_LEFT),
+            TaskPeriod::Monthly => $date->format('Y-m'),
+        };
     }
 }

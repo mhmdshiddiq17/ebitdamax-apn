@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use App\Enums\TaskAdditionalFieldInputType;
 use App\Enums\TaskAdditionalFieldShowWhen;
+use App\Enums\TaskPeriod;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -18,10 +19,12 @@ class StoreTaskRequest extends FormRequest
     {
         return [
             'task_category_id' => ['required', 'exists:task_categories,id'],
-            'role_id' => ['required', 'exists:roles,id'],
+            'role_ids' => ['required', 'array', 'min:1'],
+            'role_ids.*' => ['required', 'integer', 'distinct', 'exists:roles,id'],
             'name' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
             'time_require' => ['required', 'integer', 'min:1'],
+            'period' => ['required', Rule::enum(TaskPeriod::class)],
             'is_active' => ['required', 'boolean'],
             'additional_fields' => ['nullable', 'array'],
             'additional_fields.*.id' => ['nullable', 'integer', 'exists:task_additional_fields,id'],

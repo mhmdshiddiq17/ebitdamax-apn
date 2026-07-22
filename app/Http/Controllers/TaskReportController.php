@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\TaskAdditionalFieldShowWhen;
+use App\Enums\TaskPeriod;
 use App\Enums\TaskReportStatus;
 use App\Http\Requests\FinishTaskRequest;
 use App\Http\Requests\StartTaskRequest;
@@ -10,6 +11,7 @@ use App\Models\Task;
 use App\Models\TaskAdditionalField;
 use App\Models\TaskReport;
 use App\Models\TaskReportValue;
+use Carbon\CarbonInterface;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
@@ -19,12 +21,28 @@ class TaskReportController extends Controller
 {
     public function start(StartTaskRequest $request, Task $task): RedirectResponse
     {
-        abort_unless($request->user()?->role_id === $task->role_id, 403);
+        abort_unless($this->canAccessTask($request, $task), 403);
 
-        DB::transaction(function () use ($request, $task): void {
+        $periodKey = $this->periodKey($task->period, now());
+
+        DB::transaction(function () use ($request, $task, $periodKey): void {
+            $completedReportExists = TaskReport::query()
+                ->where('task_id', $task->id)
+                ->where('user_id', $request->user()->id)
+                ->where('period_key', $periodKey)
+                ->where('status', TaskReportStatus::Completed->value)
+                ->exists();
+
+            if ($completedReportExists) {
+                throw ValidationException::withMessages([
+                    'task' => 'Task sudah diselesaikan untuk periode ini.',
+                ]);
+            }
+
             $report = TaskReport::query()
                 ->where('task_id', $task->id)
                 ->where('user_id', $request->user()->id)
+                ->where('period_key', $periodKey)
                 ->where('status', TaskReportStatus::InProgress->value)
                 ->first();
 
@@ -32,6 +50,7 @@ class TaskReportController extends Controller
                 $report = TaskReport::query()->create([
                     'task_id' => $task->id,
                     'user_id' => $request->user()->id,
+                    'period_key' => $periodKey,
                     'started_at' => now(),
                     'status' => TaskReportStatus::InProgress,
                 ]);
@@ -56,12 +75,15 @@ class TaskReportController extends Controller
 
     public function finish(FinishTaskRequest $request, Task $task): RedirectResponse
     {
-        abort_unless($request->user()?->role_id === $task->role_id, 403);
+        abort_unless($this->canAccessTask($request, $task), 403);
 
-        DB::transaction(function () use ($request, $task): void {
+        $periodKey = $this->periodKey($task->period, now());
+
+        DB::transaction(function () use ($request, $task, $periodKey): void {
             $report = TaskReport::query()
                 ->where('task_id', $task->id)
                 ->where('user_id', $request->user()->id)
+                ->where('period_key', $periodKey)
                 ->where('status', TaskReportStatus::InProgress->value)
                 ->latest('started_at')
                 ->firstOrFail();
@@ -130,5 +152,23 @@ class TaskReportController extends Controller
         }
 
         return $value === null || $value === '';
+    }
+
+    private function canAccessTask(StartTaskRequest|FinishTaskRequest $request, Task $task): bool
+    {
+        $roleId = $request->user()?->role_id;
+
+        return $roleId !== null
+            && $task->roles()->whereKey($roleId)->exists();
+    }
+
+    private function periodKey(TaskPeriod $period, CarbonInterface $date): string
+    {
+        return match ($period) {
+            TaskPeriod::Once => 'once',
+            TaskPeriod::Daily => $date->toDateString(),
+            TaskPeriod::Weekly => $date->isoWeekYear().'-W'.str_pad((string) $date->isoWeek(), 2, '0', STR_PAD_LEFT),
+            TaskPeriod::Monthly => $date->format('Y-m'),
+        };
     }
 }

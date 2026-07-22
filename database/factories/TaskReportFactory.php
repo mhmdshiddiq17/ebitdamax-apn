@@ -25,6 +25,7 @@ class TaskReportFactory extends Factory
             'uuid' => (string) Str::uuid(),
             'task_id' => Task::factory(),
             'user_id' => User::factory(),
+            'period_key' => 'once',
             'started_photo' => 'task-reports/start/'.fake()->uuid().'.jpg',
             'finished_photo' => null,
             'started_at' => now(),
