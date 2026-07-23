@@ -1,0 +1,73 @@
+  name: Deploy Production
+
+  on:
+    push:
+      branches:
+        - main
+    workflow_dispatch:
+
+  concurrency:
+    group: production
+    cancel-in-progress: false
+
+  permissions:
+    contents: read
+
+  jobs:
+    deploy:
+      name: Deploy to Production
+      runs-on: ubuntu-latest
+      environment:
+        name: production
+        url: ${{ vars.PRODUCTION_URL }}
+
+      steps:
+        - name: Deploy over SSH
+          env:
+            SSH_HOST: ${{ secrets.PRODUCTION_SSH_HOST }}
+            SSH_PORT: ${{ secrets.PRODUCTION_SSH_PORT }}
+            SSH_USER: ${{ secrets.PRODUCTION_SSH_USER }}
+            SSH_PRIVATE_KEY: ${{ secrets.PRODUCTION_SSH_KEY }}
+            SSH_KNOWN_HOSTS: ${{ secrets.PRODUCTION_SSH_KNOWN_HOSTS }}
+            APP_DIR: ${{ vars.PRODUCTION_APP_DIR }}
+            BRANCH: main
+          run: |
+            set -euo pipefail
+
+            mkdir -p ~/.ssh
+            chmod 700 ~/.ssh
+
+            printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/production_deploy_key
+            chmod 600 ~/.ssh/production_deploy_key
+
+            printf '%s\n' "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+            chmod 644 ~/.ssh/known_hosts
+
+            ssh -i ~/.ssh/production_deploy_key -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" \
+              "APP_DIR='$APP_DIR' BRANCH='$BRANCH' bash -s" <<'EOF'
+            set -euo pipefail
+
+            cd "$APP_DIR"
+
+            php artisan down --retry=60 || true
+            trap 'php artisan up || true' EXIT
+
+            git fetch origin "$BRANCH"
+            git checkout "$BRANCH"
+            git pull --ff-only origin "$BRANCH"
+
+            composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader
+
+            npm ci
+            npm run build
+
+            php artisan migrate --force
+
+            php artisan optimize:clear
+            php artisan optimize
+
+            php artisan storage:link || true
+
+            php artisan up
+            trap - EXIT
+            EOF
